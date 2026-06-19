@@ -2,9 +2,9 @@
 
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
-**Last updated:** 2026-06-18
-**Current phase:** Phase 2 complete — ready for Phase 3 (Content Volume)
-**Current branch:** `phase-1-foundation` (Phase 1 + early Phase 2 commits; not pushed — split at PR time)
+**Last updated:** 2026-06-19
+**Current phase:** Phase 3 — Content Volume (in progress)
+**Current branch:** `phase-1-foundation` → **PR #1** (pushed; CI green on the foundation commit, re-running on pack 1)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -15,7 +15,7 @@
 - [x] Phase 0 — Audit & Architecture (plan approved)
 - [x] Phase 1 — Foundation & Tooling — acceptance criteria met
 - [x] Phase 2 — Content Engine Depth — **complete** (arcs on both paths, NPC roster + antagonist, scandals-with-memory, difficulty/modifiers/daily)
-- [ ] Phase 3 — Content Volume ← **next**
+- [~] Phase 3 — Content Volume — **in progress** (event-pack structure + pack 1; event bank ~50, target 250+)
 - [ ] Phases 4–12 — not started
 
 ### Phase 1 checklist
@@ -100,6 +100,12 @@
 - Phase 2 cont.: **scandals-with-memory** (`c60c333`) — latent scandals resurface as a reckoning event; engine + content + schema/linter. 43 unit/content + 7 E2E green.
 - Phase 2 cont.: **difficulty modes + per-run modifiers + scenario-of-the-day** (`502111f`) — `content/setup.ts` + `engine/setup.ts`; create-screen difficulty chips, seeded modifiers, daily title button. 50 unit/content + 9 E2E green.
 - Phase 2 done: **vanguard "Patron's Shadow" arc** (`a39e4e2`) for path parity. **Phase 2 complete** — acceptance met (arcs initiate/resolve across phases in E2E on both paths; content linter green; all new types in the schema). 51 unit/content + 10 E2E green.
+
+### Session 2 — 2026-06-19
+
+- Pushed `phase-1-foundation` and opened **PR #1** (richter83-star/velmora); CI (verify · e2e · lighthouse) **green** on the foundation commit; GitGuardian clean.
+- Phase 3 kicked off (`5025dea`): scalable **event-pack** structure + **content pack 1** (+12 events; bank ~50); **all-14-endings reachability gate**; arc E2E made robust to content growth (multi-seed via the `?seed=` URL hook, asserting the arc advances in at least one run). 52 unit/content + 10 E2E green.
+- **Phase 3 cadence:** add validated event packs (`content/events-pack-N.ts`) toward 250+; build the engine-driven repeat-rate + ending-reachability seed sweep once the draw engine is decomposed.
 
 ## Next steps (concrete)
 
