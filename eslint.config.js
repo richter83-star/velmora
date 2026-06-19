@@ -23,5 +23,10 @@ export default tseslint.config(
       globals: { ...globals.browser, ...globals.node },
     },
   },
+  {
+    // Service worker runs in the ServiceWorkerGlobalScope.
+    files: ['src/sw.js'],
+    languageOptions: { globals: { ...globals.serviceworker } },
+  },
   prettier,
 );
