@@ -3,8 +3,8 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-18
-**Current phase:** Phase 1 — Foundation & Tooling (acceptance met; one quality refinement deferred)
-**Current branch:** `phase-1-foundation` (not yet pushed/merged — awaiting review)
+**Current phase:** Phase 2 — Content Engine Depth (in progress)
+**Current branch:** `phase-1-foundation` (Phase 1 + early Phase 2 commits; not pushed — split at PR time)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -13,8 +13,9 @@
 ## Status at a glance
 
 - [x] Phase 0 — Audit & Architecture (plan approved)
-- [x] Phase 1 — Foundation & Tooling — acceptance criteria met; engine decomposition (task) deferred
-- [ ] Phases 2–12 — not started
+- [x] Phase 1 — Foundation & Tooling — acceptance criteria met
+- [~] Phase 2 — Content Engine Depth — **in progress** (engine split #1 + story arcs done)
+- [ ] Phases 3–12 — not started
 
 ### Phase 1 checklist
 
@@ -27,7 +28,16 @@
 - [x] `vite-plugin-pwa` (injectManifest) preserving the custom service worker
 - [x] CI workflow + deploy docs (README, nginx compose → `dist/`, `vercel.json`)
 - [x] Phase 1 verification — all gates green
-- [ ] **Deferred:** decompose `src/main.js` (949 lines) into typed `engine/` + `ui/` modules with strict types — sequenced after the E2E net (now in place). See `ROADMAP` task / TaskList #10.
+- [~] Engine decomposition — **proceeding incrementally in Phase 2** (endings extracted); remaining `engine/`+`ui/` split continues opportunistically as systems are added.
+
+### Phase 2 checklist (Content Engine Depth — in progress)
+
+- [x] Engine split #1: endings → `src/engine/endings.ts` (14 branches `endingId`-tagged; AD-4) + 8 unit tests
+- [x] **Story arc system** — `engine/arcs.ts` + `content/arcs.ts`; cross-phase `S.arcs` state; the 3-stage _Harbor Deal_ (ballot) arc; schema/linter extended for arcs; arc unit tests + E2E (initiates → resolves to terminal stage 99 across phases)
+- [ ] Persistent NPC roster + relationship/loyalty + recurring antagonist
+- [ ] Scandals-with-memory + per-run modifiers + difficulty modes + scenario-of-the-day entry
+- [ ] Phase 2 verification (NPC/arc schema+linter, all gates) + PROGRESS update
+- [ ] (Parity) a vanguard-path arc to match the ballot Harbor arc
 
 ---
 
@@ -55,6 +65,7 @@
 - **AD-3 — Seeded RNG:** mulberry32 (xmur3 seed) behind the existing helper names; seed + state in the save. "Identical gameplay" = identical rules/distributions.
 - **AD-4 — Endings reachability:** endings computed in `evaluateEnding()`; reachability is asserted by the (future) seed sweep, and `ending` causes are linted. Lift endings to data in Phase 3.
 - **AD-5 — Line endings:** `.gitattributes` (`* text=auto eol=lf`) for clean Linux CI.
+- **AD-6 — Story arcs:** arc steps are ordinary events tagged `arc:{id,stage}`, drawable only when `S.arcs[id]===stage`; choices/roll-branches advance via `arcSet:{id,stage}`. `S.arcs` persists across phases (never reset), so arcs span offices. The `ARCS` registry drives validation + the future codex.
 
 ## Open questions / flagged decisions
 
@@ -74,10 +85,13 @@
 
 - Phase 0: audited the prototype directly; wrote + got approval on the plan (`~/.claude/plans/wild-churning-lagoon.md`).
 - Phase 1: delivered the full foundation (commits `9d44c9a` → `15fd210` on `phase-1-foundation`): git baseline + tag, docs ledger, Vite/TS scaffold, ESLint/Prettier, seeded RNG + tests, content extraction + Zod + linter, Vitest + Playwright smoke/offline, vite-plugin-pwa, CI + deploy docs. All gates green; behavior preserved.
-- Deferred within Phase 1: `src/main.js` engine/ui module decomposition (now safe to do with the E2E net in place).
+- Deferred within Phase 1: full `src/main.js` engine/ui decomposition (now proceeding incrementally in Phase 2).
+- Phase 2 (same session — user chose to fold the engine split in): extracted endings → `engine/endings.ts` (`881d429`); built the cross-phase **story arc system** + the Harbor Deal arc (`9c3636b`). 29 unit/content tests + 5 E2E green; `src/main.js` now 843 lines.
 
 ## Next steps (concrete)
 
-1. **Engine decomposition (finish Phase 1):** split `src/main.js` → `engine/{state,reducer,draw,endings,promotion}.ts` + `ui/` modules, strict-typed; tag `evaluateEnding` branches with `endingId`; remove the `src/main.js` eslint/prettier ignores. Keep E2E + units green throughout.
-2. Push `phase-1-foundation`, open a PR, confirm CI is green (verify · e2e · lighthouse).
-3. **Phase 2 — Content Engine Depth:** arcs + arc-state, persistent NPC roster/loyalty, recurring antagonist, scandals-with-memory, per-run modifiers, difficulty modes, scenario-of-the-day. Extend the Zod schema + linter to the new content types.
+1. **Phase 2 — NPC roster:** formalize an NPC model (id/name/avatar + relationship/loyalty) in `S`, a recurring antagonist across phases, events that reference/affect NPCs; extend schema + linter.
+2. **Phase 2 — scandals-with-memory, per-run modifiers, difficulty modes, scenario-of-the-day** entry (wire `dailySeed`).
+3. Add a **vanguard-path arc** for parity with the ballot Harbor arc.
+4. Continue the **engine/ui decomposition** opportunistically (next candidates: `draw`/`promotion` logic or the avatar generator → `ui/`).
+5. When Phase 2 acceptance is met: update this ledger, then push `phase-1-foundation` and open a PR (CI: verify · e2e · lighthouse) before Phase 3.
