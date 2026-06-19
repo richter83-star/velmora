@@ -1230,6 +1230,11 @@ function beginCareer(){
   if(!DRAFT.trait) DRAFT.trait=TRAITS[0].id;
   if(!DRAFT.avatar) DRAFT.avatar=randAvatar(DRAFT.path);
   if(!DRAFT.name || !DRAFT.name.trim()) DRAFT.name=pickName();
+  // Test/seed hook: ?seed= or window.__VELMORA_SEED makes a run reproducible (no-op otherwise).
+  if(DRAFT.seed==null){
+    try{ const u=new URLSearchParams(location.search); if(u.has("seed")) DRAFT.seed=u.get("seed"); }catch(e){}
+    if(DRAFT.seed==null && typeof window!=="undefined" && window.__VELMORA_SEED!=null) DRAFT.seed=window.__VELMORA_SEED;
+  }
   startCareer(DRAFT);
 }
 function startCareer(d){
