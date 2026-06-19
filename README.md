@@ -2,49 +2,59 @@
 
 A cartoon political-strategy game that runs entirely in the browser as an installable, offline-capable PWA. Start as a nobody and climb to head of state down one of two very different roads — win elections in **The Republic of Velmora**, or claw up the one-party machine of **The People's Union of Velmora**. The choices are the game: every decision shifts six stats, sets hidden flags, and bends toward one of a dozen branching endings.
 
-No build step, no framework, no backend. Three files plus icons.
+Built with **Vite + TypeScript**; ships as a self-contained, offline-capable, installable PWA. No backend.
 
 ---
 
 ## Quick start (local)
 
-The game **must be served over HTTP** — not opened as a `file://` page. Service workers and the install prompt only work from `http(s)://`. Opening `index.html` directly will still render the game, but offline support and "Install" will silently not engage.
-
-Pick any static server:
+Requires **Node 20+**.
 
 ```bash
-# Python (already on most machines)
-python3 -m http.server 8080
-
-# or Node
-npx serve .
-
-# or PHP
-php -S localhost:8080
+npm install
+npm run dev      # Vite dev server with HMR
 ```
 
-Then open `http://localhost:8080/`. On Chrome/Edge desktop you'll see an install icon in the address bar; on mobile, "Add to Home Screen."
+For a production build and a local preview over HTTP (needed for the service worker + install prompt):
+
+```bash
+npm run build    # outputs to dist/
+npm run preview  # serves dist/ at http://localhost:4173
+```
+
+On Chrome/Edge desktop you'll see an install icon in the address bar; on mobile, "Add to Home Screen." Opening the built `index.html` as a `file://` page renders the game but disables offline/install — service workers need `http(s)://`.
+
+### Scripts
+
+| Script                     | Purpose                        |
+| -------------------------- | ------------------------------ |
+| `npm run dev`              | Vite dev server                |
+| `npm run build`            | Production build to `dist/`    |
+| `npm run preview`          | Serve the production build     |
+| `npm run lint`             | ESLint                         |
+| `npm run typecheck`        | `tsc --noEmit`                 |
+| `npm test`                 | Vitest unit + content tests    |
+| `npm run content:validate` | Content schema + linter gate   |
+| `npm run test:e2e`         | Playwright smoke + offline E2E |
 
 ---
 
 ## Deploy
 
-It's a static site, so any static host works. Two paths for your stack:
+A static build, so any static host works — deploy the **`dist/`** folder.
 
 ### Vercel (simplest)
-
-From the project folder:
 
 ```bash
 vercel          # preview deploy
 vercel --prod   # production
 ```
 
-No `vercel.json` needed — Vercel serves the folder as-is and the relative paths (`manifest.json`, `sw.js`, `icons/…`) resolve correctly at the domain root. Custom domain via the Vercel dashboard.
+`vercel.json` sets the build command (`npm run build`) and output directory (`dist`); Vercel installs, builds, and serves `dist/` at the domain root. Custom domain via the Vercel dashboard.
 
 ### Contabo VPS behind Traefik
 
-Serve the folder from a tiny static container and let Traefik route to it. Drop the `velmora/` folder next to a compose file:
+Build the site (`npm run build`), then serve the `dist/` output from a tiny static container and let Traefik route to it. Drop the `velmora/` folder (containing `dist/`) next to a compose file:
 
 ```yaml
 services:
@@ -52,7 +62,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     volumes:
-      - ./velmora:/usr/share/nginx/html:ro
+      - ./velmora/dist:/usr/share/nginx/html:ro # serve the built output
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.velmora.rule=Host(`velmora.yourdomain.com`)'
@@ -69,7 +79,7 @@ networks:
 
 `docker compose up -d`, point the DNS A record at the box, and Let's Encrypt issues the cert on first request. (Adjust the network name and certresolver to match your existing Traefik setup.)
 
-> **One operational note:** when you change `index.html` or any icon, **bump `SHELL_VERSION` in `sw.js`** (e.g. `v1.0.0` → `v1.0.1`). The service worker precaches the app shell; the version string is what tells returning visitors' browsers to drop the old cache and pull the new build. Without a bump, repeat visitors keep playing the cached version.
+> **Cache-busting is automatic now.** `vite-plugin-pwa` precaches content-hashed assets and revisions the service worker on every build, so returning visitors pick up new builds without any manual version bump — just rebuild and redeploy.
 
 ---
 
@@ -77,6 +87,7 @@ networks:
 
 Replayability comes from **systems, not a branching script**. Every run re-rolls the world and draws from weighted pools, so two playthroughs on the same path diverge fast:
 
+- **Seeded, reproducible runs** — all randomness flows through one seeded PRNG. A run carries its seed (and generator state) in the save, so a given seed reproduces a run exactly — handy for shareable seeds, a daily scenario, and deterministic tests.
 - **Randomized world-state** — economy (boom → crisis), public mood, and geopolitical tension are re-rolled at the start of each phase and color which events fire and how hard.
 - **Generated rival roster** — your opponent for each office is drawn from a per-path name pool with randomized strength, then carried into events as a named character (with their own generated cartoon avatar).
 - **Weighted random event draws** — events have weights and phase/path gates; a per-phase `seen[]` list prevents repeats, so the bank doesn't recycle until it's genuinely drained.
@@ -88,32 +99,37 @@ The contests themselves (elections / power-plays / the finale) also roll outcome
 
 ---
 
-## File map
+## Project layout
 
 ```
 velmora/
-├── index.html        # the entire game — markup, cartoon CSS design system, and JS engine (one IIFE)
-├── manifest.json     # PWA metadata (name, theme, icons, standalone/portrait)
-├── sw.js             # service worker: precache app shell, runtime-cache fonts, offline fallback
-├── icons/
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   ├── icon-512-maskable.png   # 12% safe-zone padding for Android adaptive icons
-│   └── favicon-64.png
-└── README.md
+├── index.html            # Vite entry (markup; design system + engine loaded as modules)
+├── src/
+│   ├── main.js           # engine + UI (being decomposed into typed modules)
+│   ├── styles.css        # cartoon CSS design system (tokens + ballot/vanguard themes)
+│   ├── sw.js             # service worker (injectManifest: precache + fonts + offline fallback)
+│   ├── engine/           # rng.ts (seeded PRNG), types.ts (type model)
+│   └── content/          # events/paths/traits/world/names (data) + schema.ts + lint.ts
+├── public/               # manifest.json, icons/ (copied to dist as-is)
+├── tests/
+│   ├── unit/             # Vitest — RNG determinism, engine logic
+│   ├── content/          # content validation gate
+│   └── e2e/              # Playwright — smoke (both paths) + offline
+├── docs/                 # ROADMAP.md, PROGRESS.md (living ledger)
+└── vite/ts/eslint/vitest/playwright configs
 ```
 
-Everything game-related lives in `index.html`. The fonts (Bungee / Fredoka / Space Mono) load from Google Fonts with system fallbacks, and are runtime-cached by the service worker so they survive offline after the first online visit.
+The fonts (Bungee / Fredoka / Space Mono) load from Google Fonts with system fallbacks, runtime-cached by the service worker so they survive offline after the first online visit.
 
 ---
 
 ## Adding your own content
 
-The game's depth scales directly with the size of the event bank, and adding events is the intended way to grow it. Events are plain objects pushed into the `EVENTS` array in `index.html` (search for `EVENTS.push(`). Add a new object to any `EVENTS.push(...)` block.
+The game's depth scales with the size of the event bank. Events are plain objects in **`src/content/events.ts`** (`EVENTS.push({ … })`). Add one, then run `npm run content:validate` — a Zod schema + linter catch duplicate ids, unresolved `then` references, invalid stat keys, `${...}` in plain strings, unreachable events, and unknown ending causes before you ever load the game.
 
 ### Event schema
 
-```
+```text
 {
   id,                       // unique string
   paths,                    // ["ballot"], ["vanguard"], or both
@@ -126,18 +142,18 @@ The game's depth scales directly with the size of the event bank, and adding eve
   art,                      // "newspaper" | "bulletin" | "crisis" | "rival" | "scene"
   emoji, kicker, title,     // presentation
   body,                     // string OR (S) => string   (see interpolation rule below)
-  speaker,                  // optional (S) => ({name, role, avatar})
+  speaker,                  // optional (S) => ({ name, role, avatar })
   choices: [
     {
       label,                // button text
       hint,                 // optional preview chip
-      fx,                   // stat deltas, e.g. {support:8, heat:-4}
+      fx,                   // stat deltas, e.g. { support: 8, heat: -4 }
       req(S), reqText,      // optional gate + the "locked" explanation shown to the player
-      set,                  // flags to set, e.g. {went_negative:true}
-      inc,                  // integer flag counters to add, e.g. {purge_count:1}
-      roll,                 // {stat, dc, success:{...}, fail:{...}} for dice outcomes
+      set,                  // flags to set, e.g. { went_negative: true }
+      inc,                  // integer flag counters to add, e.g. { purge_count: 1 }
+      roll,                 // { stat, dc, success: {...}, fail: {...} } for dice outcomes
       result,               // the outcome text shown after choosing
-      then,                 // [{id, inTurns}] — queue a delayed follow-up event
+      then,                 // [{ id, inTurns }] — queue a delayed follow-up event
       ending,               // a cause string to end the game immediately
       tone                  // "good" | "slick" | "bold" (purely cosmetic accent)
     }
@@ -149,31 +165,20 @@ Stats use internal keys `support, funds, influence, media, base, heat` (each cla
 
 ### The one interpolation rule that matters
 
-When a `body` (or `result`) is a **plain backtick string**, it must contain **no `${...}`** — there's no game state in scope at definition time. Only **function bodies**, written `body:(S)=>\`…\``, may interpolate state, because `S` is passed in at runtime:
-
-```js
-// ✅ static text — no interpolation
-body: `A reporter is asking uncomfortable questions about the harbor deal.`;
-
-// ✅ dynamic text — S is in scope
-body: (S) => `Comrade ${S.opp} corners you after the meeting. "Are you loyal — to me?"`;
-```
-
-Mixing these up (putting `${...}` in a plain string) is the single most common authoring mistake. Add an event, then reload over HTTP and play into its phase to see it.
+When a `body` (or `result`) is a **plain backtick string**, it must contain **no `${...}`** — there's no game state in scope at definition time. Only **function bodies**, written `body:(S)=>\`…\``, may interpolate state, because `S` is passed in at runtime. The content linter fails the build if you get this wrong.
 
 ---
 
-## PWA / verification notes
+## Quality gates
 
-This build was validated headlessly before delivery:
+Every change is gated by an automated suite — run locally, or in CI via `.github/workflows/ci.yml`:
 
-- **JS syntax** — clean (`node --check`).
-- **Full play-through, both paths** — driven start-to-finish in headless Chromium over HTTP. Both reached terminal endings (a mid-game election loss on one run, a full three-phase finale on the other) with **zero uncaught exceptions and zero console errors**.
-- **Rendering** — title, path select, character creation (with live cartoon avatar), and the in-game HUD (avatar + all six stat gauges) all render.
-- **Service worker** — registers and takes control over HTTP; `manifest.json` serves `200`.
-- **Offline** — with the network cut, a reload served the app shell from cache (`200`) and a fresh game started successfully offline.
+- **Unit** (Vitest) — seeded-RNG determinism and engine logic.
+- **Content** — Zod schema + linter over the event bank (`npm run content:validate`).
+- **E2E** (Playwright) — plays **both** paths start-to-finish asserting zero console/runtime errors, and verifies the PWA installs and runs **fully offline** (network cut, reload serves the shell, a fresh game starts).
+- **Build + Lighthouse CI** — production build with budgets (warn-only for now; tightened toward ≥90 in later phases).
 
-What still benefits from a quick human pass: subjective game balance/difficulty tuning, and running Lighthouse in Chrome DevTools for the installability score on your actual domain.
+See `docs/ROADMAP.md` for the full phase plan and `docs/PROGRESS.md` for current status.
 
 ---
 
