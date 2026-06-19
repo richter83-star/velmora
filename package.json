@@ -1,0 +1,22 @@
+{
+  "name": "velmora",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Velmora — a cartoon political-strategy PWA. Climb from nobody to head of state down two very different roads.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  }
+}

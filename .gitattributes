@@ -1,0 +1,13 @@
+# Normalize line endings to LF so Linux CI matches this Windows checkout
+* text=auto eol=lf
+
+# Treat binary assets as binary (no EOL/diff munging)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
