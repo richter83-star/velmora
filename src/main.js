@@ -1,4 +1,5 @@
 import './styles.css';
+import { createRng, randomSeed } from './engine/rng';
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -10,11 +11,15 @@ const VERSION="1.0.0", SAVE_KEY="velmora_save_v1";
 
 /* ---------- tiny utils / RNG ---------- */
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
-const rng=()=>Math.random();
-const rint=(a,b)=>Math.floor(rng()*(b-a+1))+a;
-const pick=a=>a[Math.floor(rng()*a.length)];
-const chance=p=>rng()<p;
-const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+// Seeded PRNG (engine/rng.ts). _rng is (re)seeded per run in startCareer and
+// restored on resume, so runs are reproducible from a seed. Helper names are
+// unchanged, so every call site (rint/pick/chance/shuffle/weightedPick…) is untouched.
+let _rng = createRng(randomSeed());
+const rng=()=>_rng.next();
+const rint=(a,b)=>_rng.int(a,b);
+const pick=a=>_rng.pick(a);
+const chance=p=>_rng.chance(p);
+const shuffle=a=>_rng.shuffle(a);
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
@@ -1229,8 +1234,10 @@ function beginCareer(){
 }
 function startCareer(d){
   const P=PATHS[d.path];
+  // Seed this run from an explicit DRAFT.seed (shared/daily scenario) or a fresh one.
+  _rng = createRng(d.seed!=null ? d.seed : randomSeed());
   S={
-    version:VERSION, path:d.path, phase:1, phaseTurn:0, totalTurns:0,
+    version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path, phase:1, phaseTurn:0, totalTurns:0,
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
     world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"",
@@ -1313,6 +1320,7 @@ function toast(msg){
    ================================================================ */
 function save(){
   if(!S) return;
+  S.rngState=_rng.getState();
   let data; try{ data=JSON.stringify(S); }catch(e){ return; }
   try{ localStorage.setItem(SAVE_KEY,data); }catch(e){ window._velmoraMem=data; }
 }
@@ -1330,6 +1338,9 @@ function resumeGame(){
   const o=loadRaw();
   if(!o || !o.path){ toast("No saved career found"); return; }
   S=o;
+  // Restore the generator so post-resume draws continue the same sequence.
+  _rng = createRng(S.seed!=null ? S.seed : randomSeed());
+  if(typeof S.rngState==="number") _rng.setState(S.rngState);
   setTheme(PATHS[S.path].theme);
   go("game"); S.lastDeltas=null; renderHUD();
   if(S.mode==="over"){ renderEnding(); return; }
