@@ -36,6 +36,7 @@ export interface RollOutcome {
   text?: string;
   then?: ThenRef[];
   ending?: string;
+  arcSet?: ArcAdvance;
 }
 
 export interface Roll {
@@ -64,6 +65,8 @@ export interface Choice {
   then?: ThenRef[];
   /** A cause string that ends the game immediately. */
   ending?: string;
+  /** Advance/branch a story arc to a stage when chosen. */
+  arcSet?: ArcAdvance;
   /** Cosmetic accent: 'good' | 'slick' | 'bold'. */
   tone?: string;
 }
@@ -79,6 +82,8 @@ export interface GameEvent {
   recurring?: boolean;
   queueOnly?: boolean;
   crisis?: boolean;
+  /** Marks this event as a step of a story arc — drawable only at the matching stage. */
+  arc?: ArcRef;
   req?: (s: GameState) => boolean;
   art?: EventArt;
   emoji?: string;
@@ -161,6 +166,8 @@ export interface GameState {
   opp: string;
   oppAvatar: string;
   flags: Flags;
+  /** Story-arc stages (arcId -> stage); persists across phases. */
+  arcs: Record<string, number>;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];
@@ -200,4 +207,25 @@ export interface Ending {
   title: string;
   text: string;
   legacy?: LegacyEntry[];
+}
+
+export interface ArcRef {
+  id: string;
+  stage: number;
+}
+
+export interface ArcAdvance {
+  id: string;
+  stage: number;
+}
+
+export interface ArcDef {
+  id: string;
+  title: string;
+  paths: PathKey[];
+  /** Stage at which the arc's entry event becomes eligible (default 0). */
+  entryStage?: number;
+  /** Stages that close the arc out. */
+  terminalStages?: number[];
+  desc?: string;
 }

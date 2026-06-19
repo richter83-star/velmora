@@ -1,19 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import { EVENTS } from '../../src/content/events';
+import { ARC_EVENTS, ARCS } from '../../src/content/arcs';
 import { validateContent } from '../../src/content/lint';
 
+// The engine plays the base bank plus the arc-step events.
+const ALL = [...EVENTS, ...ARC_EVENTS];
+
 describe('content validation', () => {
-  const result = validateContent(EVENTS);
+  const result = validateContent(ALL, ARCS);
 
   it('passes all content checks', () => {
     expect(result.errors, `content errors:\n${result.errors.join('\n')}`).toEqual([]);
   });
 
   it('has a non-trivial event bank', () => {
-    expect(EVENTS.length).toBeGreaterThanOrEqual(20);
+    expect(ALL.length).toBeGreaterThanOrEqual(20);
   });
 
   it('every event id is unique', () => {
-    expect(new Set(EVENTS.map((e) => e.id)).size).toBe(EVENTS.length);
+    expect(new Set(ALL.map((e) => e.id)).size).toBe(ALL.length);
+  });
+
+  it('every registered arc has a reachable entry event', () => {
+    expect(result.errors.filter((e) => e.includes('unreachable arc'))).toEqual([]);
   });
 });

@@ -7,12 +7,14 @@
  *   4. unreachable events (queueOnly never referenced by a `then`)
  *   5. `${...}` inside a plain (non-function) body/result/roll-text
  *   6. unknown ending causes
+ * and arc integrity:
+ *   7. arc / arcSet ids must exist in the ARCS registry
+ *   8. every registered arc must have a reachable entry event
  *
- * (Ending *reachability* — "every ending can be produced" — is asserted by the
- * seeded E2E sweep, since endings are computed in the engine, not data; this
- * moves to a data check when endings become data in Phase 3. See AD-4.)
+ * (Ending *reachability* is asserted by the seeded E2E sweep — endings are
+ * computed in the engine, not data; moves to a data check in Phase 3. AD-4.)
  */
-import type { GameEvent } from '../engine/types';
+import type { GameEvent, ArcDef } from '../engine/types';
 import { EventSchema, STAT_KEYS, VALID_PHASES, PATH_KEYS, ENDING_CAUSES } from './schema';
 
 export interface LintResult {
@@ -25,12 +27,17 @@ const PATH_SET = new Set<string>(PATH_KEYS);
 const PHASE_SET = new Set<number>(VALID_PHASES);
 const CAUSE_SET = new Set<string>(ENDING_CAUSES);
 
-export function validateContent(events: readonly GameEvent[]): LintResult {
+export function validateContent(
+  events: readonly GameEvent[],
+  arcs: readonly ArcDef[] = [],
+): LintResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const seenIds = new Set<string>();
   const allIds = new Set(events.map((e) => e.id));
   const referencedByThen = new Set<string>();
+  const arcIds = new Set(arcs.map((a) => a.id));
+  const arcEntrySeen = new Set<string>();
 
   const checkFx = (fx: Record<string, number> | undefined, where: string): void => {
     if (!fx) return;
@@ -47,6 +54,9 @@ export function validateContent(events: readonly GameEvent[]): LintResult {
   };
   const noteThen = (refs: { id: string }[] | undefined): void => {
     refs?.forEach((t) => referencedByThen.add(t.id));
+  };
+  const checkArcId = (id: string | undefined, where: string): void => {
+    if (id && !arcIds.has(id)) errors.push(`${where}: references unknown arc "${id}"`);
   };
 
   for (const ev of events) {
@@ -69,6 +79,13 @@ export function validateContent(events: readonly GameEvent[]): LintResult {
       if (!PATH_SET.has(p)) errors.push(`${where}: invalid path "${p}"`);
     }
 
+    const arc = ev.arc;
+    if (arc) {
+      checkArcId(arc.id, `${where} arc`);
+      const def = arcs.find((a) => a.id === arc.id);
+      if (arc.stage === (def?.entryStage ?? 0)) arcEntrySeen.add(arc.id);
+    }
+
     if (typeof ev.body === 'string') checkText(ev.body, `${where} body`);
 
     for (const [ci, ch] of (ev.choices ?? []).entries()) {
@@ -77,6 +94,7 @@ export function validateContent(events: readonly GameEvent[]): LintResult {
       checkText(ch.result, `${cw} result`);
       if (ch.ending && !CAUSE_SET.has(ch.ending))
         errors.push(`${cw}: unknown ending cause "${ch.ending}"`);
+      checkArcId(ch.arcSet?.id, `${cw} arcSet`);
       noteThen(ch.then);
 
       if (ch.roll) {
@@ -88,6 +106,7 @@ export function validateContent(events: readonly GameEvent[]): LintResult {
           if (br.ending && !CAUSE_SET.has(br.ending)) {
             errors.push(`${cw}.roll.${side}: unknown ending cause "${br.ending}"`);
           }
+          checkArcId(br.arcSet?.id, `${cw}.roll.${side} arcSet`);
           noteThen(br.then);
         }
       }
@@ -100,6 +119,11 @@ export function validateContent(events: readonly GameEvent[]): LintResult {
   for (const ev of events) {
     if (ev.queueOnly && !referencedByThen.has(ev.id)) {
       errors.push(`event "${ev.id}": queueOnly but never referenced by a then[] (unreachable)`);
+    }
+  }
+  for (const a of arcs) {
+    if (!arcEntrySeen.has(a.id)) {
+      errors.push(`arc "${a.id}": no entry event at stage ${a.entryStage ?? 0} (unreachable arc)`);
     }
   }
 

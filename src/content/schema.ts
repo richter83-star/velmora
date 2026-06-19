@@ -1,7 +1,8 @@
 /**
  * Zod schemas mirroring the content types (runtime structural validation).
  * Semantic checks (duplicate ids, unresolved `then`, bad stat keys, `${}` in
- * plain strings, unreachable events, ending causes) live in `lint.ts`.
+ * plain strings, unreachable events, ending causes, arc integrity) live in
+ * `lint.ts`.
  */
 import { z } from 'zod';
 
@@ -24,6 +25,7 @@ const fnSchema = z.custom<(s: unknown) => unknown>((v) => typeof v === 'function
 
 const numberRecord = z.record(z.string(), z.number());
 const flagRecord = z.record(z.string(), z.union([z.boolean(), z.number(), z.string()]));
+const arcRef = z.object({ id: z.string().min(1), stage: z.number().int() });
 
 const thenRef = z.object({
   id: z.string().min(1),
@@ -37,6 +39,7 @@ const rollOutcome = z.object({
   text: z.string().optional(),
   then: z.array(thenRef).optional(),
   ending: z.string().optional(),
+  arcSet: arcRef.optional(),
 });
 
 const roll = z.object({
@@ -58,6 +61,7 @@ const choice = z.object({
   result: z.string().optional(),
   then: z.array(thenRef).optional(),
   ending: z.string().optional(),
+  arcSet: arcRef.optional(),
   tone: z.string().optional(),
 });
 
@@ -69,6 +73,7 @@ export const EventSchema = z.object({
   recurring: z.boolean().optional(),
   queueOnly: z.boolean().optional(),
   crisis: z.boolean().optional(),
+  arc: arcRef.optional(),
   req: fnSchema.optional(),
   art: z.string().optional(),
   emoji: z.string().optional(),

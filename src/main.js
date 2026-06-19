@@ -6,6 +6,9 @@ import { WORLD } from './content/world';
 import { EVENTS } from './content/events';
 import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
+import { arcEventEligible, applyArcSet } from './engine/arcs';
+import { ARC_EVENTS } from './content/arcs';
+EVENTS.push(...ARC_EVENTS);
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -199,6 +202,7 @@ function eligible(crisisFlag){
     if(e.queueOnly) return false;
     if(!e.paths.includes(S.path)) return false;
     if(!e.phases.includes(S.phase)) return false;
+    if(!arcEventEligible(S,e)) return false;
     if(e.req && !e.req(S)) return false;
     if(!e.recurring && S.seen.includes(e.id)) return false;
     return true;
@@ -249,13 +253,13 @@ function resolveChoice(ci){
   let rollLine=null;
   let endingCause=ch.ending||null;
 
-  applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc);
+  applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc); applyArcSet(S,ch.arcSet);
 
   if(ch.roll){
     const r=doRoll(ch.roll);
     const br=r.win?ch.roll.success:ch.roll.fail;
     if(br){
-      applyFx(br.fx); setFlags(br.set); incFlags(br.inc);
+      applyFx(br.fx); setFlags(br.set); incFlags(br.inc); applyArcSet(S,br.arcSet);
       if(br.text) text=br.text;
       if(br.then) queueThen(br.then);
       if(br.ending) endingCause=br.ending;
@@ -682,7 +686,7 @@ function startCareer(d){
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
     world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"",
-    flags:{}, seen:[], queue:[], log:[],
+    flags:{}, arcs:{}, seen:[], queue:[], log:[],
     lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
     mode:"event", over:false, ending:null, promo:null, current:null
   };
@@ -779,6 +783,7 @@ function resumeGame(){
   const o=loadRaw();
   if(!o || !o.path){ toast("No saved career found"); return; }
   S=o;
+  if(!S.arcs) S.arcs={}; // migrate older saves (pre-arc-system)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
@@ -833,6 +838,9 @@ function boot(){
   $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") $("#drawer").classList.remove("open"); });
 
   if(hasSave()) $("#btn-continue").classList.remove("hidden");
+
+  // Debug/test hook: expose the live run state (used by E2E arc assertions).
+  window.__VELMORA_STATE = () => S;
 
   registerSW();
 }
