@@ -111,6 +111,55 @@ describe('evaluateEnding', () => {
     expect(e.win).toBe(true);
     expect(e.legacy).toHaveLength(4);
   });
+
+  it('every ending branch is reachable (all 14 endingIds producible)', () => {
+    const produced = new Set<string>();
+    for (const c of REMOVAL) produced.add(evaluateEnding(makeState(), c).endingId);
+    produced.add(
+      evaluateEnding(
+        makeState({ flags: { secret_reformer: true }, stats: { support: 60 } }),
+        'finale',
+      ).endingId,
+    ); // reformer
+    produced.add(evaluateEnding(makeState({ flags: { bloody_hands: true } }), 'finale').endingId); // tyrant
+    produced.add(evaluateEnding(makeState({ flags: { own_cult: true } }), 'finale').endingId); // beloved
+    produced.add(
+      evaluateEnding(makeState({ flags: { corrupt_streak: true }, stats: { funds: 70 } }), 'finale')
+        .endingId,
+    ); // kleptocrat
+    produced.add(
+      evaluateEnding(
+        makeState({ stats: { support: 70, base: 70, influence: 70, media: 60, heat: 5 } }),
+        'finale',
+      ).endingId,
+    ); // great_leader
+    produced.add(
+      evaluateEnding(
+        makeState({ stats: { support: 30, base: 20, influence: 20, media: 20, heat: 20 } }),
+        'finale',
+      ).endingId,
+    ); // placeholder
+    produced.add(evaluateEnding(makeState(), 'finale').endingId); // operator (default)
+
+    expect([...produced].sort()).toEqual(
+      [
+        'beloved',
+        'collapse',
+        'great_leader',
+        'kleptocrat',
+        'lost_election',
+        'lost_powerplay',
+        'operator',
+        'placeholder',
+        'purge',
+        'reformer',
+        'resign',
+        'revolution',
+        'scandal',
+        'tyrant',
+      ].sort(),
+    );
+  });
 });
 
 describe('dominantTrait', () => {

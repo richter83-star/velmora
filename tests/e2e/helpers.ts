@@ -60,3 +60,33 @@ export async function playToEnding(page: Page, maxSteps = 800): Promise<string> 
   }
   throw new Error('Did not reach an ending within the step budget');
 }
+
+/** Play a full seeded run (via the ?seed= URL hook) and return the final game state. */
+export async function playRun(page: Page, seed: string, path: 'ballot' | 'vanguard') {
+  await page.goto(`/?seed=${encodeURIComponent(seed)}`);
+  await startCareer(page, path);
+  await playToEnding(page);
+  return page.evaluate(() => window.__VELMORA_STATE?.());
+}
+
+/**
+ * Try seeds until an arc reaches at least `minStage`; returns the best stage
+ * seen. Robust to content growth: whether a given seed surfaces an arc depends
+ * on the draw pool, but the arc advances in most runs, so trying a few seeds
+ * reliably demonstrates it without pinning a single magic seed.
+ */
+export async function maxArcStage(
+  page: Page,
+  path: 'ballot' | 'vanguard',
+  arcId: string,
+  seeds: string[],
+  minStage = 2,
+): Promise<number> {
+  let best = 0;
+  for (const seed of seeds) {
+    const s = await playRun(page, seed, path);
+    best = Math.max(best, s?.arcs?.[arcId] ?? 0);
+    if (best >= minStage) break;
+  }
+  return best;
+}

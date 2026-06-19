@@ -15,7 +15,8 @@ import { recordScandal, resolveActiveScandal, scandalResurfaceChance, pickResurf
 import { SCANDAL_EVENTS } from './content/scandals';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
-EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS);
+import { PACK_1 } from './content/events-pack-1';
+EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS, ...PACK_1);
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
