@@ -1,5 +1,5 @@
 import './styles.css';
-import { createRng, randomSeed } from './engine/rng';
+import { createRng, randomSeed, dailySeed } from './engine/rng';
 import { PATHS } from './content/paths';
 import { TRAITS } from './content/traits';
 import { WORLD } from './content/world';
@@ -13,6 +13,8 @@ import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { NPC_EVENTS } from './content/npc-events';
 import { recordScandal, resolveActiveScandal, scandalResurfaceChance, pickResurfacing } from './engine/scandals';
 import { SCANDAL_EVENTS } from './content/scandals';
+import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
+import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS);
 
 /* ================================================================
@@ -140,7 +142,7 @@ function buildAvatar(a,expr="neutral",sweat=false){
    ENGINE — all game state lives in S (a plain, serializable object).
    ================================================================ */
 let S=null;
-const DRAFT={path:"ballot",name:"",avatar:null,faction:null,trait:null};
+const DRAFT={path:"ballot",name:"",avatar:null,faction:null,trait:null,difficulty:DEFAULT_DIFFICULTY,seed:null,daily:false};
 
 const curPhase=()=>PATHS[S.path].phases[S.phase-1];
 
@@ -204,6 +206,7 @@ function generateRivals(){
 }
 
 /* ---- crisis probability scales with instability ---- */
+function curDifficulty(){ return difficultyById(DIFFICULTIES, (S&&S.difficulty)||DEFAULT_DIFFICULTY); }
 function crisisChance(){
   if(S.totalTurns<1) return 0;
   let c=0.10;
@@ -211,7 +214,7 @@ function crisisChance(){
   if((S.world.economy.mood||0)<0) c+=0.06;
   if(S.stats.heat>60) c+=0.07;
   if(S.phase>=3) c+=0.04;
-  return clamp(c,0,0.42);
+  return clamp(c*curDifficulty().crisisMult,0,0.5);
 }
 
 /* ---- event eligibility + weighted draw ---- */
@@ -244,7 +247,7 @@ function nextEvent(){
     if(ev && (!ev.req||ev.req(S))){ showEvent(ev); return; }
   }
   // 1.5) a buried scandal resurfaces (scandals with memory)
-  if(chance(scandalResurfaceChance(S))){
+  if(chance(scandalResurfaceChance(S)*curDifficulty().scandalMult)){
     const sc=pickResurfacing(S);
     if(sc){
       S.activeScandal=sc.id;
@@ -372,7 +375,7 @@ function startPromotion(){
   }
   const _antag=antagonist(S);
   const _hostility=_antag?antagonistContestModifier(_antag.relationship):0;
-  const oppStrength=clamp(ph.promo.baseOpp+rint(-5,9)+(S.phase-1)*3+_hostility,20,90);
+  const oppStrength=clamp(ph.promo.baseOpp+rint(-5,9)+(S.phase-1)*3+_hostility+curDifficulty().oppBonus,20,90);
   S.promo={
     type:ph.promo.type, ph,
     opp:{name:S.opp,avatar:S.oppAvatar,strength:oppStrength,disposition:_antag?dispositionLabel(_antag.relationship):""},
@@ -693,6 +696,15 @@ function openCreate(path){
     const t=TRAITS.find(x=>x.id===ch.dataset.t); if(t)$("#trait-desc").textContent=t.desc;
   }));
 
+  $("#difficulty-chips").innerHTML = DIFFICULTIES.map(dd=>`<button class="chip" data-d="${dd.id}" aria-pressed="${dd.id===DEFAULT_DIFFICULTY}">${esc(dd.name)}</button>`).join("");
+  DRAFT.difficulty=DEFAULT_DIFFICULTY;
+  const _dd0=DIFFICULTIES.find(x=>x.id===DEFAULT_DIFFICULTY); if(_dd0)$("#difficulty-desc").textContent=_dd0.desc;
+  $$("#difficulty-chips .chip").forEach(ch=>ch.addEventListener("click",()=>{
+    $$("#difficulty-chips .chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+    ch.setAttribute("aria-pressed","true"); DRAFT.difficulty=ch.dataset.d;
+    const dd=DIFFICULTIES.find(x=>x.id===ch.dataset.d); if(dd)$("#difficulty-desc").textContent=dd.desc;
+  }));
+
   DRAFT.avatar=randAvatar(path);
   $("#create-ava").innerHTML=buildAvatar(DRAFT.avatar,"happy");
   go("create");
@@ -718,12 +730,17 @@ function startCareer(d){
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
     world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"", npcs:{}, antagonistId:"", scandals:[], activeScandal:null,
+    difficulty:d.difficulty||DEFAULT_DIFFICULTY, modifiers:[], daily:!!d.daily,
     flags:{}, arcs:{}, seen:[], queue:[], log:[],
     lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
     mode:"event", over:false, ending:null, promo:null, current:null
   };
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
+  applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
+  const _mods=rollModifiers(_rng, MODIFIERS, 1); S.modifiers=_mods.map(m=>m.id);
+  _mods.forEach(m=>applyModifier(S,m));
+  if(_mods.length) toast("This run — "+_mods.map(m=>m.name).join(" · "));
   setTheme(P.theme);
   go("game"); renderHUD();
   S.lastDeltas=null;
@@ -818,6 +835,7 @@ function resumeGame(){
   if(!S.arcs) S.arcs={}; // migrate older saves (pre-arc-system)
   if(!S.npcs){ S.npcs={}; S.antagonistId=S.antagonistId||""; } // migrate (pre-NPC-roster)
   if(!S.scandals){ S.scandals=[]; S.activeScandal=S.activeScandal||null; } // migrate (pre-scandals)
+  if(!S.difficulty){ S.difficulty=DEFAULT_DIFFICULTY; S.modifiers=S.modifiers||[]; S.daily=!!S.daily; } // migrate (pre-setup)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
@@ -846,9 +864,10 @@ function boot(){
   sizeCanvas();
   window.addEventListener("resize",sizeCanvas);
 
-  $("#btn-new").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });
+  $("#btn-new").addEventListener("click",()=>{ DRAFT.seed=null; DRAFT.daily=false; setTheme("theme-neutral"); go("path"); });
   $("#btn-continue").addEventListener("click",resumeGame);
   $("#btn-how").addEventListener("click",showHow);
+  $("#btn-daily").addEventListener("click",()=>{ DRAFT.seed=dailySeed(); DRAFT.daily=true; setTheme("theme-neutral"); toast("Scenario of the Day — everyone plays the same run today"); go("path"); });
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 
   $$(".path-card").forEach(c=>{
@@ -866,7 +885,7 @@ function boot(){
   $("#tb-save").addEventListener("click",()=>{ save(); toast("Career saved"); });
   $("#tb-quit").addEventListener("click",()=>{ if(S && !S.over) endGame("resign"); });
 
-  $("#btn-again").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });
+  $("#btn-again").addEventListener("click",()=>{ DRAFT.seed=null; DRAFT.daily=false; setTheme("theme-neutral"); go("path"); });
 
   $("#drawer-close").addEventListener("click",()=>$("#drawer").classList.remove("open"));
   $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") $("#drawer").classList.remove("open"); });

@@ -185,6 +185,12 @@ export interface GameState {
   scandals: Scandal[];
   /** Id of the scandal currently resurfacing, or null. */
   activeScandal: string | null;
+  /** Difficulty mode id. */
+  difficulty: string;
+  /** Per-run modifier ids rolled at start. */
+  modifiers: string[];
+  /** True if this run is the shared scenario-of-the-day. */
+  daily: boolean;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];
@@ -285,4 +291,29 @@ export interface Scandal extends ScandalSeed {
   phase: number;
   turn: number;
   status: ScandalStatus;
+}
+
+export interface DifficultyDef {
+  id: string;
+  name: string;
+  desc: string;
+  /** Added to each starting stat (+ easier, − harder). */
+  startStat: number;
+  /** Added to contest opponent strength (− easier, + harder). */
+  oppBonus: number;
+  /** Crisis-chance multiplier. */
+  crisisMult: number;
+  /** Scandal-resurface-chance multiplier. */
+  scandalMult: number;
+}
+
+export interface ModifierDef {
+  id: string;
+  name: string;
+  desc: string;
+  fx?: Fx;
+  flags?: Record<string, boolean | number>;
+  scandalSeed?: ScandalSeed;
+  /** Shift the antagonist's starting relationship. */
+  antagonistRel?: number;
 }

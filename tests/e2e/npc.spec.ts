@@ -8,7 +8,7 @@ test('the recurring antagonist is the same nemesis across phases', async ({ page
   const errors = captureErrors(page);
   await stubFonts(page);
   await page.addInitScript(() => {
-    window.__VELMORA_SEED = 'nemesis';
+    window.__VELMORA_SEED = 'reformer';
   });
 
   await page.goto('/');
