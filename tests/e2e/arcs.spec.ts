@@ -20,3 +20,19 @@ test('the Harbor Deal arc initiates and advances across a run', async ({ page })
   expect(harbor, 'Harbor arc should advance through multiple stages').toBeGreaterThanOrEqual(2);
   expect(errors, `errors:\n${errors.join('\n')}`).toEqual([]);
 });
+
+test("the Patron's Shadow arc initiates and advances on the vanguard path", async ({ page }) => {
+  const errors = captureErrors(page);
+  await stubFonts(page);
+  await page.addInitScript(() => {
+    window.__VELMORA_SEED = 'dynasty';
+  });
+
+  await page.goto('/');
+  await startCareer(page, 'vanguard');
+  await playToEnding(page);
+
+  const patron = await page.evaluate(() => window.__VELMORA_STATE?.().arcs?.patron);
+  expect(patron, 'Patron arc should advance through multiple stages').toBeGreaterThanOrEqual(2);
+  expect(errors, `errors:\n${errors.join('\n')}`).toEqual([]);
+});

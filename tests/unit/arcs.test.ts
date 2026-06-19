@@ -55,4 +55,24 @@ describe('arc engine', () => {
     expect(visited).toEqual([0, 1, 2]);
     expect(arcStage(s, 'harbor')).toBe(99);
   });
+
+  it('the patron arc forms an ordered chain 0 -> 1 -> 2 -> terminal via first choices', () => {
+    const s = withArcs({});
+    const byStage = (stage: number): GameEvent | undefined =>
+      ARC_EVENTS.find((e) => !!e.arc && e.arc.id === 'patron' && e.arc.stage === stage);
+
+    const visited: number[] = [];
+    let guard = 0;
+    while (guard++ < 10) {
+      const stage = arcStage(s, 'patron');
+      if (stage === 99) break;
+      const step = byStage(stage);
+      expect(step, `expected a patron step at stage ${stage}`).toBeTruthy();
+      visited.push(stage);
+      applyArcSet(s, step?.choices[0]?.arcSet);
+    }
+
+    expect(visited).toEqual([0, 1, 2]);
+    expect(arcStage(s, 'patron')).toBe(99);
+  });
 });
