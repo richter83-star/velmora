@@ -67,7 +67,7 @@
 - **AD-5 — Line endings:** `.gitattributes` (`* text=auto eol=lf`) for clean Linux CI.
 - **AD-6 — Story arcs:** arc steps are ordinary events tagged `arc:{id,stage}`, drawable only when `S.arcs[id]===stage`; choices/roll-branches advance via `arcSet:{id,stage}`. `S.arcs` persists across phases (never reset), so arcs span offices. The `ARCS` registry drives validation + the future codex.
 
-- **AD-7 — Recurring antagonist:** the antagonist NPC is created once at career start and reused by `assignOpponent` as the contest opponent every phase (rising with you), so the rival is one continuous nemesis. Old saves fall back to the original per-phase random opponent. Content references it by the stable id `antagonist` (`KNOWN_NPC_IDS`).
+- **AD-7 — Recurring antagonist:** the antagonist NPC is created once at career start and reused by `assignOpponent` as the contest opponent every phase (rising with you), so the rival is one continuous nemesis. Old saves fall back to the original per-phase random opponent. Content references it by the stable id `antagonist` (`KNOWN_NPC_IDS`). The antagonist's relationship feeds contest difficulty (`antagonistContestModifier`, ±15 opponent strength) and shows as a disposition on the contest screen, so `npcFx` choices carry mechanical stakes.
 
 ## Open questions / flagged decisions
 
@@ -90,6 +90,7 @@
 - Deferred within Phase 1: full `src/main.js` engine/ui decomposition (now proceeding incrementally in Phase 2).
 - Phase 2 (same session — user chose to fold the engine split in): extracted endings → `engine/endings.ts` (`881d429`); built the cross-phase **story arc system** + the Harbor Deal arc (`9c3636b`). `src/main.js` now 843 lines.
 - Phase 2 cont.: **persistent NPC roster + recurring antagonist** (`d197a7f`) — antagonist carried across phases as the opponent; `npcFx` relationship meters; schema/linter + tests. 34 unit/content + 6 E2E green.
+- Phase 2 cont.: **antagonist hostility wired into the contest** (`a48fe32`) — relationship shifts opponent strength ±15; disposition shown on the contest screen. 37 unit/content + 6 E2E green.
 
 ## Next steps (concrete)
 
