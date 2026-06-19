@@ -26,7 +26,9 @@ self.addEventListener('install', (event) => {
       .then((cache) =>
         // {cache:'reload'} bypasses the HTTP cache so we store fresh copies.
         Promise.all(
-          SHELL_ASSETS.map((url) => cache.add(new Request(url, { cache: 'reload' })).catch(() => null)),
+          SHELL_ASSETS.map((url) =>
+            cache.add(new Request(url, { cache: 'reload' })).catch(() => null),
+          ),
         ),
       )
       .then(() => self.skipWaiting()),
@@ -74,7 +76,8 @@ self.addEventListener('fetch', (event) => {
             hit ||
             fetch(req)
               .then((res) => {
-                if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone()).catch(() => {});
+                if (res && (res.ok || res.type === 'opaque'))
+                  cache.put(req, res.clone()).catch(() => {});
                 return res;
               })
               .catch(() => hit),
@@ -90,7 +93,9 @@ self.addEventListener('fetch', (event) => {
       caches.match('./index.html', { ignoreVary: true }).then((cached) => {
         const network = fetch(req)
           .then((res) => {
-            caches.open(SHELL_CACHE).then((c) => c.put('./index.html', res.clone()).catch(() => {}));
+            caches
+              .open(SHELL_CACHE)
+              .then((c) => c.put('./index.html', res.clone()).catch(() => {}));
             return res;
           })
           .catch(() => cached);
@@ -108,7 +113,8 @@ self.addEventListener('fetch', (event) => {
           hit ||
           fetch(req)
             .then((res) => {
-              if (res && res.ok) caches.open(SHELL_CACHE).then((c) => c.put(req, res.clone()).catch(() => {}));
+              if (res && res.ok)
+                caches.open(SHELL_CACHE).then((c) => c.put(req, res.clone()).catch(() => {}));
               return res;
             })
             .catch(() => hit),

@@ -11,3 +11,8 @@ CLAUDE-FABLE-5.md
 src/main.js
 src/styles.css
 index.html
+src/content/events.ts
+src/content/paths.ts
+src/content/traits.ts
+src/content/world.ts
+src/content/names.ts

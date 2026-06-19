@@ -1,0 +1,176 @@
+/**
+ * Core type model for Velmora's engine + content.
+ *
+ * `GameState` is the serializable run state (the prototype's `S`). Content
+ * authors get these types for free: because the event/choice arrays are
+ * declared with these types, the inline `(s) => …` functions are contextually
+ * typed (no implicit `any`), and the data shapes are checked at compile time.
+ * Zod (see content/schema.ts) enforces the same shapes at runtime.
+ */
+
+export type StatKey = 'support' | 'funds' | 'influence' | 'media' | 'base' | 'heat';
+export type PathKey = 'ballot' | 'vanguard';
+
+export type Stats = Record<StatKey, number>;
+/** Hidden booleans + integer counters set by choices. */
+export type Flags = Record<string, number | boolean | undefined>;
+
+/** Stat deltas applied by a choice/outcome. */
+export type Fx = Partial<Record<StatKey, number>>;
+/** Flags to set (booleans, or small string/number markers). */
+export type SetFlags = Record<string, boolean | number | string>;
+/** Integer counters to add to. */
+export type IncFlags = Record<string, number>;
+
+/** Queue a delayed follow-up event. */
+export interface ThenRef {
+  id: string;
+  inTurns?: number;
+}
+
+/** One side of a dice-rolled choice. */
+export interface RollOutcome {
+  fx?: Fx;
+  set?: SetFlags;
+  inc?: IncFlags;
+  text?: string;
+  then?: ThenRef[];
+  ending?: string;
+}
+
+export interface Roll {
+  stat: StatKey;
+  dc: number;
+  success: RollOutcome;
+  fail: RollOutcome;
+}
+
+export interface Speaker {
+  name: string;
+  role?: string;
+  avatar?: string;
+}
+
+export interface Choice {
+  label: string;
+  hint?: string;
+  fx?: Fx;
+  req?: (s: GameState) => boolean;
+  reqText?: string;
+  set?: SetFlags;
+  inc?: IncFlags;
+  roll?: Roll;
+  result?: string;
+  then?: ThenRef[];
+  /** A cause string that ends the game immediately. */
+  ending?: string;
+  /** Cosmetic accent: 'good' | 'slick' | 'bold'. */
+  tone?: string;
+}
+
+/** "newspaper" | "bulletin" | "crisis" | "rival" | "scene" (open for new motifs). */
+export type EventArt = string;
+
+export interface GameEvent {
+  id: string;
+  paths: PathKey[];
+  phases: number[];
+  weight?: number;
+  recurring?: boolean;
+  queueOnly?: boolean;
+  crisis?: boolean;
+  req?: (s: GameState) => boolean;
+  art?: EventArt;
+  emoji?: string;
+  kicker?: string;
+  title: string;
+  body: string | ((s: GameState) => string);
+  speaker?: (s: GameState) => Speaker;
+  choices: Choice[];
+}
+
+export interface Faction {
+  id: string;
+  name: string;
+  desc: string;
+}
+
+export interface PromoConfig {
+  type: 'election' | 'powerplay' | 'finale';
+  label: string;
+  emoji: string;
+  baseOpp?: number;
+  oppTitle?: string;
+}
+
+export interface PhaseConfig {
+  n: number;
+  title: string;
+  kicker: string;
+  goalTurns: number;
+  emoji: string;
+  promo: PromoConfig;
+}
+
+export interface PathConfig {
+  key: PathKey;
+  land: string;
+  theme: string;
+  statNames: Record<StatKey, string>;
+  start: Stats;
+  factions: Faction[];
+  phases: PhaseConfig[];
+  oppNames: string[];
+}
+
+export interface Trait {
+  id: string;
+  name: string;
+  emoji: string;
+  desc: string;
+  fx: Fx;
+}
+
+export interface WorldOption {
+  k: string;
+  t: string;
+  mood?: number;
+  d?: number;
+}
+
+export interface WorldTable {
+  economy: WorldOption[];
+  mood: WorldOption[];
+  tension: WorldOption[];
+}
+
+/** The serializable run state (the prototype's `S`). */
+export interface GameState {
+  version: string;
+  seed: number;
+  rngState: number;
+  path: PathKey;
+  phase: number;
+  phaseTurn: number;
+  totalTurns: number;
+  stats: Stats;
+  player: { name: string; title: string; avatar: unknown; faction: string; trait: string };
+  world: { economy?: WorldOption; mood?: WorldOption; tension?: WorldOption };
+  rivals: unknown[];
+  usedOpp: string[];
+  opp: string;
+  oppAvatar: string;
+  flags: Flags;
+  seen: string[];
+  queue: ThenRef[];
+  log: unknown[];
+  lastResult: unknown;
+  lastDeltas: unknown;
+  pendingDeath: string | null;
+  pendingEndingCause: string | null;
+  mode: string;
+  over: boolean;
+  ending: unknown;
+  promo: unknown;
+  current: string | null;
+}
