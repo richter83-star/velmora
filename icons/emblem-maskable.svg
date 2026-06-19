@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<defs>
+  <radialGradient id="field" cx="50%" cy="42%" r="65%">
+    <stop offset="0%" stop-color="#3A3358"/>
+    <stop offset="100%" stop-color="#241F38"/>
+  </radialGradient>
+  <linearGradient id="starg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FF5A4D"/>
+    <stop offset="100%" stop-color="#D6261D"/>
+  </linearGradient>
+</defs>
+<rect width="512" height="512" fill="#E5332A"/>
+<circle cx="256.0" cy="256.0" r="219.28" fill="#1A1726"/>
+<circle cx="256.0" cy="256.0" r="203.28" fill="#F2B705"/>
+<circle cx="256.0" cy="256.0" r="175.28" fill="#1A1726"/>
+<circle cx="256.0" cy="256.0" r="167.28" fill="url(#field)"/>
+<g transform="translate(256.0,246.0)">
+  <path d="M 95.0,0.0 L 150.3,29.9 L 87.8,36.4 Z" fill="#FFD45E"/>
+<path d="M 87.8,36.4 L 127.4,85.2 L 67.2,67.2 Z" fill="#FFD45E"/>
+<path d="M 67.2,67.2 L 85.2,127.4 L 36.4,87.8 Z" fill="#FFD45E"/>
+<path d="M 36.4,87.8 L 29.9,150.3 L 0.0,95.0 Z" fill="#FFD45E"/>
+<path d="M 0.0,95.0 L -29.9,150.3 L -36.4,87.8 Z" fill="#FFD45E"/>
+<path d="M -36.4,87.8 L -85.2,127.4 L -67.2,67.2 Z" fill="#FFD45E"/>
+<path d="M -67.2,67.2 L -127.4,85.2 L -87.8,36.4 Z" fill="#FFD45E"/>
+<path d="M -87.8,36.4 L -150.3,29.9 L -95.0,0.0 Z" fill="#FFD45E"/>
+<path d="M -95.0,0.0 L -150.3,-29.9 L -87.8,-36.4 Z" fill="#FFD45E"/>
+<path d="M -87.8,-36.4 L -127.4,-85.2 L -67.2,-67.2 Z" fill="#FFD45E"/>
+<path d="M -67.2,-67.2 L -85.2,-127.4 L -36.4,-87.8 Z" fill="#FFD45E"/>
+<path d="M -36.4,-87.8 L -29.9,-150.3 L -0.0,-95.0 Z" fill="#FFD45E"/>
+<path d="M -0.0,-95.0 L 29.9,-150.3 L 36.4,-87.8 Z" fill="#FFD45E"/>
+<path d="M 36.4,-87.8 L 85.2,-127.4 L 67.2,-67.2 Z" fill="#FFD45E"/>
+<path d="M 67.2,-67.2 L 127.4,-85.2 L 87.8,-36.4 Z" fill="#FFD45E"/>
+<path d="M 87.8,-36.4 L 150.3,-29.9 L 95.0,-0.0 Z" fill="#FFD45E"/>
+</g>
+<circle cx="256.0" cy="246.0" r="75.28" fill="#2B2640" opacity="0.0"/>
+<path d="M 256.00,108.72 L 288.90,196.71 L 382.76,200.81 L 309.24,259.30 L 334.34,349.83 L 256.00,297.98 L 177.66,349.83 L 202.76,259.30 L 129.24,200.81 L 223.10,196.71 Z" fill="url(#starg)" stroke="#1A1726" stroke-width="14" stroke-linejoin="round"/>
+<path d="M 253.00,169.36 L 270.23,212.28 L 316.38,215.41 L 280.89,245.06 L 292.17,289.91 L 253.00,265.32 L 213.83,289.91 L 225.11,245.06 L 189.62,215.41 L 235.77,212.28 Z" fill="#FF8C82" opacity="0.55"/>
+<g>
+  <rect x="106.0" y="331.28" width="300" height="78" rx="14" fill="#FFF4E0" stroke="#1A1726" stroke-width="12"/>
+  <text x="256.0" y="385.28" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="52" fill="#E5332A" text-anchor="middle" letter-spacing="2">VELMORA</text>
+</g>
+</svg>

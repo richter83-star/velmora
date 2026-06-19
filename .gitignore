@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+.vite/
+
+# test artifacts
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+
+# local / editor / OS
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# stray system-prompt doc that lives in this folder but is not part of the game
+CLAUDE-FABLE-5.md
