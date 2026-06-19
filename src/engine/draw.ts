@@ -1,0 +1,105 @@
+/**
+ * The draw engine (pure) — event eligibility + the per-turn selection that the
+ * UI (`main.js`) and the headless simulator both use, so the live game and the
+ * seed sweep choose events by identical rules.
+ */
+import type { GameState, GameEvent } from './types';
+import type { Rng } from './rng';
+import { arcEventEligible } from './arcs';
+import { scandalResurfaceChance, pickResurfacing } from './scandals';
+
+export function eligible(
+  S: GameState,
+  events: readonly GameEvent[],
+  crisisFlag: boolean,
+): GameEvent[] {
+  return events.filter((e) => {
+    if (!!e.crisis !== !!crisisFlag) return false;
+    if (e.queueOnly) return false;
+    if (!e.paths.includes(S.path)) return false;
+    if (!e.phases.includes(S.phase)) return false;
+    if (!arcEventEligible(S, e)) return false;
+    if (e.req && !e.req(S)) return false;
+    if (!e.recurring && S.seen.includes(e.id)) return false;
+    return true;
+  });
+}
+
+export function weightedPick(rng: Rng, list: readonly GameEvent[]): GameEvent {
+  let tot = 0;
+  for (const e of list) tot += e.weight ?? 10;
+  let r = rng.next() * tot;
+  for (const e of list) {
+    r -= e.weight ?? 10;
+    if (r <= 0) return e;
+  }
+  return list[list.length - 1]!;
+}
+
+export function crisisChance(S: GameState, crisisMult: number): number {
+  if (S.totalTurns < 1) return 0;
+  let c = 0.1;
+  c += (S.world.tension?.d ?? 0) / 110;
+  if ((S.world.economy?.mood ?? 0) < 0) c += 0.06;
+  if (S.stats.heat > 60) c += 0.07;
+  if (S.phase >= 3) c += 0.04;
+  return Math.max(0, Math.min(0.5, c * crisisMult));
+}
+
+export type NextDecision = { type: 'event'; event: GameEvent } | { type: 'promotion' };
+
+export interface DrawOpts {
+  crisisMult: number;
+  scandalMult: number;
+}
+
+/**
+ * The core turn driver (pure). Decides the next event, or that the bank is dry
+ * and it's contest time. Mutates `S.queue` (consumes a due item) and
+ * `S.activeScandal` (when a scandal resurfaces) — the same side effects the
+ * original engine had.
+ */
+export function chooseNext(
+  S: GameState,
+  events: readonly GameEvent[],
+  rng: Rng,
+  opts: DrawOpts,
+): NextDecision {
+  // 1) a delayed (queued) event that's now due
+  const readyIdx = S.queue.findIndex((q) => (q.inTurns ?? 0) <= 0);
+  if (readyIdx >= 0) {
+    const q = S.queue.splice(readyIdx, 1)[0]!;
+    const ev = events.find((e) => e.id === q.id);
+    if (ev && (!ev.req || ev.req(S))) return { type: 'event', event: ev };
+  }
+  // 1.5) a buried scandal resurfaces (scandals with memory)
+  if (rng.chance(scandalResurfaceChance(S) * opts.scandalMult)) {
+    const sc = pickResurfacing(S);
+    if (sc) {
+      S.activeScandal = sc.id;
+      const ev = events.find((e) => e.id === 'scandal_resurfaces');
+      if (ev) return { type: 'event', event: ev };
+    }
+  }
+  // 2) crisis injection on instability
+  const crises = eligible(S, events, true);
+  if (crises.length && rng.chance(crisisChance(S, opts.crisisMult))) {
+    return { type: 'event', event: weightedPick(rng, crises) };
+  }
+  // 3) ordinary weighted draw
+  const pool = eligible(S, events, false);
+  if (!pool.length) {
+    const recur = events.filter(
+      (e) =>
+        !e.crisis &&
+        !e.queueOnly &&
+        e.recurring &&
+        e.paths.includes(S.path) &&
+        e.phases.includes(S.phase) &&
+        (!e.req || e.req(S)),
+    );
+    if (recur.length) return { type: 'event', event: weightedPick(rng, recur) };
+    return { type: 'promotion' };
+  }
+  return { type: 'event', event: weightedPick(rng, pool) };
+}

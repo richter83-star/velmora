@@ -3,20 +3,21 @@ import { createRng, randomSeed, dailySeed } from './engine/rng';
 import { PATHS } from './content/paths';
 import { TRAITS } from './content/traits';
 import { WORLD } from './content/world';
-import { EVENTS } from './content/events';
+import { ALL_EVENTS as EVENTS } from './content/all-events';
 import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
-import { arcEventEligible, applyArcSet } from './engine/arcs';
+import { applyArcSet } from './engine/arcs';
 import { ARC_EVENTS } from './content/arcs';
 import { applyNpcFx, antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { NPC_EVENTS } from './content/npc-events';
-import { recordScandal, resolveActiveScandal, scandalResurfaceChance, pickResurfacing } from './engine/scandals';
+import { recordScandal, resolveActiveScandal } from './engine/scandals';
 import { SCANDAL_EVENTS } from './content/scandals';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { PACK_1 } from './content/events-pack-1';
-EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS, ...PACK_1);
+import { chooseNext } from './engine/draw';
+// The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -208,65 +209,11 @@ function generateRivals(){
 
 /* ---- crisis probability scales with instability ---- */
 function curDifficulty(){ return difficultyById(DIFFICULTIES, (S&&S.difficulty)||DEFAULT_DIFFICULTY); }
-function crisisChance(){
-  if(S.totalTurns<1) return 0;
-  let c=0.10;
-  c+=(S.world.tension.d||0)/110;
-  if((S.world.economy.mood||0)<0) c+=0.06;
-  if(S.stats.heat>60) c+=0.07;
-  if(S.phase>=3) c+=0.04;
-  return clamp(c*curDifficulty().crisisMult,0,0.5);
-}
-
-/* ---- event eligibility + weighted draw ---- */
-function eligible(crisisFlag){
-  return EVENTS.filter(e=>{
-    if(!!e.crisis!==!!crisisFlag) return false;
-    if(e.queueOnly) return false;
-    if(!e.paths.includes(S.path)) return false;
-    if(!e.phases.includes(S.phase)) return false;
-    if(!arcEventEligible(S,e)) return false;
-    if(e.req && !e.req(S)) return false;
-    if(!e.recurring && S.seen.includes(e.id)) return false;
-    return true;
-  });
-}
-function weightedPick(list){
-  let tot=0; for(const e of list) tot+=(e.weight||10);
-  let r=rng()*tot;
-  for(const e of list){ r-=(e.weight||10); if(r<=0) return e; }
-  return list[list.length-1];
-}
-
-/* ---- the core turn driver ---- */
+/* ---- the core turn driver (selection logic lives in engine/draw.ts) ---- */
 function nextEvent(){
-  // 1) a delayed (queued) event that's now due
-  const readyIdx=S.queue.findIndex(q=>q.inTurns<=0);
-  if(readyIdx>=0){
-    const q=S.queue.splice(readyIdx,1)[0];
-    const ev=EVENTS.find(e=>e.id===q.id);
-    if(ev && (!ev.req||ev.req(S))){ showEvent(ev); return; }
-  }
-  // 1.5) a buried scandal resurfaces (scandals with memory)
-  if(chance(scandalResurfaceChance(S)*curDifficulty().scandalMult)){
-    const sc=pickResurfacing(S);
-    if(sc){
-      S.activeScandal=sc.id;
-      const ev=EVENTS.find(e=>e.id==="scandal_resurfaces");
-      if(ev){ showEvent(ev); return; }
-    }
-  }
-  // 2) crisis injection on instability
-  const crises=eligible(true);
-  if(crises.length && chance(crisisChance())){ showEvent(weightedPick(crises)); return; }
-  // 3) ordinary weighted draw
-  let pool=eligible(false);
-  if(!pool.length){
-    const recur=EVENTS.filter(e=>!e.crisis&&!e.queueOnly&&e.recurring&&e.paths.includes(S.path)&&e.phases.includes(S.phase)&&(!e.req||e.req(S)));
-    if(recur.length){ showEvent(weightedPick(recur)); return; }
-    startPromotion(); return; // ran the bank dry → go to the contest early
-  }
-  showEvent(weightedPick(pool));
+  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult, scandalMult: curDifficulty().scandalMult });
+  if(d.type==="promotion"){ startPromotion(); return; }
+  showEvent(d.event);
 }
 function showEvent(ev){
   S.current=ev.id; S.mode="event"; S.lastResult=null;
