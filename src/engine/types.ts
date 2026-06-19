@@ -170,7 +170,34 @@ export interface GameState {
   pendingEndingCause: string | null;
   mode: string;
   over: boolean;
-  ending: unknown;
+  ending: Ending | null;
   promo: unknown;
   current: string | null;
+}
+
+export interface LegacyEntry {
+  l: string;
+  v: string;
+}
+
+export type EndingCause =
+  | 'scandal'
+  | 'purge'
+  | 'collapse'
+  | 'revolution'
+  | 'lost_election'
+  | 'lost_powerplay'
+  | 'resign'
+  | 'finale';
+
+export interface Ending {
+  /** Stable identifier for the ending branch (used by the reachability sweep). */
+  endingId: string;
+  emoji: string;
+  rank: string;
+  win: boolean;
+  verdict: string;
+  title: string;
+  text: string;
+  legacy?: LegacyEntry[];
 }
