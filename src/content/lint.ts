@@ -16,6 +16,7 @@
  */
 import type { GameEvent, ArcDef } from '../engine/types';
 import { EventSchema, STAT_KEYS, VALID_PHASES, PATH_KEYS, ENDING_CAUSES } from './schema';
+import { KNOWN_NPC_IDS } from './npcs';
 
 export interface LintResult {
   errors: string[];
@@ -26,6 +27,7 @@ const STAT_SET = new Set<string>(STAT_KEYS);
 const PATH_SET = new Set<string>(PATH_KEYS);
 const PHASE_SET = new Set<number>(VALID_PHASES);
 const CAUSE_SET = new Set<string>(ENDING_CAUSES);
+const NPC_ID_SET = new Set<string>(KNOWN_NPC_IDS);
 
 export function validateContent(
   events: readonly GameEvent[],
@@ -57,6 +59,9 @@ export function validateContent(
   };
   const checkArcId = (id: string | undefined, where: string): void => {
     if (id && !arcIds.has(id)) errors.push(`${where}: references unknown arc "${id}"`);
+  };
+  const checkNpc = (fx: { id: string } | undefined, where: string): void => {
+    if (fx && !NPC_ID_SET.has(fx.id)) errors.push(`${where}: npcFx -> unknown npc "${fx.id}"`);
   };
 
   for (const ev of events) {
@@ -95,6 +100,7 @@ export function validateContent(
       if (ch.ending && !CAUSE_SET.has(ch.ending))
         errors.push(`${cw}: unknown ending cause "${ch.ending}"`);
       checkArcId(ch.arcSet?.id, `${cw} arcSet`);
+      checkNpc(ch.npcFx, cw);
       noteThen(ch.then);
 
       if (ch.roll) {
@@ -107,6 +113,7 @@ export function validateContent(
             errors.push(`${cw}.roll.${side}: unknown ending cause "${br.ending}"`);
           }
           checkArcId(br.arcSet?.id, `${cw}.roll.${side} arcSet`);
+          checkNpc(br.npcFx, `${cw}.roll.${side}`);
           noteThen(br.then);
         }
       }

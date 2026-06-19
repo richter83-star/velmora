@@ -37,6 +37,7 @@ export interface RollOutcome {
   then?: ThenRef[];
   ending?: string;
   arcSet?: ArcAdvance;
+  npcFx?: NpcFx;
 }
 
 export interface Roll {
@@ -67,6 +68,8 @@ export interface Choice {
   ending?: string;
   /** Advance/branch a story arc to a stage when chosen. */
   arcSet?: ArcAdvance;
+  /** Adjust an NPC's meters when chosen. */
+  npcFx?: NpcFx;
   /** Cosmetic accent: 'good' | 'slick' | 'bold'. */
   tone?: string;
 }
@@ -168,6 +171,10 @@ export interface GameState {
   flags: Flags;
   /** Story-arc stages (arcId -> stage); persists across phases. */
   arcs: Record<string, number>;
+  /** Persistent NPC roster (npcId -> NPC); survives across phases. */
+  npcs: Record<string, NPC>;
+  /** The recurring antagonist's npc id (carried across phases). */
+  antagonistId: string;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];
@@ -228,4 +235,28 @@ export interface ArcDef {
   /** Stages that close the arc out. */
   terminalStages?: number[];
   desc?: string;
+}
+
+export type NpcKind = 'antagonist' | 'ally' | 'rival' | 'patron' | 'aide';
+
+export interface NPC {
+  id: string;
+  name: string;
+  role: string;
+  kind: NpcKind;
+  /** Pre-built cartoon avatar SVG markup. */
+  avatar: string;
+  /** -100 (sworn enemy) .. +100 (devoted); 0 neutral. */
+  relationship: number;
+  /** 0..100, for allies/aides. */
+  loyalty: number;
+  met: boolean;
+  firstPhase: number;
+}
+
+/** Adjust an NPC's meters from a choice/outcome. */
+export interface NpcFx {
+  id: string;
+  relationship?: number;
+  loyalty?: number;
 }

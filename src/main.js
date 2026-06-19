@@ -8,7 +8,10 @@ import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
 import { arcEventEligible, applyArcSet } from './engine/arcs';
 import { ARC_EVENTS } from './content/arcs';
-EVENTS.push(...ARC_EVENTS);
+import { applyNpcFx } from './engine/npcs';
+import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
+import { NPC_EVENTS } from './content/npc-events';
+EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS);
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -163,7 +166,21 @@ function maybeRerollWorld(){
     S.world[axis]=pick(WORLD[axis]);
   }
 }
+function createAntagonist(){
+  const P=PATHS[S.path];
+  const free=P.oppNames.filter(n=>!S.usedOpp.includes(n));
+  const name=free.length?pick(free):pick(P.oppNames);
+  S.usedOpp.push(name);
+  S.npcs.antagonist={ id:"antagonist", name, role:ANTAGONIST_ROLE[S.path], kind:"antagonist",
+    avatar:buildAvatar(randAvatar(S.path),"smug"), relationship:ANTAGONIST_START_RELATIONSHIP,
+    loyalty:0, met:false, firstPhase:S.phase };
+  S.antagonistId="antagonist";
+}
 function assignOpponent(){
+  // The recurring antagonist is your opponent at every office — they rise with you.
+  const a=(S.npcs&&S.antagonistId)?S.npcs[S.antagonistId]:null;
+  if(a){ S.opp=a.name; S.oppAvatar=a.avatar; return; }
+  // Fallback for old saves that predate the antagonist roster.
   const P=PATHS[S.path];
   const free=P.oppNames.filter(n=>!S.usedOpp.includes(n));
   const name=free.length?pick(free):pick(P.oppNames);
@@ -253,13 +270,13 @@ function resolveChoice(ci){
   let rollLine=null;
   let endingCause=ch.ending||null;
 
-  applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc); applyArcSet(S,ch.arcSet);
+  applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc); applyArcSet(S,ch.arcSet); applyNpcFx(S,ch.npcFx);
 
   if(ch.roll){
     const r=doRoll(ch.roll);
     const br=r.win?ch.roll.success:ch.roll.fail;
     if(br){
-      applyFx(br.fx); setFlags(br.set); incFlags(br.inc); applyArcSet(S,br.arcSet);
+      applyFx(br.fx); setFlags(br.set); incFlags(br.inc); applyArcSet(S,br.arcSet); applyNpcFx(S,br.npcFx);
       if(br.text) text=br.text;
       if(br.then) queueThen(br.then);
       if(br.ending) endingCause=br.ending;
@@ -685,13 +702,13 @@ function startCareer(d){
     version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path, phase:1, phaseTurn:0, totalTurns:0,
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
-    world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"",
+    world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"", npcs:{}, antagonistId:"",
     flags:{}, arcs:{}, seen:[], queue:[], log:[],
     lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
     mode:"event", over:false, ending:null, promo:null, current:null
   };
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(tr.fx);
-  rollWorld(); assignOpponent(); generateRivals();
+  rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
   setTheme(P.theme);
   go("game"); renderHUD();
   S.lastDeltas=null;
@@ -784,6 +801,7 @@ function resumeGame(){
   if(!o || !o.path){ toast("No saved career found"); return; }
   S=o;
   if(!S.arcs) S.arcs={}; // migrate older saves (pre-arc-system)
+  if(!S.npcs){ S.npcs={}; S.antagonistId=S.antagonistId||""; } // migrate (pre-NPC-roster)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);

@@ -26,6 +26,11 @@ const fnSchema = z.custom<(s: unknown) => unknown>((v) => typeof v === 'function
 const numberRecord = z.record(z.string(), z.number());
 const flagRecord = z.record(z.string(), z.union([z.boolean(), z.number(), z.string()]));
 const arcRef = z.object({ id: z.string().min(1), stage: z.number().int() });
+const npcFx = z.object({
+  id: z.string().min(1),
+  relationship: z.number().optional(),
+  loyalty: z.number().optional(),
+});
 
 const thenRef = z.object({
   id: z.string().min(1),
@@ -40,6 +45,7 @@ const rollOutcome = z.object({
   then: z.array(thenRef).optional(),
   ending: z.string().optional(),
   arcSet: arcRef.optional(),
+  npcFx: npcFx.optional(),
 });
 
 const roll = z.object({
@@ -62,6 +68,7 @@ const choice = z.object({
   then: z.array(thenRef).optional(),
   ending: z.string().optional(),
   arcSet: arcRef.optional(),
+  npcFx: npcFx.optional(),
   tone: z.string().optional(),
 });
 
