@@ -26,21 +26,21 @@ A cartoon political-strategy PWA with the depth, polish, accessibility, and meta
 
 ## Phases
 
-| # | Phase | Crux acceptance criterion |
-|---|-------|---------------------------|
-| 0 | Audit & Architecture | ✅ Plan approved (Vite+TS+Zod content+vite-plugin-pwa; seeded RNG; module layout). |
-| 1 | **Foundation & Tooling** | Behavior-preserving migration; seeded RNG; Zod content + content linter; ESLint/Prettier; Vitest+Playwright (smoke+offline); CI (lint·typecheck·unit·e2e·build·content-validate·Lighthouse). Identical gameplay; all gates green. |
-| 2 | Content Engine Depth | Multi-event arcs, persistent NPC roster + loyalty, recurring antagonist, scandals-with-memory, per-run modifiers, difficulty modes, scenario-of-the-day. Arcs initiate/resolve across phases in E2E. |
-| 3 | Content Volume | 250+ validated events; more endings + epilogue slides; flavor systems. 100% schema-valid; repeat-rate < threshold; every ending reachable in seed sweep. |
-| 4 | Systems Depth | Faction/bloc meters, ideology axes + coalition math, treasury, cabinet/advisors w/ loyalty, perk synergies, crisis sub-decisions, term limits/decay. No soft-locks; documented; unit-tested. |
-| 5 | UX, Onboarding & Accessibility | Tutorial, settings, main menu, codex, run-summary, responsive, **WCAG 2.1 AA**. axe clean; Lighthouse a11y ≥90; keyboard-only E2E passes. |
-| 6 | Audio & Juice | Web Audio (synth-first), per-theme ambient, cues; respects reduced-motion + settings; haptics. Toggles persist; no perf regression. |
-| 7 | Art Expansion | More avatar parts + cosmetics, backgrounds, motifs, animated emblem, full icon set, OG/social cards. Cohesion held; within budget. |
-| 8 | Meta-Progression & Persistence | Save slots + autosave, migration-safe versioning, run history/stats, achievements, unlockables, New Game+. Saves persist & migrate; tested. |
-| 9 | Performance | Code-split/lazy-load content, tree-shake, bundle budget, Lighthouse perf ≥90, 60fps, memory hygiene. Budgets enforced in CI. |
-| 10 | Testing & QA Hardening | Engine coverage ≥80%, large seeded E2E sweep, optional visual-regression, opt-in error reporting (flagged). CI green incl. sweep. |
-| 11 | Business, Distribution & Legal | Monetization behind flags (no pay-to-win), opt-in EU-consent analytics, legal docs, i18n externalization, store packaging (TWA/MS Store/itch), SEO+OG. |
-| 12 | Launch Readiness | Lighthouse all ≥90 on prod, full regression, changelog + semver, release build, deploy Vercel + Traefik, launch checklist. |
+| #   | Phase                          | Crux acceptance criterion                                                                                                                                                                                                         |
+| --- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Audit & Architecture           | ✅ Plan approved (Vite+TS+Zod content+vite-plugin-pwa; seeded RNG; module layout).                                                                                                                                                |
+| 1   | **Foundation & Tooling**       | Behavior-preserving migration; seeded RNG; Zod content + content linter; ESLint/Prettier; Vitest+Playwright (smoke+offline); CI (lint·typecheck·unit·e2e·build·content-validate·Lighthouse). Identical gameplay; all gates green. |
+| 2   | Content Engine Depth           | Multi-event arcs, persistent NPC roster + loyalty, recurring antagonist, scandals-with-memory, per-run modifiers, difficulty modes, scenario-of-the-day. Arcs initiate/resolve across phases in E2E.                              |
+| 3   | Content Volume                 | 250+ validated events; more endings + epilogue slides; flavor systems. 100% schema-valid; repeat-rate < threshold; every ending reachable in seed sweep.                                                                          |
+| 4   | Systems Depth                  | Faction/bloc meters, ideology axes + coalition math, treasury, cabinet/advisors w/ loyalty, perk synergies, crisis sub-decisions, term limits/decay. No soft-locks; documented; unit-tested.                                      |
+| 5   | UX, Onboarding & Accessibility | Tutorial, settings, main menu, codex, run-summary, responsive, **WCAG 2.1 AA**. axe clean; Lighthouse a11y ≥90; keyboard-only E2E passes.                                                                                         |
+| 6   | Audio & Juice                  | Web Audio (synth-first), per-theme ambient, cues; respects reduced-motion + settings; haptics. Toggles persist; no perf regression.                                                                                               |
+| 7   | Art Expansion                  | More avatar parts + cosmetics, backgrounds, motifs, animated emblem, full icon set, OG/social cards. Cohesion held; within budget.                                                                                                |
+| 8   | Meta-Progression & Persistence | Save slots + autosave, migration-safe versioning, run history/stats, achievements, unlockables, New Game+. Saves persist & migrate; tested.                                                                                       |
+| 9   | Performance                    | Code-split/lazy-load content, tree-shake, bundle budget, Lighthouse perf ≥90, 60fps, memory hygiene. Budgets enforced in CI.                                                                                                      |
+| 10  | Testing & QA Hardening         | Engine coverage ≥80%, large seeded E2E sweep, optional visual-regression, opt-in error reporting (flagged). CI green incl. sweep.                                                                                                 |
+| 11  | Business, Distribution & Legal | Monetization behind flags (no pay-to-win), opt-in EU-consent analytics, legal docs, i18n externalization, store packaging (TWA/MS Store/itch), SEO+OG.                                                                            |
+| 12  | Launch Readiness               | Lighthouse all ≥90 on prod, full regression, changelog + semver, release build, deploy Vercel + Traefik, launch checklist.                                                                                                        |
 
 ## Sequencing rule
 

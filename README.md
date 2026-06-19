@@ -32,6 +32,7 @@ Then open `http://localhost:8080/`. On Chrome/Edge desktop you'll see an install
 It's a static site, so any static host works. Two paths for your stack:
 
 ### Vercel (simplest)
+
 From the project folder:
 
 ```bash
@@ -42,6 +43,7 @@ vercel --prod   # production
 No `vercel.json` needed — Vercel serves the folder as-is and the relative paths (`manifest.json`, `sw.js`, `icons/…`) resolve correctly at the domain root. Custom domain via the Vercel dashboard.
 
 ### Contabo VPS behind Traefik
+
 Serve the folder from a tiny static container and let Traefik route to it. Drop the `velmora/` folder next to a compose file:
 
 ```yaml
@@ -52,13 +54,13 @@ services:
     volumes:
       - ./velmora:/usr/share/nginx/html:ro
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.velmora.rule=Host(`velmora.yourdomain.com`)"
-      - "traefik.http.routers.velmora.entrypoints=websecure"
-      - "traefik.http.routers.velmora.tls.certresolver=letsencrypt"
-      - "traefik.http.services.velmora.loadbalancer.server.port=80"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.velmora.rule=Host(`velmora.yourdomain.com`)'
+      - 'traefik.http.routers.velmora.entrypoints=websecure'
+      - 'traefik.http.routers.velmora.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.velmora.loadbalancer.server.port=80'
     networks:
-      - traefik   # whatever external network your Traefik already uses
+      - traefik # whatever external network your Traefik already uses
 
 networks:
   traefik:
@@ -80,7 +82,7 @@ Replayability comes from **systems, not a branching script**. Every run re-rolls
 - **Weighted random event draws** — events have weights and phase/path gates; a per-phase `seen[]` list prevents repeats, so the bank doesn't recycle until it's genuinely drained.
 - **Instability-scaled crisis injection** — recessions, scandals, wars, assassinations, pandemics and coups are held out of the normal pool and injected on a probability that climbs with tension, a bad economy, high heat, and the final phase.
 - **Dice-rolled risky choices** — "roll" choices resolve against a stat with a win chance derived from how far above/below the difficulty you are, branching into success/fail outcomes (and sometimes queuing delayed follow-up events).
-- **Flag-branched endings** — choices set hidden flags (`bloody_hands`, `secret_reformer`, `own_cult`, `corrupt_streak`, a `purge_count` counter, and many more). The finale weighs those flags plus a composite score to award one of ~12 endings, from *The Reformer* to *The Tyrant* to a forgettable *Footnote*.
+- **Flag-branched endings** — choices set hidden flags (`bloody_hands`, `secret_reformer`, `own_cult`, `corrupt_streak`, a `purge_count` counter, and many more). The finale weighs those flags plus a composite score to award one of ~12 endings, from _The Reformer_ to _The Tyrant_ to a forgettable _Footnote_.
 
 The contests themselves (elections / power-plays / the finale) also roll outcomes you can swing by spending resources on boosts beforehand — so even a strong position isn't a guaranteed win.
 
@@ -151,10 +153,10 @@ When a `body` (or `result`) is a **plain backtick string**, it must contain **no
 
 ```js
 // ✅ static text — no interpolation
-body:`A reporter is asking uncomfortable questions about the harbor deal.`
+body: `A reporter is asking uncomfortable questions about the harbor deal.`;
 
 // ✅ dynamic text — S is in scope
-body:(S)=>`Comrade ${S.opp} corners you after the meeting. "Are you loyal — to me?"`
+body: (S) => `Comrade ${S.opp} corners you after the meeting. "Are you loyal — to me?"`;
 ```
 
 Mixing these up (putting `${...}` in a plain string) is the single most common authoring mistake. Add an event, then reload over HTTP and play into its phase to see it.

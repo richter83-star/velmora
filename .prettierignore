@@ -1,0 +1,13 @@
+dist
+public
+node_modules
+coverage
+playwright-report
+test-results
+package-lock.json
+CLAUDE-FABLE-5.md
+
+# legacy verbatim port — kept byte-faithful until decomposed into typed modules (Task 5)
+src/main.js
+src/styles.css
+index.html
