@@ -36,7 +36,7 @@
 - [x] **Story arc system** — `engine/arcs.ts` + `content/arcs.ts`; cross-phase `S.arcs` state; the 3-stage _Harbor Deal_ (ballot) arc; schema/linter extended for arcs; arc unit tests + E2E (initiates → resolves to terminal stage 99 across phases)
 - [x] **Persistent NPC roster + recurring antagonist** — `engine/npcs.ts` + `content/npcs.ts`/`npc-events.ts`; `S.npcs` roster with relationship/loyalty; the antagonist is created once and is the recurring opponent every phase; `npcFx` on choices; schema/linter + units + E2E (persists across phases)
 - [x] **Scandals-with-memory** — `engine/scandals.ts` + `content/scandals.ts`; latent scandals resurface as a reckoning event (bury again / confess / deny on a roll); the Harbor cover-up plants one; schema/linter + units + E2E
-- [ ] Per-run modifiers + difficulty modes + scenario-of-the-day entry
+- [x] **Difficulty modes + per-run modifiers + scenario-of-the-day** — `content/setup.ts` + `engine/setup.ts`; 3 difficulty modes feed start stats / contest / crisis / scandal frequency; 1 seeded modifier per run; create-screen difficulty chips + a "Scenario of the Day" title button (UTC daily seed)
 - [ ] Phase 2 verification (NPC/arc schema+linter, all gates) + PROGRESS update
 - [ ] (Parity) a vanguard-path arc to match the ballot Harbor arc
 
@@ -72,6 +72,8 @@
 
 - **AD-8 — Scandals with memory:** choices plant latent `Scandal` records (`S.scandals`); `nextEvent` injects a "The Past Resurfaces" reckoning when one is due (chance scales with severity/heat/phase). Resolving sets status (buried/resolved/exposed) so each resurfaces at most once. Engine-injected events (`ENGINE_INJECTED_EVENT_IDS`) are exempt from the unreachable-`queueOnly` lint.
 
+- **AD-9 — Run setup:** `S.difficulty` (Storyteller/Standard/Ironclad) scales starting stats (`applyDifficultyStart`), contest opponent strength (`oppBonus`), and crisis/scandal frequency (`crisisMult`/`scandalMult`, via a `curDifficulty()` helper). One per-run modifier is rolled from the seed (`rollModifiers`) and applied at start (`applyModifier`). "Scenario of the Day" sets `DRAFT.seed = dailySeed()` so a given date plays the same run for everyone.
+
 ## Open questions / flagged decisions
 
 - **Fonts:** keep Google Fonts CDN through Phase 8; self-host + subset in Phase 9/11 (perf + EU consent).
@@ -95,6 +97,7 @@
 - Phase 2 cont.: **persistent NPC roster + recurring antagonist** (`d197a7f`) — antagonist carried across phases as the opponent; `npcFx` relationship meters; schema/linter + tests. 34 unit/content + 6 E2E green.
 - Phase 2 cont.: **antagonist hostility wired into the contest** (`a48fe32`) — relationship shifts opponent strength ±15; disposition shown on the contest screen. 37 unit/content + 6 E2E green.
 - Phase 2 cont.: **scandals-with-memory** (`c60c333`) — latent scandals resurface as a reckoning event; engine + content + schema/linter. 43 unit/content + 7 E2E green.
+- Phase 2 cont.: **difficulty modes + per-run modifiers + scenario-of-the-day** (`502111f`) — `content/setup.ts` + `engine/setup.ts`; create-screen difficulty chips, seeded modifiers, daily title button. 50 unit/content + 9 E2E green.
 
 ## Next steps (concrete)
 
