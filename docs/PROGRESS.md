@@ -3,7 +3,7 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-18
-**Current phase:** Phase 2 — Content Engine Depth (in progress)
+**Current phase:** Phase 2 complete — ready for Phase 3 (Content Volume)
 **Current branch:** `phase-1-foundation` (Phase 1 + early Phase 2 commits; not pushed — split at PR time)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
@@ -14,8 +14,9 @@
 
 - [x] Phase 0 — Audit & Architecture (plan approved)
 - [x] Phase 1 — Foundation & Tooling — acceptance criteria met
-- [~] Phase 2 — Content Engine Depth — **in progress** (engine split #1 + story arcs done)
-- [ ] Phases 3–12 — not started
+- [x] Phase 2 — Content Engine Depth — **complete** (arcs on both paths, NPC roster + antagonist, scandals-with-memory, difficulty/modifiers/daily)
+- [ ] Phase 3 — Content Volume ← **next**
+- [ ] Phases 4–12 — not started
 
 ### Phase 1 checklist
 
@@ -37,8 +38,8 @@
 - [x] **Persistent NPC roster + recurring antagonist** — `engine/npcs.ts` + `content/npcs.ts`/`npc-events.ts`; `S.npcs` roster with relationship/loyalty; the antagonist is created once and is the recurring opponent every phase; `npcFx` on choices; schema/linter + units + E2E (persists across phases)
 - [x] **Scandals-with-memory** — `engine/scandals.ts` + `content/scandals.ts`; latent scandals resurface as a reckoning event (bury again / confess / deny on a roll); the Harbor cover-up plants one; schema/linter + units + E2E
 - [x] **Difficulty modes + per-run modifiers + scenario-of-the-day** — `content/setup.ts` + `engine/setup.ts`; 3 difficulty modes feed start stats / contest / crisis / scandal frequency; 1 seeded modifier per run; create-screen difficulty chips + a "Scenario of the Day" title button (UTC daily seed)
-- [ ] Phase 2 verification (NPC/arc schema+linter, all gates) + PROGRESS update
-- [ ] (Parity) a vanguard-path arc to match the ballot Harbor arc
+- [x] **Vanguard-path arc** — "The Patron's Shadow" (patronage → compromise → purge), parity with the ballot Harbor arc
+- [x] **Phase 2 verification** — schema/linter cover all new content types; arc E2E on **both** paths; all gates green (51 unit/content + 10 E2E)
 
 ---
 
@@ -98,11 +99,11 @@
 - Phase 2 cont.: **antagonist hostility wired into the contest** (`a48fe32`) — relationship shifts opponent strength ±15; disposition shown on the contest screen. 37 unit/content + 6 E2E green.
 - Phase 2 cont.: **scandals-with-memory** (`c60c333`) — latent scandals resurface as a reckoning event; engine + content + schema/linter. 43 unit/content + 7 E2E green.
 - Phase 2 cont.: **difficulty modes + per-run modifiers + scenario-of-the-day** (`502111f`) — `content/setup.ts` + `engine/setup.ts`; create-screen difficulty chips, seeded modifiers, daily title button. 50 unit/content + 9 E2E green.
+- Phase 2 done: **vanguard "Patron's Shadow" arc** (`a39e4e2`) for path parity. **Phase 2 complete** — acceptance met (arcs initiate/resolve across phases in E2E on both paths; content linter green; all new types in the schema). 51 unit/content + 10 E2E green.
 
 ## Next steps (concrete)
 
-1. **Phase 2 — NPC roster:** formalize an NPC model (id/name/avatar + relationship/loyalty) in `S`, a recurring antagonist across phases, events that reference/affect NPCs; extend schema + linter.
-2. **Phase 2 — scandals-with-memory, per-run modifiers, difficulty modes, scenario-of-the-day** entry (wire `dailySeed`).
-3. Add a **vanguard-path arc** for parity with the ballot Harbor arc.
-4. Continue the **engine/ui decomposition** opportunistically (next candidates: `draw`/`promotion` logic or the avatar generator → `ui/`).
-5. When Phase 2 acceptance is met: update this ledger, then push `phase-1-foundation` and open a PR (CI: verify · e2e · lighthouse) before Phase 3.
+1. **Phase 3 — Content Volume:** scale the event bank toward **250+** validated events across paths/phases/crises/arcs; more endings + epilogue slides; flavor systems (headline ticker). Hold the fictional/non-partisan invariant. Targets: 100% schema-valid, cross-run repeat-rate below threshold over 50 seeded runs/path, every ending reachable in a seed sweep.
+2. Build the **ending-reachability seed sweep** (AD-4) and consider lifting endings to data as volume grows.
+3. Continue the **engine/ui decomposition** opportunistically (next candidates: `draw`/`promotion` logic or the avatar generator → `ui/`); retire the `src/main.js` lint/prettier ignores once done.
+4. At a checkpoint: push `phase-1-foundation` and open a PR so CI runs (verify · e2e · lighthouse).
