@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { getNpc, antagonist, applyNpcFx } from '../../src/engine/npcs';
+import {
+  getNpc,
+  antagonist,
+  applyNpcFx,
+  antagonistContestModifier,
+  dispositionLabel,
+} from '../../src/engine/npcs';
 import type { GameState, NPC } from '../../src/engine/types';
 
 function makeNpc(over: Partial<NPC> = {}): NPC {
@@ -58,5 +64,27 @@ describe('npc roster', () => {
     const s = stateWith({ antagonist: makeNpc() });
     expect(() => applyNpcFx(s, undefined)).not.toThrow();
     expect(() => applyNpcFx(s, { id: 'ghost', relationship: 5 })).not.toThrow();
+  });
+});
+
+describe('antagonist contest mechanic', () => {
+  it('hostile rivals raise difficulty, thawed rivals lower it', () => {
+    expect(antagonistContestModifier(-100)).toBe(15);
+    expect(antagonistContestModifier(0)).toBe(0);
+    expect(antagonistContestModifier(100)).toBe(-15);
+    expect(antagonistContestModifier(-35)).toBe(5);
+  });
+
+  it('is monotonic: more hostile means at least as hard', () => {
+    expect(antagonistContestModifier(-50)).toBeGreaterThan(antagonistContestModifier(-10));
+    expect(antagonistContestModifier(10)).toBeLessThan(antagonistContestModifier(-10));
+  });
+
+  it('disposition label reflects relationship bands', () => {
+    expect(dispositionLabel(-80)).toBe('a bitter enemy');
+    expect(dispositionLabel(-35)).toBe('a hostile rival');
+    expect(dispositionLabel(0)).toBe('a wary rival');
+    expect(dispositionLabel(40)).toBe('a grudging peer');
+    expect(dispositionLabel(80)).toBe('an unlikely ally');
   });
 });

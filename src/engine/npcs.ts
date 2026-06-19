@@ -28,3 +28,22 @@ export function applyNpcFx(S: GameState, fx: NpcFx | undefined): void {
   }
   npc.met = true;
 }
+
+/**
+ * Contest difficulty shift from the antagonist's hostility. A hostile rival
+ * (negative relationship) fights harder; a thawed one is easier. Returns a
+ * strength delta to add to the opponent's contest strength (±15).
+ */
+export function antagonistContestModifier(relationship: number): number {
+  // `|| 0` normalizes -0 (from Math.round(-0)) to +0.
+  return Math.round(clamp(-relationship * 0.15, -15, 15)) || 0;
+}
+
+/** Short label for how the antagonist currently regards you. */
+export function dispositionLabel(relationship: number): string {
+  if (relationship <= -60) return 'a bitter enemy';
+  if (relationship <= -20) return 'a hostile rival';
+  if (relationship < 20) return 'a wary rival';
+  if (relationship < 60) return 'a grudging peer';
+  return 'an unlikely ally';
+}

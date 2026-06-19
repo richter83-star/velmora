@@ -8,7 +8,7 @@ import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
 import { arcEventEligible, applyArcSet } from './engine/arcs';
 import { ARC_EVENTS } from './content/arcs';
-import { applyNpcFx } from './engine/npcs';
+import { applyNpcFx, antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { NPC_EVENTS } from './content/npc-events';
 EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS);
@@ -357,10 +357,12 @@ function startPromotion(){
     S.promo={type:"finale",ph,resolved:false};
     renderHUD(); renderPromotion(); save(); return;
   }
-  const oppStrength=clamp(ph.promo.baseOpp+rint(-5,9)+(S.phase-1)*3,20,90);
+  const _antag=antagonist(S);
+  const _hostility=_antag?antagonistContestModifier(_antag.relationship):0;
+  const oppStrength=clamp(ph.promo.baseOpp+rint(-5,9)+(S.phase-1)*3+_hostility,20,90);
   S.promo={
     type:ph.promo.type, ph,
-    opp:{name:S.opp,avatar:S.oppAvatar,strength:oppStrength},
+    opp:{name:S.opp,avatar:S.oppAvatar,strength:oppStrength,disposition:_antag?dispositionLabel(_antag.relationship):""},
     player:promoPlayerStrength(ph),
     boosts:promoBoosts(ph), used:[], resolved:false, result:null
   };
@@ -591,7 +593,7 @@ function renderPromotion(){
     </button>`;
   }).join("");
   $("#stage").innerHTML=`<div class="promo">
-    <div class="promo-head"><div class="pe">${ph.promo.emoji}</div><h3>${esc(ph.promo.label)}</h3><div class="ps">vs ${esc(pr.opp.name)} · ${esc(ph.promo.oppTitle)}</div></div>
+    <div class="promo-head"><div class="pe">${ph.promo.emoji}</div><h3>${esc(ph.promo.label)}</h3><div class="ps">vs ${esc(pr.opp.name)} · ${esc(pr.opp.disposition||ph.promo.oppTitle)}</div></div>
     <div class="promo-body">
       <div class="odds"><div class="meter"><div class="me" style="width:${wc}%"></div></div><div class="pct">${wc}%</div></div>
       <p style="font-family:var(--font-m);font-size:.7rem;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">Spend resources to swing the odds — each move works once. Then commit to the contest.</p>
