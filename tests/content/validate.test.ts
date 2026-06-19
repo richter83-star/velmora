@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { EVENTS } from '../../src/content/events';
 import { ARC_EVENTS, ARCS } from '../../src/content/arcs';
 import { NPC_EVENTS } from '../../src/content/npc-events';
+import { SCANDAL_EVENTS } from '../../src/content/scandals';
 import { validateContent } from '../../src/content/lint';
 
-// The engine plays the base bank plus the arc-step and NPC-aware events.
-const ALL = [...EVENTS, ...ARC_EVENTS, ...NPC_EVENTS];
+// The engine plays the base bank plus arc-step, NPC-aware, and scandal events.
+const ALL = [...EVENTS, ...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS];
 
 describe('content validation', () => {
   const result = validateContent(ALL, ARCS);

@@ -31,6 +31,12 @@ const npcFx = z.object({
   relationship: z.number().optional(),
   loyalty: z.number().optional(),
 });
+const scandalSeed = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  severity: z.number().int(),
+});
+const scandalResolveSchema = z.enum(['buried', 'resolved', 'exposed']);
 
 const thenRef = z.object({
   id: z.string().min(1),
@@ -46,6 +52,8 @@ const rollOutcome = z.object({
   ending: z.string().optional(),
   arcSet: arcRef.optional(),
   npcFx: npcFx.optional(),
+  scandal: scandalSeed.optional(),
+  scandalResolve: scandalResolveSchema.optional(),
 });
 
 const roll = z.object({
@@ -69,6 +77,8 @@ const choice = z.object({
   ending: z.string().optional(),
   arcSet: arcRef.optional(),
   npcFx: npcFx.optional(),
+  scandal: scandalSeed.optional(),
+  scandalResolve: scandalResolveSchema.optional(),
   tone: z.string().optional(),
 });
 

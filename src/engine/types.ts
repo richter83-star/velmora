@@ -38,6 +38,8 @@ export interface RollOutcome {
   ending?: string;
   arcSet?: ArcAdvance;
   npcFx?: NpcFx;
+  scandal?: ScandalSeed;
+  scandalResolve?: 'buried' | 'resolved' | 'exposed';
 }
 
 export interface Roll {
@@ -70,6 +72,10 @@ export interface Choice {
   arcSet?: ArcAdvance;
   /** Adjust an NPC's meters when chosen. */
   npcFx?: NpcFx;
+  /** Record a latent scandal that may resurface later. */
+  scandal?: ScandalSeed;
+  /** Resolve the currently-resurfacing scandal. */
+  scandalResolve?: 'buried' | 'resolved' | 'exposed';
   /** Cosmetic accent: 'good' | 'slick' | 'bold'. */
   tone?: string;
 }
@@ -175,6 +181,10 @@ export interface GameState {
   npcs: Record<string, NPC>;
   /** The recurring antagonist's npc id (carried across phases). */
   antagonistId: string;
+  /** Latent/resolved scandals that can resurface (scandals with memory). */
+  scandals: Scandal[];
+  /** Id of the scandal currently resurfacing, or null. */
+  activeScandal: string | null;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];
@@ -259,4 +269,20 @@ export interface NpcFx {
   id: string;
   relationship?: number;
   loyalty?: number;
+}
+
+export type ScandalStatus = 'latent' | 'buried' | 'resolved' | 'exposed';
+
+/** A scandal a choice can plant; it lies latent until it resurfaces. */
+export interface ScandalSeed {
+  id: string;
+  label: string;
+  /** 1 (minor) .. 5 (career-ending). */
+  severity: number;
+}
+
+export interface Scandal extends ScandalSeed {
+  phase: number;
+  turn: number;
+  status: ScandalStatus;
 }

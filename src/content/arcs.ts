@@ -102,6 +102,7 @@ export const ARC_EVENTS: GameEvent[] = [
         label: 'Make it disappear — whatever it costs',
         fx: { funds: -18, heat: -8 },
         set: { buried_a_body: true, corrupt_streak: true },
+        scandal: { id: 'harbor_coverup', label: 'the buried harbor files', severity: 4 },
         arcSet: { id: 'harbor', stage: 99 },
         tone: 'slick',
         result:

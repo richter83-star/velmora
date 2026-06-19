@@ -17,6 +17,7 @@
 import type { GameEvent, ArcDef } from '../engine/types';
 import { EventSchema, STAT_KEYS, VALID_PHASES, PATH_KEYS, ENDING_CAUSES } from './schema';
 import { KNOWN_NPC_IDS } from './npcs';
+import { ENGINE_INJECTED_EVENT_IDS } from './scandals';
 
 export interface LintResult {
   errors: string[];
@@ -28,6 +29,7 @@ const PATH_SET = new Set<string>(PATH_KEYS);
 const PHASE_SET = new Set<number>(VALID_PHASES);
 const CAUSE_SET = new Set<string>(ENDING_CAUSES);
 const NPC_ID_SET = new Set<string>(KNOWN_NPC_IDS);
+const INJECTED_IDS = new Set<string>(ENGINE_INJECTED_EVENT_IDS);
 
 export function validateContent(
   events: readonly GameEvent[],
@@ -124,7 +126,7 @@ export function validateContent(
     if (!allIds.has(id)) errors.push(`then reference -> "${id}" has no matching event`);
   }
   for (const ev of events) {
-    if (ev.queueOnly && !referencedByThen.has(ev.id)) {
+    if (ev.queueOnly && !referencedByThen.has(ev.id) && !INJECTED_IDS.has(ev.id)) {
       errors.push(`event "${ev.id}": queueOnly but never referenced by a then[] (unreachable)`);
     }
   }

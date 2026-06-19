@@ -11,7 +11,9 @@ import { ARC_EVENTS } from './content/arcs';
 import { applyNpcFx, antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { NPC_EVENTS } from './content/npc-events';
-EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS);
+import { recordScandal, resolveActiveScandal, scandalResurfaceChance, pickResurfacing } from './engine/scandals';
+import { SCANDAL_EVENTS } from './content/scandals';
+EVENTS.push(...ARC_EVENTS, ...NPC_EVENTS, ...SCANDAL_EVENTS);
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -241,6 +243,15 @@ function nextEvent(){
     const ev=EVENTS.find(e=>e.id===q.id);
     if(ev && (!ev.req||ev.req(S))){ showEvent(ev); return; }
   }
+  // 1.5) a buried scandal resurfaces (scandals with memory)
+  if(chance(scandalResurfaceChance(S))){
+    const sc=pickResurfacing(S);
+    if(sc){
+      S.activeScandal=sc.id;
+      const ev=EVENTS.find(e=>e.id==="scandal_resurfaces");
+      if(ev){ showEvent(ev); return; }
+    }
+  }
   // 2) crisis injection on instability
   const crises=eligible(true);
   if(crises.length && chance(crisisChance())){ showEvent(weightedPick(crises)); return; }
@@ -271,12 +282,14 @@ function resolveChoice(ci){
   let endingCause=ch.ending||null;
 
   applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc); applyArcSet(S,ch.arcSet); applyNpcFx(S,ch.npcFx);
+  recordScandal(S,ch.scandal); resolveActiveScandal(S,ch.scandalResolve);
 
   if(ch.roll){
     const r=doRoll(ch.roll);
     const br=r.win?ch.roll.success:ch.roll.fail;
     if(br){
       applyFx(br.fx); setFlags(br.set); incFlags(br.inc); applyArcSet(S,br.arcSet); applyNpcFx(S,br.npcFx);
+      recordScandal(S,br.scandal); resolveActiveScandal(S,br.scandalResolve);
       if(br.text) text=br.text;
       if(br.then) queueThen(br.then);
       if(br.ending) endingCause=br.ending;
@@ -704,7 +717,7 @@ function startCareer(d){
     version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path, phase:1, phaseTurn:0, totalTurns:0,
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
-    world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"", npcs:{}, antagonistId:"",
+    world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"", npcs:{}, antagonistId:"", scandals:[], activeScandal:null,
     flags:{}, arcs:{}, seen:[], queue:[], log:[],
     lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
     mode:"event", over:false, ending:null, promo:null, current:null
@@ -804,6 +817,7 @@ function resumeGame(){
   S=o;
   if(!S.arcs) S.arcs={}; // migrate older saves (pre-arc-system)
   if(!S.npcs){ S.npcs={}; S.antagonistId=S.antagonistId||""; } // migrate (pre-NPC-roster)
+  if(!S.scandals){ S.scandals=[]; S.activeScandal=S.activeScandal||null; } // migrate (pre-scandals)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
