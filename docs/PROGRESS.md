@@ -75,6 +75,8 @@
 
 - **AD-9 — Run setup:** `S.difficulty` (Storyteller/Standard/Ironclad) scales starting stats (`applyDifficultyStart`), contest opponent strength (`oppBonus`), and crisis/scandal frequency (`crisisMult`/`scandalMult`, via a `curDifficulty()` helper). One per-run modifier is rolled from the seed (`rollModifiers`) and applied at start (`applyModifier`). "Scenario of the Day" sets `DRAFT.seed = dailySeed()` so a given date plays the same run for everyone.
 
+- **AD-10 — Engine decomposition + sweep:** the draw engine is extracted to a pure `engine/draw.ts` (`chooseNext`) shared by `main.js` and a headless `engine/sim.ts`; `content/all-events.ts` is the single draw pool. A deterministic `sweep.test.ts` runs 50 sims/path gating repeat-rate (< 0.2), event variety (≥ 18 distinct), and ending spread (≥ 3). Remaining engine extraction (resolve/turn/contest into shared modules; full `main.js` adoption) is incremental.
+
 ## Open questions / flagged decisions
 
 - **Fonts:** keep Google Fonts CDN through Phase 8; self-host + subset in Phase 9/11 (perf + EU consent).
@@ -105,7 +107,8 @@
 
 - Pushed `phase-1-foundation` and opened **PR #1** (richter83-star/velmora); CI (verify · e2e · lighthouse) **green** on the foundation commit; GitGuardian clean.
 - Phase 3 kicked off (`5025dea`): scalable **event-pack** structure + **content pack 1** (+12 events; bank ~50); **all-14-endings reachability gate**; arc E2E made robust to content growth (multi-seed via the `?seed=` URL hook, asserting the arc advances in at least one run). 52 unit/content + 10 E2E green.
-- **Phase 3 cadence:** add validated event packs (`content/events-pack-N.ts`) toward 250+; build the engine-driven repeat-rate + ending-reachability seed sweep once the draw engine is decomposed.
+- Engine decomposition + sweep (`cf450a4`): extracted the pure draw engine (`engine/draw.ts`, shared via `chooseNext`), single-sourced the pool (`content/all-events.ts`), built a headless simulator (`engine/sim.ts`) + a seeded sweep gate (50 runs/path: repeat-rate < 0.2, ≥18 distinct events, ≥3 endings). 62 unit/content + 10 E2E green.
+- **Phase 3 cadence:** add validated event packs toward 250+, watching the sweep's variety/repeat-rate metrics; extract resolve/turn/contest into shared modules next (so `main.js` fully adopts the pure engine); expand endings + epilogues; add the headline-ticker flavor.
 
 ## Next steps (concrete)
 
