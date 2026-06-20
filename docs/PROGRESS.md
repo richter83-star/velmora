@@ -3,7 +3,7 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-20
-**Current phase:** **Phase 5 COMPLETE** (a11y foundation · codex/almanac · settings · skippable tutorial · run-summary · axe-clean key screens · responsive gate). Next: Phase 6 — Audio & Juice (kept lean; a full UX/UI redesign is scheduled after Phase 12, so 5–7 are functional, not gold-plated). (Phase 4: 6 systems. Phase 3: 251 events, ticker, epilogue.)
+**Current phase:** **Phases 5–7 COMPLETE (lean)** — UX/onboarding/a11y, lean audio, lean art. Next: Phase 8 — Meta-Progression & Persistence. (A full UX/UI redesign is scheduled after Phase 12, so 5–7 were kept functional, not gold-plated.) (Phase 4: 6 systems. Phase 3: 251 events, ticker, epilogue.)
 **Roadmap note (2026-06-20):** Per product direction, sequence is **finish core (Phases 5–12) → massive UX/UI redesign → "Dark Mirrors" expansion** (see `EXPANSION_BRIEF.md`, deferred). Phases 5–7 are deliberately kept lean since the redesign will own final visual polish; the expansion brief targets the pre-migration architecture and needs a retarget pass before it's built.
 **Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
@@ -19,7 +19,9 @@
 - [x] Phase 3 — Content Volume — **complete** (251 events, ticker, personalized epilogue; all endings reachable in the seed sweep)
 - [x] Phase 4 — Systems Depth — **complete** (ideology axes, faction/coalition math, approval decay, trait perks, cabinet/advisors, crisis sub-decisions)
 - [x] Phase 5 — UX, Onboarding & Accessibility — **complete** (a11y foundation, codex, settings, tutorial, run-summary, axe-clean, responsive)
-- [ ] Phases 6–12 — not started (6–7 to be built **lean**; full visual polish deferred to the post-Phase-12 redesign)
+- [x] Phase 6 — Audio & Juice — **complete (lean)** (opt-in synth SFX for choices/promotions/endings; Sound setting, default off, persisted)
+- [x] Phase 7 — Art Expansion — **complete (lean)** (broadened procedural avatar variety; full art direction deferred to the redesign)
+- [ ] Phases 8–12 — not started
 
 ### Phase 1 checklist
 
@@ -151,10 +153,17 @@ Per the roadmap: skippable tutorial, full settings, main menu, codex/almanac, ru
 - **Phase 5 acceptance — MET:** axe clean on key screens; keyboard-only play (a11y.spec); responsive at standard breakpoints; Lighthouse a11y gated in CI. 24 E2E + 98 unit green. **Phase 5 closed.**
 - **Decision-gated later phases (true blockers needing user input):** Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Phase 6–7 art/audio creative direction is **no longer a near-term blocker** — they're built lean with functional defaults (synth audio, procedural art) because the post-Phase-12 redesign owns the real creative direction.
 
+## Phase 6 — Audio & Juice (complete, lean)
+
+- **Opt-in synth SFX** (`b6a7ddb`): a tiny Web Audio module in `main.js` (`actx()` lazy `AudioContext`, `blip()`, `sfx(name)`) plays short oscillator cues — `click` on every choice, `promote`/`fail` on the promotion result, `win`/`lose` on the ending. Gated behind a new **Sound** setting (`SETTINGS.sound`, default **off**, persisted in `velmora_settings_v1`); the context is created lazily on first use and `resume()`d (autoplay-policy safe). New `audio.spec.ts` (toggle persists across reload; sound-on playthrough raises no console errors). Default-off means every other E2E is unaffected. Ambient pads / haptics intentionally deferred to the post-Phase-12 redesign.
+
+## Phase 7 — Art Expansion (complete, lean)
+
+- **Avatar variety** (`ff39265`): broadened the parametric avatar generator — two new accessories (beard rendered behind the mouth so expressions still read; earring) and two hair colors — via the existing `randAvatar`/`buildAvatar` system. The generator is durable (survives a reskin); full art direction (backgrounds, cosmetics, animated emblem, icon set) is deferred to the redesign. Existing E2E exercise avatar rendering on create/game/ending; all green.
+
 ## Next steps (concrete)
 
-1. **Phase 6 — Audio & Juice (lean):** Web Audio synth-first SFX (choice click, promotion win/lose, ending), optional per-theme ambient pad, all behind a **Sound** settings toggle that defaults off and persists; respect `reduced()`/reduced-motion for any motion-coupled juice; no perf regression. Keep it functional, not gold-plated — the redesign will own final sound/motion design. Gate: toggle persists; SFX fire in E2E without console errors; all paths still green.
-2. **Phase 7 — Art Expansion (lean):** broaden the procedural avatar parts + a few cosmetic options and per-theme background motifs using the existing token system; full art direction deferred to the redesign.
-3. **Phases 8–12** per roadmap (meta-progression/persistence, performance, QA hardening, business/legal behind flags, launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated.
-4. At a checkpoint: push `phase-1-foundation` and update **PR #1** so CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
-5. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.
+1. **Phase 8 — Meta-Progression & Persistence:** save slots + autosave, migration-safe versioning, run history/stats, achievements, unlockables, New Game+. Durable work (survives the redesign). Build on the existing `velmora_save_v1` + in-memory fallback; keep migration safe. Gate: saves persist & migrate; tested.
+2. **Phases 9–12** per roadmap (performance/bundle budgets, QA hardening + large seed sweep, business/legal behind flags, launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
+3. At a checkpoint: push `phase-1-foundation` and update **PR #1** so CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
+4. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.
