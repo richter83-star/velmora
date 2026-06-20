@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "content:validate": "vitest run tests/content"
+    "content:validate": "vitest run tests/content",
+    "size": "node scripts/check-size.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",

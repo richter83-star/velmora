@@ -3,17 +3,12 @@ import { createRng, randomSeed, dailySeed } from './engine/rng';
 import { PATHS } from './content/paths';
 import { TRAITS } from './content/traits';
 import { WORLD } from './content/world';
-import { ALL_EVENTS as EVENTS } from './content/all-events';
 import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
-import { ARC_EVENTS } from './content/arcs';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
-import { NPC_EVENTS } from './content/npc-events';
-import { SCANDAL_EVENTS } from './content/scandals';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
-import { PACK_1 } from './content/events-pack-1';
 import { chooseNext } from './engine/draw';
 import { pickHeadlines } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
@@ -26,7 +21,21 @@ import { deathCause, advanceTurnState } from './engine/turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
 import { blankRun } from './engine/state';
 import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, ACHIEVEMENTS, UNLOCKABLES, SLOT_COUNT } from './engine/meta';
-// The full draw pool (base bank + packs) is assembled in content/all-events.ts.
+
+/* The 251-event draw pool (content/all-events.ts) is the bulk of the bundle but
+   isn't needed for the title/menu. It's code-split into its own chunk and loaded
+   lazily at career start via loadBank(); the chunk is precached by the service
+   worker (injectManifest globs include js) so offline start still works. The
+   pool is prefetched once the title is idle so "Begin Your Ascent" is instant. */
+let EVENTS = null;
+async function loadBank(){
+  if(!EVENTS){ const m = await import('./content/all-events'); EVENTS = m.ALL_EVENTS; }
+  return EVENTS;
+}
+function prefetchBank(){
+  const go = () => { import('./content/all-events').catch(()=>{}); };
+  try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
+}
 
 /* ================================================================
    VELMORA · engine + content   (vanilla JS, no build, PWA-ready)
@@ -833,7 +842,8 @@ function beginCareer(){
   }
   startCareer(DRAFT);
 }
-function startCareer(d){
+async function startCareer(d){
+  await loadBank(); // the draw pool is code-split; ensure it's loaded before the first event
   const P=PATHS[d.path];
   // Seed this run from an explicit DRAFT.seed (shared/daily scenario) or a fresh one.
   _rng = createRng(d.seed!=null ? d.seed : randomSeed());
@@ -1194,9 +1204,10 @@ function clearSave(i){
 function anySave(){ for(let i=0;i<SLOT_COUNT;i++){ if(hasSave(i)) return true; } return false; }
 function refreshContinueBtn(){ const c=$("#btn-continue"); if(c) c.classList.toggle("hidden", !anySave()); }
 
-function resumeGame(){
+async function resumeGame(){
   const o=loadRaw();
   if(!o || !o.path){ toast("No saved career found"); return; }
+  await loadBank(); // the draw pool is code-split; needed for nextEvent/EVENTS.find below
   S=o;
   if(!S.arcs) S.arcs={}; // migrate older saves (pre-arc-system)
   if(!S.npcs){ S.npcs={}; S.antagonistId=S.antagonistId||""; } // migrate (pre-NPC-roster)
@@ -1283,6 +1294,7 @@ function boot(){
   window.__VELMORA_STATE = () => S;
 
   registerSW();
+  prefetchBank(); // warm the code-split event-bank chunk so career start is instant
 }
 
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
