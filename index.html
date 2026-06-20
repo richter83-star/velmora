@@ -44,6 +44,7 @@
       <button class="btn ghost lg block hidden" id="btn-continue">Resume Career</button>
       <button class="btn ghost block" id="btn-how">How to Rule</button>
       <button class="btn ghost block" id="btn-codex">📖 The Almanac</button>
+      <button class="btn ghost block" id="btn-settings">⚙️ Settings</button>
       <button class="btn gold block" id="btn-daily">🗓️ Scenario of the Day</button>
     </div>
     <p class="title-foot">A fictional nation. Fictional parties. Real dilemmas.<br>Every choice writes your legacy — and no two careers are alike.</p>
@@ -56,6 +57,29 @@
       <h2 class="h-screen" id="codex-title">📖 The Almanac</h2>
     </div>
     <div id="codex-mount"></div>
+  </section>
+
+  <!-- ===================== SETTINGS ===================== -->
+  <section id="screen-settings" class="screen" aria-label="Settings">
+    <div class="settings-top">
+      <button class="btn ghost" id="btn-settings-back" aria-label="Back to title">⮌ Back</button>
+      <h2 class="h-screen" id="settings-title">⚙️ Settings</h2>
+    </div>
+    <div class="panel">
+      <div class="set-row">
+        <div class="set-label"><b>Reduce motion</b><span>Turn off confetti, screen transitions, and the scrolling news ticker.</span></div>
+        <button class="toggle" id="set-reduce" role="switch" aria-checked="false" aria-label="Reduce motion"><span class="knob" aria-hidden="true"></span></button>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><b>High contrast</b><span>Stronger text and outlines for easier reading.</span></div>
+        <button class="toggle" id="set-high" role="switch" aria-checked="false" aria-label="High contrast"><span class="knob" aria-hidden="true"></span></button>
+      </div>
+      <div class="set-actions">
+        <button class="btn block" id="set-replay-tut">↻ Replay the tutorial</button>
+        <button class="btn ghost block" id="set-clear">🗑️ Clear saved career</button>
+      </div>
+      <p class="muted" style="margin-top:14px">Settings are stored on this device only. Motion is also reduced automatically if your system requests it.</p>
+    </div>
   </section>
 
   <!-- ===================== PATH ===================== -->

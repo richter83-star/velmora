@@ -33,7 +33,24 @@ import { blankRun } from './engine/state';
    ================================================================ */
 (function(){
 "use strict";
-const VERSION="1.0.0", SAVE_KEY="velmora_save_v1";
+const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1";
+
+/* ---------- player settings (persisted, with in-memory fallback) ---------- */
+const SETTINGS={ reduceMotion:false, highContrast:false, tutorialSeen:false };
+function loadSettings(){
+  let raw=null;
+  try{ raw=localStorage.getItem(SETTINGS_KEY); }catch(e){}
+  if(!raw && window._velmoraSet) raw=window._velmoraSet;
+  if(raw){ try{ const o=JSON.parse(raw); if(o&&typeof o==="object") Object.assign(SETTINGS,o); }catch(e){} }
+}
+function saveSettings(){
+  let data; try{ data=JSON.stringify(SETTINGS); }catch(e){ return; }
+  try{ localStorage.setItem(SETTINGS_KEY,data); }catch(e){ window._velmoraSet=data; }
+}
+function applySettings(){
+  document.body.classList.toggle("force-reduce-motion",!!SETTINGS.reduceMotion);
+  document.body.classList.toggle("high-contrast",!!SETTINGS.highContrast);
+}
 
 /* ---------- tiny utils / RNG ---------- */
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
@@ -410,7 +427,12 @@ function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const
 /* ---- accessibility: live announcements + focus management (Phase 5) ---- */
 function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
 function focusHeading(sel){ const el=$(sel); if(el){ el.setAttribute("tabindex","-1"); try{ el.focus({preventScroll:true}); }catch(e){} } }
-function setTheme(cls){ document.body.className=cls||"theme-neutral"; }
+function setTheme(cls){
+  const keep=[];
+  if(SETTINGS.reduceMotion) keep.push("force-reduce-motion");
+  if(SETTINGS.highContrast) keep.push("high-contrast");
+  document.body.className=[cls||"theme-neutral",...keep].join(" ");
+}
 function worldShort(){ return cap(S.world.economy.k)+" · "+cap(S.world.mood.k); }
 
 function moodExpr(){
@@ -830,11 +852,26 @@ function openCodex(){ renderCodex(); go("codex"); focusHeading("#codex-title"); 
 function closeCodex(){ go("title"); const b=$("#btn-codex"); if(b) b.focus(); }
 
 /* ================================================================
+   SETTINGS — accessibility + device preferences (persisted)
+   ================================================================ */
+function renderSettings(){
+  const r=$("#set-reduce"); if(r) r.setAttribute("aria-checked",SETTINGS.reduceMotion?"true":"false");
+  const h=$("#set-high"); if(h) h.setAttribute("aria-checked",SETTINGS.highContrast?"true":"false");
+}
+function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
+function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
+function toggleSetting(key,label){
+  SETTINGS[key]=!SETTINGS[key];
+  applySettings(); saveSettings(); renderSettings();
+  announce(label+" "+(SETTINGS[key]?"on":"off"));
+}
+
+/* ================================================================
    CONFETTI / FX CANVAS + TOAST
    ================================================================ */
 let fxCanvas=null, fxCtx=null;
 function sizeCanvas(){ fxCanvas=$("#fx-canvas"); if(!fxCanvas)return; fxCtx=fxCanvas.getContext("2d"); fxCanvas.width=window.innerWidth; fxCanvas.height=window.innerHeight; }
-function reduced(){ try{return window.matchMedia("(prefers-reduced-motion:reduce)").matches;}catch(e){return false;} }
+function reduced(){ if(SETTINGS.reduceMotion) return true; try{return window.matchMedia("(prefers-reduced-motion:reduce)").matches;}catch(e){return false;} }
 function confetti(){
   if(reduced()||!fxCtx) return;
   const cols=["#F2B705","#E63B5B","#3B6FE6","#2FB67D","#A65BD6","#FF7A3C","#ffffff"];
@@ -914,6 +951,7 @@ function registerSW(){
    WIRING + BOOT
    ================================================================ */
 function boot(){
+  loadSettings(); applySettings();
   sizeCanvas();
   window.addEventListener("resize",sizeCanvas);
 
@@ -922,6 +960,12 @@ function boot(){
   $("#btn-how").addEventListener("click",showHow);
   $("#btn-codex").addEventListener("click",openCodex);
   $("#btn-codex-back").addEventListener("click",closeCodex);
+  $("#btn-settings").addEventListener("click",openSettings);
+  $("#btn-settings-back").addEventListener("click",closeSettings);
+  $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
+  $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
+  $("#set-replay-tut").addEventListener("click",()=>{ SETTINGS.tutorialSeen=false; saveSettings(); toast("Tutorial will show on your next new career"); });
+  $("#set-clear").addEventListener("click",()=>{ clearSave(); const c=$("#btn-continue"); if(c)c.classList.add("hidden"); toast("Saved career cleared"); });
   $("#btn-daily").addEventListener("click",()=>{ DRAFT.seed=dailySeed(); DRAFT.daily=true; setTheme("theme-neutral"); toast("Scenario of the Day — everyone plays the same run today"); go("path"); });
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 

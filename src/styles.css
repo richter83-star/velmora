@@ -263,6 +263,30 @@ button{font-family:var(--font-b);cursor:pointer}
   .title-emblem{animation:none}
 }
 
+/* ===== settings ===== */
+.settings-top{display:flex;align-items:center;gap:12px;margin:6px 0 18px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 2px;border-bottom:2px dashed var(--ink-soft)}
+.set-label{display:flex;flex-direction:column;gap:3px}
+.set-label b{font-family:var(--font-b);font-size:1.02rem;color:var(--ink)}
+.set-label span{font-family:var(--font-m);font-size:.72rem;color:var(--ink-soft);line-height:1.45}
+.toggle{flex:0 0 auto;width:58px;height:32px;border:3px solid var(--ink);border-radius:999px;background:var(--paper-3);position:relative;transition:background .15s;padding:0}
+.toggle .knob{position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--ink);transition:transform .15s var(--ease)}
+.toggle[aria-checked="true"]{background:var(--pop)}
+.toggle[aria-checked="true"] .knob{transform:translateX(26px)}
+.toggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.set-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+
+/* forced reduce-motion (Settings override, independent of the OS setting) */
+body.force-reduce-motion *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.08s !important}
+body.force-reduce-motion .title-emblem{animation:none}
+body.force-reduce-motion .tk-track{animation:none !important;transform:none !important}
+body.force-reduce-motion .ticker{overflow-x:auto}
+
+/* high contrast (Settings) — stronger text/border separation */
+body.high-contrast{--ink-soft:#1A1726;--paper:#FFFFFF;--paper-2:#FFF4D6;--paper-3:#FFE9A8}
+body.high-contrast .btn,body.high-contrast .panel,body.high-contrast .toggle{border-width:4px}
+body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast .cdx-desc,body.high-contrast .cdx-sub{color:#1A1726}
+
 /* ---- headline ticker (fake-news flavor newswire under the HUD) ---- */
 .ticker{
   margin:10px 0 0; border:3px solid var(--ink); border-radius:var(--r-sm);
