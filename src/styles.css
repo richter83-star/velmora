@@ -279,3 +279,8 @@ button{font-family:var(--font-b);cursor:pointer}
   .tk-track{animation:none !important;transform:none !important}
   .ticker{overflow-x:auto}
 }
+
+/* ---- ending epilogue beats ("Years Later…") ---- */
+.epilogue{margin:16px 0 6px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
+.epi-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent);margin:0 0 10px;text-transform:uppercase}
+.epi-beat{font-family:var(--font-b);font-size:.94rem;line-height:1.5;color:var(--ink);padding:5px 0 5px 14px;border-left:4px solid var(--gold);margin:0 0 9px}

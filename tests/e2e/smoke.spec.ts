@@ -18,6 +18,10 @@ for (const path of PATHS) {
     const rank = await playToEnding(page);
 
     expect(rank.length, 'ending should display a rank').toBeGreaterThan(0);
+    expect(
+      await page.locator('#over-mount .epi-beat').count(),
+      'ending should show personalized epilogue beats',
+    ).toBeGreaterThan(0);
     expect(errors, `errors during ${path} run:\n${errors.join('\n')}`).toEqual([]);
   });
 }

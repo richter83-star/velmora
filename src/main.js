@@ -16,6 +16,7 @@ import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { PACK_1 } from './content/events-pack-1';
 import { chooseNext } from './engine/draw';
 import { pickHeadlines } from './content/headlines';
+import { buildEpilogue } from './engine/epilogue';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
@@ -565,6 +566,7 @@ function renderEnding(){
   const e=S.ending;
   const ava=buildAvatar(S.player.avatar,e.win?"smug":"worried",!e.win);
   const legacy=e.legacy.map(l=>`<div class="lc"><div class="ll">${esc(l.l)}</div><div class="lv">${esc(l.v)}</div></div>`).join("");
+  const epilogue=buildEpilogue(S).map(b=>`<div class="epi-beat">${esc(b)}</div>`).join("");
   $("#over-mount").innerHTML=`<div class="over-card">
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
       <div class="oe">${e.emoji}</div>
@@ -574,6 +576,7 @@ function renderEnding(){
     <div class="over-body">
       <div class="avatar-stage" style="margin:0 auto 14px;width:104px;height:104px">${ava}</div>
       <p>${fmt(e.text)}</p>
+      <div class="epilogue"><div class="epi-head">Years Later…</div>${epilogue}</div>
       <div class="legacy">${legacy}</div>
     </div>
   </div>`;
