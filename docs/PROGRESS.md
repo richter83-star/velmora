@@ -116,9 +116,13 @@
 - **Personalized epilogue** (`b653bc0`): `engine/epilogue.ts` `buildEpilogue(S)` closes the ending screen with up to three flag-driven "Years Later…" beats + a rival-parting note + a path-flavored closer, so two runs reaching the same ending read differently. 4 unit tests; smoke asserts beats render on both paths.
 - **Phase 3 acceptance — MET:** 251 validated events (100% schema-valid); cross-run repeat-rate 0.014/0.007 over 50 seeded runs/path (gate < 0.2); all 14 endingIds producible (endings unit test); fictional/non-partisan invariant held. **Phase 3 closed.**
 
-## Phase 4 — Systems Depth (next)
+## Phase 4 — Systems Depth (in progress)
 
-Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/economy, cabinet/advisors with loyalty, trait/perk synergies, crisis sub-decisions, term limits/approval decay. Accept: no soft-locks in auto-play; documented; unit-tested where non-trivial. **Decision-gated items further out:** Phase 11 monetization path (needs a product call), store packaging + analytics (need credentials/services) — flag these to the user before starting.
+Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/economy, cabinet/advisors with loyalty, trait/perk synergies, crisis sub-decisions, term limits/approval decay. Accept: no soft-locks in auto-play; documented; unit-tested where non-trivial.
+
+- **Ideology axes** (`22e42fc`): `engine/ideology.ts` `deriveIdeology(S)` reads the run's flags into two orthogonal axes — Rule (Velvet↔Iron) and Hands (Clean↔Dirty), 0–100 with readable labels — shown as a two-bar **Political Profile** on the ending screen. Derivation only so far (no balance change); coalition math (axes influencing eligibility/outcomes) is the natural next step. 4 unit tests; smoke asserts both axes render. 79 unit + 11 E2E green.
+- **Remaining Phase 4** (not started): faction/bloc meters, treasury/economy resource, cabinet/advisor loyalty, trait/perk synergies, crisis sub-decisions, approval decay/term dynamics.
+- **Decision-gated later phases (true blockers needing user input):** Phase 6–7 art/audio creative direction; Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Flag before starting these.
 
 ## Next steps (concrete)
 
