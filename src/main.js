@@ -86,14 +86,14 @@ const FILL={support:"#E63B5B",funds:"#F5C542",influence:"#3B6FE6",media:"#2FB67D
    CARTOON AVATAR GENERATOR  — parametric SVG, expression-driven.
    ================================================================ */
 const SKIN=["#F2C39B","#E8B07E","#C98D5E","#9C6B43","#6E4A2E","#F6D2B8","#D69A6E"];
-const HAIRC=["#2B2118","#3F2A1A","#6E4A2E","#B5772E","#C9C4BE","#E0C36A","#7A1F1F","#1A1726"];
+const HAIRC=["#2B2118","#3F2A1A","#6E4A2E","#B5772E","#C9C4BE","#E0C36A","#7A1F1F","#1A1726","#4A2C12","#8A8A8A"];
 const SUIT={ballot:["#2A4E9B","#1F3A6E","#7A1E2B","#3B3550","#2F6B57","#54407a"],
             vanguard:["#3A3A3A","#5C0D0a","#2E3B2E","#4A3A1F","#1A1726","#6b4f12"]};
 const TIES=["#E63B5B","#F5C542","#3B6FE6","#2FB67D","#A65BD6","#FF7A3C"];
 
 function randAvatar(side){
  return {skin:rint(0,SKIN.length-1),hair:rint(0,7),hairc:rint(0,HAIRC.length-1),
-   suit:rint(0,5),tie:rint(0,TIES.length-1),acc:pick(["none","none","glasses","pin","cap"]),side:side||"ballot"};
+   suit:rint(0,5),tie:rint(0,TIES.length-1),acc:pick(["none","none","none","glasses","pin","cap","beard","earring"]),side:side||"ballot"};
 }
 const EXPR={
  happy:{brow:[-2,2],lid:0,mouth:"smile",pupil:0},
@@ -138,6 +138,8 @@ function buildAvatar(a,expr="neutral",sweat=false){
  let acc="";
  if(a.acc==="glasses") acc=`<g fill="none" stroke="${ink}" stroke-width="2.4"><rect x="31" y="40" width="14" height="11" rx="3" fill="#bfe6ff" fill-opacity="0.5"/><rect x="55" y="40" width="14" height="11" rx="3" fill="#bfe6ff" fill-opacity="0.5"/><path d="M45 45 h10"/></g>`;
  if(a.acc==="pin") acc=`<circle cx="36" cy="84" r="3.6" fill="${ti}" stroke="${ink}" stroke-width="1.8"/>`;
+ if(a.acc==="earring") acc=`<circle cx="25" cy="59" r="2.6" fill="${ti}" stroke="${ink}" stroke-width="1.4"/>`;
+ const beardEl=a.acc==="beard"?`<path d="M27 50 q3 28 23 28 t23 -28 q-5 16 -23 16 t-23 -16z" fill="${hc}" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/>`:"";
  if(a.acc==="cap"){const capc=a.side==="vanguard"?"#3a3a3a":"#1f3a6e";acc=`<path d="M24 30 q26 -16 52 0 q2 -14 -26 -14 t-26 14z" fill="${capc}" stroke="${ink}" stroke-width="2.4"/><rect x="30" y="29" width="40" height="6" rx="3" fill="${capc}" stroke="${ink}" stroke-width="2.4"/><path d="M44 25 l6 -6 6 6z" fill="${a.side==='vanguard'?'#E5332A':'#F5C542'}" stroke="${ink}" stroke-width="1.6"/>`;}
  const sweatEl=sweat?`<path d="M74 44 q5 8 0 12 q-5 -4 0 -12z" fill="#5cc6ff" stroke="${ink}" stroke-width="1.6"/>`:"";
  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -152,7 +154,7 @@ function buildAvatar(a,expr="neutral",sweat=false){
    ${eye(exL)}${eye(exR)}
    ${brow(exL,e.brow[0])}${brow(exR,e.brow[1])}
    <path d="M48 54 q2 4 4 0" fill="none" stroke="${ink}" stroke-width="1.8" stroke-linecap="round"/>
-   ${mouth}${sweatEl}${hair}${acc}
+   ${beardEl}${mouth}${sweatEl}${hair}${acc}
  </svg>`;
 }
 
