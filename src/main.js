@@ -19,7 +19,7 @@ import { pickHeadlines } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
 import { blocList } from './engine/factions';
-import { advisorDef, advisorSlate, appointAdvisor, servingAdvisors } from './engine/cabinet';
+import { advisorDef, advisorSlate, appointAdvisor, servingAdvisors, ADVISORS } from './engine/cabinet';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
@@ -786,6 +786,50 @@ function showHow(){
 }
 
 /* ================================================================
+   CODEX / ALMANAC — an in-game reference for the systems
+   ================================================================ */
+function codexSection(title,inner){ return `<section class="cdx-sec"><h3 class="cdx-h">${esc(title)}</h3>${inner}</section>`; }
+function codexCard(emoji,name,sub,desc){
+  return `<div class="cdx-card">
+    <span class="cdx-emoji" aria-hidden="true">${emoji||"•"}</span>
+    <div class="cdx-card-body">
+      <div class="cdx-name">${esc(name)}</div>
+      ${sub?`<div class="cdx-sub">${esc(sub)}</div>`:""}
+      <div class="cdx-desc">${esc(desc)}</div>
+    </div>
+  </div>`;
+}
+function factionCards(path){ return (PATHS[path].factions||[]).map(f=>codexCard("🏛️",f.name,"",f.desc)).join(""); }
+function advisorCards(path){ return (ADVISORS[path]||[]).map(a=>codexCard(a.emoji,a.title,a.name,a.desc)).join(""); }
+function renderCodex(){
+  const B=PATHS.ballot, V=PATHS.vanguard;
+  const html=
+    codexSection("How to Rule",
+      `<p class="cdx-p">Climb from a nobody to the most powerful person in the fictional nation of <b>Velmora</b>, across three offices. Two roads, one prize. Survive enough turns in each office to face a contest — an election or a power-play — then win it to rise. Lose the contest, or let your vitals fail, and your story ends.</p>`)
+    + codexSection("The Six Stats",
+      `<div class="cdx-grid">`
+      + STAT_KEYS.map(k=>`<div class="cdx-stat"><b>${esc(B.statNames[k])}</b><span>${esc(V.statNames[k])}</span></div>`).join("")
+      + `</div><p class="cdx-p">Keep most of them high. <b>${esc(B.statNames.heat)} / ${esc(V.statNames.heat)}</b> is the danger gauge — let it reach 100 and you fall; let your core support reach 0 and you collapse.</p>`)
+    + codexSection("The Systems",
+      codexCard("🏛️","Factions","Three blocs per path","Every choice quietly warms or cools the three factions. Keep your coalition happy and they lift you at contest time; alienate them and they drag you down.")
+      + codexCard("👔","Cabinet","Advisors with loyalty","At each promotion you appoint an advisor who lends a passive edge each turn — but keep them loyal, or they resign and leak on the way out.")
+      + codexCard("⚖️","Ideology","Velvet ↔ Iron · Clean ↔ Dirty","How you wield power is tracked on two axes and read back to you in the ending.")
+      + codexCard("⏳","Term Dynamics","The cost of power","Riding high erodes your support each turn, and scandal or a sour economy speed it up — you cannot simply coast at the top."))
+    + codexSection("The Ballot Path — "+B.land,
+      `<p class="cdx-lead">${esc("Win elections through Approval, money, and the press. Lose a race and your career is over.")}</p>`
+      + `<h4 class="cdx-h4">Factions</h4>`+factionCards("ballot")
+      + `<h4 class="cdx-h4">Advisors</h4>`+advisorCards("ballot"))
+    + codexSection("The Vanguard Path — "+V.land,
+      `<p class="cdx-lead">${esc("Climb a one-party state through Loyalty, Standing, and fear. Let Suspicion run wild and you are purged.")}</p>`
+      + `<h4 class="cdx-h4">Factions</h4>`+factionCards("vanguard")
+      + `<h4 class="cdx-h4">Advisors</h4>`+advisorCards("vanguard"))
+    + codexSection("Starting Traits", TRAITS.map(t=>codexCard(t.emoji,t.name,"",t.desc)).join(""));
+  $("#codex-mount").innerHTML=html;
+}
+function openCodex(){ renderCodex(); go("codex"); focusHeading("#codex-title"); announce("The Almanac — a reference for the paths, factions, advisors, and traits."); }
+function closeCodex(){ go("title"); const b=$("#btn-codex"); if(b) b.focus(); }
+
+/* ================================================================
    CONFETTI / FX CANVAS + TOAST
    ================================================================ */
 let fxCanvas=null, fxCtx=null;
@@ -876,6 +920,8 @@ function boot(){
   $("#btn-new").addEventListener("click",()=>{ DRAFT.seed=null; DRAFT.daily=false; setTheme("theme-neutral"); go("path"); });
   $("#btn-continue").addEventListener("click",resumeGame);
   $("#btn-how").addEventListener("click",showHow);
+  $("#btn-codex").addEventListener("click",openCodex);
+  $("#btn-codex-back").addEventListener("click",closeCodex);
   $("#btn-daily").addEventListener("click",()=>{ DRAFT.seed=dailySeed(); DRAFT.daily=true; setTheme("theme-neutral"); toast("Scenario of the Day — everyone plays the same run today"); go("path"); });
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 

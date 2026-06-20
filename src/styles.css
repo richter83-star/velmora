@@ -340,3 +340,24 @@ button{font-family:var(--font-b);cursor:pointer}
 .cab-chip.good{background:#d8f3e6}
 .cab-chip.bad{background:#ffd9d4}
 .cab-chip.mid{background:var(--paper-3)}
+
+/* ---- codex / almanac (Phase 5) ---- */
+.codex-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.codex-top .h-screen{margin:0}
+#codex-mount{display:flex;flex-direction:column;gap:20px;padding-bottom:40px}
+.cdx-sec{background:var(--paper);border:4px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px}
+.cdx-h{font-family:var(--font-d);color:var(--ink);font-size:1.15rem;margin:0 0 12px;letter-spacing:.3px}
+.cdx-h4{font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:.7rem;color:var(--accent);margin:16px 0 8px}
+.cdx-p,.cdx-lead{font-family:var(--font-b);color:var(--ink-soft);line-height:1.55;font-size:.92rem;margin:0 0 6px}
+.cdx-lead{color:var(--ink);font-weight:500}
+.cdx-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.cdx-stat{flex:1 1 28%;background:var(--paper-2);border:2px solid var(--ink);border-radius:8px;padding:7px 10px;font-family:var(--font-m);font-size:.72rem}
+.cdx-stat b{display:block;color:var(--ink);font-size:.82rem}
+.cdx-stat span{color:var(--ink-soft)}
+.cdx-card{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:2px dotted rgba(26,23,38,.12)}
+.cdx-card:last-child{border-bottom:0}
+.cdx-emoji{font-size:1.4rem;flex:0 0 auto;width:40px;height:40px;display:grid;place-items:center;background:var(--paper-2);border:2px solid var(--ink);border-radius:10px}
+.cdx-card-body{min-width:0}
+.cdx-name{font-family:var(--font-d);font-size:.95rem;color:var(--ink)}
+.cdx-sub{font-family:var(--font-m);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent)}
+.cdx-desc{font-family:var(--font-b);font-size:.86rem;color:var(--ink-soft);line-height:1.45;margin-top:2px}
