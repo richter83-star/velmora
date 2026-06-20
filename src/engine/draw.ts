@@ -8,6 +8,11 @@ import type { Rng } from './rng';
 import { arcEventEligible } from './arcs';
 import { scandalResurfaceChance, pickResurfacing } from './scandals';
 
+/** Per-turn chance the next step of an already-started arc is injected. */
+const ARC_CONTINUE_CHANCE = 0.35;
+/** Per-turn chance an unstarted arc's entry event is injected. */
+const ARC_START_CHANCE = 0.16;
+
 export function eligible(
   S: GameState,
   events: readonly GameEvent[],
@@ -79,6 +84,19 @@ export function chooseNext(
       S.activeScandal = sc.id;
       const ev = events.find((e) => e.id === 'scandal_resurfaces');
       if (ev) return { type: 'event', event: ev };
+    }
+  }
+  // 1.75) arc progression — authored multi-event storylines must keep surfacing
+  // and advancing even as the ordinary bank grows large. An arc step's high
+  // weight is still diluted toward invisibility in a 200+ event pool, so give
+  // the live arc step a solid per-turn chance to fire on its own, higher once
+  // the arc is already in motion (so a started thread reliably reaches its
+  // reckoning rather than stalling for the rest of the run).
+  const arcSteps = eligible(S, events, false).filter((e) => e.arc);
+  if (arcSteps.length) {
+    const inProgress = arcSteps.some((e) => (e.arc?.stage ?? 0) > 0);
+    if (rng.chance(inProgress ? ARC_CONTINUE_CHANCE : ARC_START_CHANCE)) {
+      return { type: 'event', event: weightedPick(rng, arcSteps) };
     }
   }
   // 2) crisis injection on instability

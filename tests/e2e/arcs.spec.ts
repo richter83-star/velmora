@@ -16,6 +16,10 @@ test('the Harbor Deal arc initiates and advances on the ballot path', async ({ p
     'ascend',
     'nemesis',
     'tycoon',
+    'harborside',
+    'crane',
+    'rezone',
+    'ballot-arc-7',
   ]);
   expect(best, 'Harbor arc should advance through multiple stages').toBeGreaterThanOrEqual(2);
   expect(errors, `errors:\n${errors.join('\n')}`).toEqual([]);
@@ -31,6 +35,10 @@ test("the Patron's Shadow arc initiates and advances on the vanguard path", asyn
     'ascend',
     'vanguard1',
     'secretary',
+    'volkov',
+    'politburo',
+    'patronage',
+    'vanguard-arc-7',
   ]);
   expect(best, 'Patron arc should advance through multiple stages').toBeGreaterThanOrEqual(2);
   expect(errors, `errors:\n${errors.join('\n')}`).toEqual([]);
