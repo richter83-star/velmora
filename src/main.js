@@ -17,6 +17,8 @@ import { PACK_1 } from './content/events-pack-1';
 import { chooseNext } from './engine/draw';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
+import { deathCause, advanceTurnState } from './engine/turn';
+import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
 // The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
@@ -234,7 +236,7 @@ function resolveChoice(ci){
   pushLog(ev,ch.label,out.text);
 
   // death check (show the consequence first, resolve on continue)
-  S.pendingDeath=deathCause();
+  S.pendingDeath=deathCause(S);
   S.pendingEndingCause=out.endingCause;
 
   S.lastResult={title:ev.title,text:out.text,rollLine,tone:ch.tone||"good"};
@@ -244,12 +246,6 @@ function resolveChoice(ci){
 }
 function statLabel(k){ return PATHS[S.path].statNames[k]||cap(k); }
 
-function deathCause(){
-  if(S.stats.heat>=100) return S.path==="ballot"?"scandal":"purge";
-  if(S.stats.support<=0) return S.path==="ballot"?"collapse":"revolution";
-  return null;
-}
-
 /* ---- pressing Continue after a result ---- */
 function afterResult(){
   if(S.pendingEndingCause){ endGame(S.pendingEndingCause); return; }
@@ -257,10 +253,8 @@ function afterResult(){
   advanceTurn();
 }
 function advanceTurn(){
-  S.totalTurns++; S.phaseTurn++;
-  S.queue.forEach(q=>q.inTurns--);
-  S.stats.heat=clamp(S.stats.heat-2); // scrutiny slowly cools
-  const dc=deathCause(); if(dc){ endGame(dc); return; }
+  advanceTurnState(S);
+  const dc=deathCause(S); if(dc){ endGame(dc); return; }
   if(S.phaseTurn>=curPhase().goalTurns){ startPromotion(); return; }
   nextEvent(); save();
 }
@@ -268,14 +262,6 @@ function advanceTurn(){
 /* ================================================================
    PROMOTIONS — election / powerplay / finale
    ================================================================ */
-function promoPlayerStrength(ph){
-  const s=S.stats;
-  if(ph.promo.type==="election"){
-    return s.support*0.50 + s.media*0.24 + s.funds*0.14 + s.base*0.12;
-  }
-  // powerplay
-  return clamp(s.influence*0.42 + s.base*0.30 + s.media*0.14 + s.support*0.14 - s.heat*0.22, 0, 100);
-}
 function promoBoosts(ph){
   if(ph.promo.type==="election"){
     return [
@@ -299,18 +285,14 @@ function startPromotion(){
   }
   const _antag=antagonist(S);
   const _hostility=_antag?antagonistContestModifier(_antag.relationship):0;
-  const oppStrength=clamp(ph.promo.baseOpp+rint(-5,9)+(S.phase-1)*3+_hostility+curDifficulty().oppBonus,20,90);
+  const oppStrength=contestOppStrength(S,_rng,ph.promo.baseOpp,_hostility,curDifficulty().oppBonus);
   S.promo={
     type:ph.promo.type, ph,
     opp:{name:S.opp,avatar:S.oppAvatar,strength:oppStrength,disposition:_antag?dispositionLabel(_antag.relationship):""},
-    player:promoPlayerStrength(ph),
+    player:promoPlayerStrength(S, ph.promo.type),
     boosts:promoBoosts(ph), used:[], resolved:false, result:null
   };
   renderHUD(); renderPromotion(); save();
-}
-function promoWinChance(){
-  const p=S.promo.player, o=S.promo.opp.strength;
-  return clamp(50+(p-o)*1.4,4,96);
 }
 function applyBoost(id){
   const b=S.promo.boosts.find(x=>x.id===id);
@@ -325,7 +307,7 @@ function applyBoost(id){
 }
 function resolvePromotion(){
   if(S.promo.resolved) return;
-  const wc=promoWinChance();
+  const wc=promoWinChance(S.promo.player,S.promo.opp.strength);
   const win=rng()*100<wc;
   let pShare=clamp(40+(S.promo.player-S.promo.opp.strength)*0.7+rint(-5,5),18,82);
   if(win && pShare<=50) pShare=50+rint(1,7);
@@ -522,7 +504,7 @@ function renderPromotion(){
     $("#btn-finale").addEventListener("click",afterPromotion);
     return;
   }
-  const wc=promoWinChance();
+  const wc=promoWinChance(S.promo.player,S.promo.opp.strength);
   const boosts=pr.boosts.map(b=>{
     const used=pr.used.includes(b.id);
     const afford=Object.keys(b.cost).every(k=>(S.stats[k]||0)>=b.cost[k]);

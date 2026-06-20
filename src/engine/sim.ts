@@ -21,28 +21,10 @@ import { evaluateEnding } from './endings';
 import { chooseNext } from './draw';
 import { applyFx } from './mutate';
 import { applyChoice } from './resolve';
-
-const clamp = (n: number, a = 0, b = 100): number => Math.max(a, Math.min(b, n));
+import { deathCause, advanceTurnState } from './turn';
+import { promoPlayerStrength, contestOppStrength, promoWinChance } from './contest';
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
-
-function deathCause(S: GameState): string | null {
-  if (S.stats.heat >= 100) return S.path === 'ballot' ? 'scandal' : 'purge';
-  if (S.stats.support <= 0) return S.path === 'ballot' ? 'collapse' : 'revolution';
-  return null;
-}
-
-function promoPlayerStrength(S: GameState): number {
-  const s = S.stats;
-  if (curPhase(S).promo.type === 'election') {
-    return s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12;
-  }
-  return clamp(
-    s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22,
-    0,
-    100,
-  );
-}
 
 /** Build a fresh run state (faithful port of startCareer's pure parts). */
 function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
@@ -126,12 +108,8 @@ function runContest(S: GameState, rng: Rng): string | null {
   const diff = difficultyById(DIFFICULTIES, S.difficulty);
   const a = antagonist(S);
   const hostility = a ? antagonistContestModifier(a.relationship) : 0;
-  const oppStrength = clamp(
-    (ph.promo.baseOpp ?? 50) + rng.int(-5, 9) + (S.phase - 1) * 3 + hostility + diff.oppBonus,
-    20,
-    90,
-  );
-  const wc = clamp(50 + (promoPlayerStrength(S) - oppStrength) * 1.4, 4, 96);
+  const oppStrength = contestOppStrength(S, rng, ph.promo.baseOpp ?? 50, hostility, diff.oppBonus);
+  const wc = promoWinChance(promoPlayerStrength(S, ph.promo.type), oppStrength);
   if (rng.next() * 100 >= wc) {
     return ph.promo.type === 'election' ? 'lost_election' : 'lost_powerplay';
   }
@@ -191,11 +169,7 @@ export function simulateRun(opts: {
     if (cause) break;
     cause = deathCause(S);
     if (cause) break;
-    // advanceTurn
-    S.totalTurns++;
-    S.phaseTurn++;
-    for (const q of S.queue) q.inTurns = (q.inTurns ?? 0) - 1;
-    S.stats.heat = clamp(S.stats.heat - 2);
+    advanceTurnState(S);
     cause = deathCause(S);
     if (cause) break;
     if (S.phaseTurn >= curPhase(S).goalTurns) cause = runContest(S, rng);

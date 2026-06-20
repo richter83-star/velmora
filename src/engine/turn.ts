@@ -1,0 +1,25 @@
+/**
+ * Per-turn bookkeeping + lethal-threshold check (pure) — shared by the live
+ * engine (main.js) and the headless simulator (sim.ts). Callers own the
+ * surrounding control flow (ending vs promotion vs next draw).
+ */
+import type { GameState } from './types';
+import { clampStat } from './mutate';
+
+/** Scrutiny ("heat") cools by this much each turn the player survives. */
+const HEAT_DECAY_PER_TURN = 2;
+
+/** Removal cause if a vital stat has crossed a lethal threshold this turn, else null. */
+export function deathCause(S: GameState): string | null {
+  if (S.stats.heat >= 100) return S.path === 'ballot' ? 'scandal' : 'purge';
+  if (S.stats.support <= 0) return S.path === 'ballot' ? 'collapse' : 'revolution';
+  return null;
+}
+
+/** Advance the turn counters, tick down queued events, and cool scrutiny. */
+export function advanceTurnState(S: GameState): void {
+  S.totalTurns++;
+  S.phaseTurn++;
+  for (const q of S.queue) q.inTurns = (q.inTurns ?? 0) - 1;
+  S.stats.heat = clampStat(S.stats.heat - HEAT_DECAY_PER_TURN);
+}
