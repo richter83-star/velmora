@@ -104,6 +104,7 @@ export function validateContent(
       checkArcId(ch.arcSet?.id, `${cw} arcSet`);
       checkNpc(ch.npcFx, cw);
       noteThen(ch.then);
+      if (ch.sub) referencedByThen.add(ch.sub);
 
       if (ch.roll) {
         if (!STAT_SET.has(ch.roll.stat)) errors.push(`${cw}: invalid roll stat "${ch.roll.stat}"`);
@@ -117,6 +118,7 @@ export function validateContent(
           checkArcId(br.arcSet?.id, `${cw}.roll.${side} arcSet`);
           checkNpc(br.npcFx, `${cw}.roll.${side}`);
           noteThen(br.then);
+          if (br.sub) referencedByThen.add(br.sub);
         }
       }
     }

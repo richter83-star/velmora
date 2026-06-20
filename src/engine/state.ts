@@ -45,6 +45,7 @@ export function blankRun(opts: BlankRunOpts): GameState {
     blocs: initBlocs(opts.path),
     cabinet: [],
     cabinetOffer: null,
+    pendingSub: null,
     flags: {},
     arcs: {},
     seen: [],

@@ -25,6 +25,8 @@ export interface ChoiceOutcome {
   rollLine: { win: boolean; stat: StatKey; chance: number } | null;
   endingCause: string | null;
   deltas: Partial<Record<StatKey, number>>;
+  /** Id of an immediate sub-decision event to show next, or null. */
+  sub: string | null;
 }
 
 export function applyChoice(
@@ -40,6 +42,7 @@ export function applyChoice(
   let text = ch.result ?? '';
   let rollLine: ChoiceOutcome['rollLine'] = null;
   let endingCause = ch.ending ?? null;
+  let sub = ch.sub ?? null;
 
   applyFx(S, ch.fx);
   setFlags(S, ch.set);
@@ -63,6 +66,7 @@ export function applyChoice(
     if (br.text) text = br.text;
     if (br.then) queueThen(S, br.then);
     if (br.ending) endingCause = br.ending;
+    if (br.sub) sub = br.sub;
     rollLine = { win: r.win, stat: r.stat, chance: r.chance };
   }
   if (ch.then) queueThen(S, ch.then);
@@ -76,5 +80,5 @@ export function applyChoice(
   tickCabinetLoyalty(S, flagsOn);
   markSeen(S, ev);
 
-  return { text, rollLine, endingCause, deltas };
+  return { text, rollLine, endingCause, deltas, sub };
 }

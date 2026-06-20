@@ -244,6 +244,7 @@ function resolveChoice(ci){
   // death check (show the consequence first, resolve on continue)
   S.pendingDeath=deathCause(S);
   S.pendingEndingCause=out.endingCause;
+  S.pendingSub=out.sub||null;
 
   S.lastResult={title:ev.title,text:out.text,rollLine,tone:ch.tone||"good"};
   S.mode="result";
@@ -256,6 +257,7 @@ function statLabel(k){ return PATHS[S.path].statNames[k]||cap(k); }
 function afterResult(){
   if(S.pendingEndingCause){ endGame(S.pendingEndingCause); return; }
   if(S.pendingDeath){ endGame(S.pendingDeath); return; }
+  if(S.pendingSub){ const sub=EVENTS.find(e=>e.id===S.pendingSub); S.pendingSub=null; if(sub){ showEvent(sub); save(); return; } }
   advanceTurn();
 }
 function advanceTurn(){
@@ -830,6 +832,7 @@ function resumeGame(){
   if(!S.scandals){ S.scandals=[]; S.activeScandal=S.activeScandal||null; } // migrate (pre-scandals)
   if(!S.difficulty){ S.difficulty=DEFAULT_DIFFICULTY; S.modifiers=S.modifiers||[]; S.daily=!!S.daily; } // migrate (pre-setup)
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
+  if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);

@@ -40,6 +40,8 @@ export interface RollOutcome {
   npcFx?: NpcFx;
   scandal?: ScandalSeed;
   scandalResolve?: 'buried' | 'resolved' | 'exposed';
+  /** Id of an event shown immediately as a sub-decision (no turn advance). */
+  sub?: string;
 }
 
 export interface Roll {
@@ -76,6 +78,8 @@ export interface Choice {
   scandal?: ScandalSeed;
   /** Resolve the currently-resurfacing scandal. */
   scandalResolve?: 'buried' | 'resolved' | 'exposed';
+  /** Id of an event shown immediately as a sub-decision (no turn advance). */
+  sub?: string;
   /** Cosmetic accent: 'good' | 'slick' | 'bold'. */
   tone?: string;
 }
@@ -197,6 +201,8 @@ export interface GameState {
   cabinet?: { id: string; loyalty: number }[];
   /** Pending advisor slate offered at a promotion (UI state), or null. */
   cabinetOffer?: string[] | null;
+  /** Id of an immediate sub-decision event to show next (no turn advance), or null. */
+  pendingSub?: string | null;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];

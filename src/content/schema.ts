@@ -54,6 +54,7 @@ const rollOutcome = z.object({
   npcFx: npcFx.optional(),
   scandal: scandalSeed.optional(),
   scandalResolve: scandalResolveSchema.optional(),
+  sub: z.string().min(1).optional(),
 });
 
 const roll = z.object({
@@ -79,6 +80,7 @@ const choice = z.object({
   npcFx: npcFx.optional(),
   scandal: scandalSeed.optional(),
   scandalResolve: scandalResolveSchema.optional(),
+  sub: z.string().min(1).optional(),
   tone: z.string().optional(),
 });
 

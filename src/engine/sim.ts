@@ -135,19 +135,35 @@ export function simulateRun(opts: {
   const drawOpts = { crisisMult: diff.crisisMult, scandalMult: diff.scandalMult };
   const drawn: string[] = [];
   let cause: string | null = null;
+  let pendingSubId: string | null = null;
   let guard = 0;
 
   while (!cause && guard++ < 600) {
-    const d = chooseNext(S, ALL_EVENTS, rng, drawOpts);
-    if (d.type === 'promotion') {
-      cause = runContest(S, rng);
-      continue;
+    let ev: GameEvent;
+    if (pendingSubId) {
+      // An immediate sub-decision from the previous choice (no turn advance).
+      const sub = ALL_EVENTS.find((e) => e.id === pendingSubId);
+      pendingSubId = null;
+      if (!sub) continue;
+      ev = sub;
+    } else {
+      const d = chooseNext(S, ALL_EVENTS, rng, drawOpts);
+      if (d.type === 'promotion') {
+        cause = runContest(S, rng);
+        continue;
+      }
+      ev = d.event;
     }
-    drawn.push(d.event.id);
-    cause = applyChoice(S, d.event, randomUnlocked(S, d.event, rng), rng)?.endingCause ?? null;
+    drawn.push(ev.id);
+    const out = applyChoice(S, ev, randomUnlocked(S, ev, rng), rng);
+    cause = out?.endingCause ?? null;
     if (cause) break;
     cause = deathCause(S);
     if (cause) break;
+    if (out?.sub) {
+      pendingSubId = out.sub;
+      continue;
+    }
     advanceTurnState(S);
     cause = deathCause(S);
     if (cause) break;
