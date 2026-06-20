@@ -3,7 +3,7 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-20
-**Current phase:** **Phases 5–7 COMPLETE (lean)** — UX/onboarding/a11y, lean audio, lean art. Next: Phase 8 — Meta-Progression & Persistence. (A full UX/UI redesign is scheduled after Phase 12, so 5–7 were kept functional, not gold-plated.) (Phase 4: 6 systems. Phase 3: 251 events, ticker, epilogue.)
+**Current phase:** **Phase 8 COMPLETE** — Meta-Progression & Persistence (3 save slots + autosave routing, migration-safe versioning, run history/lifetime stats, achievements, unlockables, New Game+). Next: Phase 9 — Performance. (Phases 5–7 done lean; a full UX/UI redesign is scheduled after Phase 12, then the deferred "Dark Mirrors" expansion.)
 **Roadmap note (2026-06-20):** Per product direction, sequence is **finish core (Phases 5–12) → massive UX/UI redesign → "Dark Mirrors" expansion** (see `EXPANSION_BRIEF.md`, deferred). Phases 5–7 are deliberately kept lean since the redesign will own final visual polish; the expansion brief targets the pre-migration architecture and needs a retarget pass before it's built.
 **Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
@@ -21,7 +21,8 @@
 - [x] Phase 5 — UX, Onboarding & Accessibility — **complete** (a11y foundation, codex, settings, tutorial, run-summary, axe-clean, responsive)
 - [x] Phase 6 — Audio & Juice — **complete (lean)** (opt-in synth SFX for choices/promotions/endings; Sound setting, default off, persisted)
 - [x] Phase 7 — Art Expansion — **complete (lean)** (broadened procedural avatar variety; full art direction deferred to the redesign)
-- [ ] Phases 8–12 — not started
+- [x] Phase 8 — Meta-Progression & Persistence — **complete** (save slots, autosave, run history/stats, achievements, unlockables, New Game+; designed + adversarially reviewed via workflows)
+- [ ] Phases 9–12 — not started
 
 ### Phase 1 checklist
 
@@ -126,6 +127,8 @@
 - Reviewed `EXPANSION_BRIEF.md` ("The Dark Mirrors" 3-path expansion). Verdict: sound design, but **build it after core + redesign** — it's out of roadmap sequence (core was at Phase 5/12) and, more importantly, it targets the **pre-migration single-file architecture** (`PATHS{}` literal, `openCreate`/`deathCause`/`evaluateEnding`/`renderPromotion`, `ADVISORS{}`, `SHELL_VERSION`) that no longer exists; needs a retarget pass + four gap fixes (emergent-faction wiring for new blocs, ending-cause enum/linter, `own_cult`↔`cult_building` flag reconciliation, sim/sweep wiring) before it's executable.
 - Product direction set: **finish core (5–12) → massive UX/UI redesign → expansion.** Phases 5–7 kept lean (redesign owns final visuals), running continuously.
 - **Closed Phase 5** with five increments (`aadbd3d` settings · `169fcea` tutorial · `853ef1a` run-summary · `ab858e6` axe+contrast+responsive). Added `@axe-core/playwright`. New E2E: settings, tutorial, axe, responsive (24 E2E total, all green; 98 unit; typecheck/build/lint green). Real WCAG 1.4.3 contrast bugs fixed at token level (kept reversible for the redesign).
+- **Closed Phases 6 (lean audio) & 7 (lean art)** (`b6a7ddb`, `ff39265`); pushed Phases 1–7 to PR #1 (CI green). Set ultracode mode.
+- **Closed Phase 8 (Meta-Progression & Persistence)** under ultracode: ran a design workflow (Map→Design→Synthesize blueprint) and an adversarial review workflow; implemented in 4 commits (`e72ff1a` meta+history+achievements+Records · `89ccc70` save slots · `503241e` New Game+ · `ac8ca7d` review hardening). 111 unit + 33 E2E green. (Review note: a transient API rate-limit killed 16/18 verifier subagents; those candidate findings were re-verified by hand — all false positives or lean-acceptable; the one confirmed gap was fixed.)
 
 ## Phase 4 — Systems Depth (complete)
 
@@ -161,9 +164,25 @@ Per the roadmap: skippable tutorial, full settings, main menu, codex/almanac, ru
 
 - **Avatar variety** (`ff39265`): broadened the parametric avatar generator — two new accessories (beard rendered behind the mouth so expressions still read; earring) and two hair colors — via the existing `randAvatar`/`buildAvatar` system. The generator is durable (survives a reskin); full art direction (backgrounds, cosmetics, animated emblem, icon set) is deferred to the redesign. Existing E2E exercise avatar rendering on create/game/ending; all green.
 
+## Phase 8 — Meta-Progression & Persistence (complete)
+
+Designed and reviewed with multi-agent workflows (a Map→Design→Synthesize blueprint, then an adversarial dimension-review with per-finding verification). Built in the blueprint's shippable increments.
+
+- **Meta store** (`e72ff1a`): pure logic in `src/engine/meta.ts` (no I/O) — `defaultMeta`/`mergeMeta`, `recordRun`/`recordStart`, achievements catalog + `unlockAchievements`, `UNLOCKABLES` + `refreshUnlockables`, all immutable. `main.js` owns the `velmora_meta_v1` store with its **own** in-memory fallback global `window._velmoraMeta` (the three fallbacks — `_velmoraMem`/`_velmoraSet`/`_velmoraMeta` — never merge). `recordRunOutcome()` rolls the finished run into META **before** `clearSave()` in `endGame`, wrapped so a meta failure can never block the ending. 12 unit tests.
+- **Records screen** (`e72ff1a`): `#screen-records` (🏅 Records on the title) — lifetime stats, an achievements grid (13, set-once; locked = dashed + 🔒), unlockables, and "Past Lives" (history ring buffer, cap 50). Built from META; axe-clean.
+- **Save slots** (`89ccc70`): 3 slots at `velmora_save_v1__{0,1,2}`; the legacy bare `velmora_save_v1` is adopted as slot 0 and rewritten under the prefixed key on next save. `save/loadRaw/hasSave/clearSave` route through `activeSlot`; the save-data fallback became a per-slot map (tolerating a legacy string as slot 0). New `#screen-slots` picker (Resume / Delete / Start-in-slot). Default new-game flow stays `btn-new → path` when the active slot is free (so existing E2E/quick-start are unchanged); `quickStart` diverts to the picker only when the active slot is occupied, so an in-progress career is never clobbered.
+- **New Game+** (`503241e`): one optional `ngPlus` field (GameState/BlankRunOpts, default 0 → `sim.ts` and the seed sweep untouched; one resume migration line). Win bumps `META.ngPlus.maxCleared`; a create-screen tier selector (0..maxCleared) appears once unlocked and is **hidden for daily runs** (daily is always tier 0). Effects are deterministic functions of the tier, reusing the difficulty knobs: opponent `+4·tier`, crisis/scandal `×(1+0.1·tier)`, `1+min(tier,2)` starting modifier rolls — so a given seed+tier reproduces exactly.
+- **Review hardening** (`ac8ca7d`): the adversarial review confirmed one low-severity gap — `mergeMeta` didn't numerically validate stored stats — now fixed by whitelisting + coercing stat fields (tamper/garbage/future-proof); made the NG+ `maxCleared` bump immutable; added a coercion unit test and a **sandbox E2E** (localStorage fully blocked → game plays start→finish, meta falls back to its global, zero console errors). 16 of 18 verifier agents were lost to a transient API rate-limit and were re-verified by hand (all false positives or lean-acceptable).
+- **Acceptance — MET:** saves persist & migrate (legacy-adoption + ngPlus migration E2E); both paths green; offline intact; **111 unit + 33 E2E** green (added meta units; records/slots/ngplus/migration/sandbox/audio E2E). **Phase 8 closed.**
+
+## Architecture decisions (Phase 8)
+
+- **AD-11 — Two persistence tiers:** ephemeral per-slot run saves (full serialized `S`) + a durable cross-run META store. Pure logic in `engine/meta.ts`; I/O + UI in `main.js`. Each store keeps a distinct in-memory fallback global. `S.version` remains the per-run anchor; `META.metaVersion` anchors the meta schema (additive merges, no value-gating yet).
+- **AD-12 — New Game+ as a deterministic tier:** a single integer scales existing difficulty knobs; no new content, no stat-table forks. Optional field ⇒ legacy saves and the headless sweep need no changes. Disabled for daily so the shared scenario stays identical for everyone.
+
 ## Next steps (concrete)
 
-1. **Phase 8 — Meta-Progression & Persistence:** save slots + autosave, migration-safe versioning, run history/stats, achievements, unlockables, New Game+. Durable work (survives the redesign). Build on the existing `velmora_save_v1` + in-memory fallback; keep migration safe. Gate: saves persist & migrate; tested.
-2. **Phases 9–12** per roadmap (performance/bundle budgets, QA hardening + large seed sweep, business/legal behind flags, launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
-3. At a checkpoint: push `phase-1-foundation` and update **PR #1** so CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
+1. **Phase 9 — Performance:** code-split/lazy-load the content packs, tree-shake, enforce a bundle budget in CI, Lighthouse perf ≥90, 60fps, memory hygiene. The event bank (251 events) is the obvious split candidate. Gate: budgets enforced; perf ≥90 on the prod build.
+2. **Phases 10–12** per roadmap (QA hardening + large seed sweep + optional visual-regression; business/legal behind flags; launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
+3. At a checkpoint: keep `phase-1-foundation` pushed so **PR #1** CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
 4. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.
