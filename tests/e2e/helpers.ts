@@ -61,6 +61,37 @@ export async function playToEnding(page: Page, maxSteps = 800): Promise<string> 
   throw new Error('Did not reach an ending within the step budget');
 }
 
+/**
+ * Step a run forward until its phase reaches `minPhase` (success) or it hits an
+ * ending, whichever comes first; returns the final game state. Faster than a
+ * full playthrough when you only need to prove a phase transition happened.
+ */
+export async function playToPhaseOrEnding(page: Page, minPhase: number, maxSteps = 500) {
+  for (let i = 0; i < maxSteps; i++) {
+    const s = await page.evaluate(() => window.__VELMORA_STATE?.());
+    if ((s?.phase ?? 1) >= minPhase) return s;
+    if (await page.locator('#screen-over.active').count()) return s;
+    const order = ['#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
+    let acted = false;
+    for (const sel of order) {
+      const btn = page.locator(sel);
+      if (await btn.count()) {
+        await btn.first().click();
+        acted = true;
+        break;
+      }
+    }
+    if (acted) continue;
+    const choice = page.locator('#stage .choice:not(.locked)').first();
+    if (await choice.count()) {
+      await choice.click();
+      continue;
+    }
+    await page.waitForTimeout(25);
+  }
+  return page.evaluate(() => window.__VELMORA_STATE?.());
+}
+
 /** Play a full seeded run (via the ?seed= URL hook) and return the final game state. */
 export async function playRun(page: Page, seed: string, path: 'ballot' | 'vanguard') {
   await page.goto(`/?seed=${encodeURIComponent(seed)}`);
