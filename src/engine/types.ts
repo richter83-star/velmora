@@ -193,6 +193,10 @@ export interface GameState {
   daily: boolean;
   /** Faction/bloc standings (blocId -> 0..100); initialized at run start. */
   blocs?: Record<string, number>;
+  /** Appointed advisors (cabinet), each with a loyalty meter. */
+  cabinet?: { id: string; loyalty: number }[];
+  /** Pending advisor slate offered at a promotion (UI state), or null. */
+  cabinetOffer?: string[] | null;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];

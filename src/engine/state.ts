@@ -43,6 +43,8 @@ export function blankRun(opts: BlankRunOpts): GameState {
     modifiers: [],
     daily: opts.daily,
     blocs: initBlocs(opts.path),
+    cabinet: [],
+    cabinetOffer: null,
     flags: {},
     arcs: {},
     seen: [],

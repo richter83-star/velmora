@@ -12,6 +12,7 @@ import { applyNpcFx } from './npcs';
 import { recordScandal, resolveActiveScandal } from './scandals';
 import { applyBlocShift } from './factions';
 import { traitRollBonus } from './perks';
+import { tickCabinetLoyalty } from './cabinet';
 
 /** Collect the keys of a `set` map whose value is truthy (a flag turned on). */
 function flagsTurnedOn(set: Record<string, boolean | number | string> | undefined): string[] {
@@ -72,6 +73,7 @@ export function applyChoice(
     if (d) deltas[k] = d;
   }
   applyBlocShift(S, deltas, flagsOn);
+  tickCabinetLoyalty(S, flagsOn);
   markSeen(S, ev);
 
   return { text, rollLine, endingCause, deltas };

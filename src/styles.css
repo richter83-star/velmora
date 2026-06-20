@@ -312,3 +312,24 @@ button{font-family:var(--font-b);cursor:pointer}
 .coal-tag.good{background:var(--pop);color:#fff}
 .coal-tag.bad{background:var(--danger);color:#fff}
 .coal-tag.mid{background:var(--paper-3);color:var(--ink)}
+
+/* ---- cabinet appointment screen (Phase 4) ---- */
+.cabinet-pick{display:flex;flex-direction:column;gap:12px}
+.cab-eyebrow{font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:.7rem;color:var(--gold)}
+.cab-h{font-family:var(--font-d);color:var(--paper);font-size:clamp(1.5rem,5vw,2rem);margin:2px 0 0;text-shadow:3px 3px 0 var(--ink)}
+.cab-sub{color:var(--paper);opacity:.88;font-family:var(--font-b);font-size:.9rem;line-height:1.5;margin:0 0 4px}
+.advisor-card{display:flex;align-items:center;gap:14px;text-align:left;width:100%}
+.adv-emoji{font-size:1.8rem;flex:0 0 auto;width:48px;height:48px;display:grid;place-items:center;background:var(--paper-2);border:3px solid var(--ink);border-radius:12px;box-shadow:0 4px 0 var(--ink)}
+.adv-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.adv-title{font-family:var(--font-d);font-size:.95rem;color:var(--ink)}
+.adv-name{font-family:var(--font-m);font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+.adv-desc{font-family:var(--font-b);font-size:.84rem;color:var(--ink-soft);line-height:1.4}
+.adv-decline{font-family:var(--font-b);color:var(--ink-soft);font-style:italic}
+
+/* ---- HUD cabinet chips ---- */
+.cabinet-chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.cab-chip{display:inline-flex;align-items:center;gap:4px;font-size:1rem;padding:2px 9px;border:2px solid var(--ink);border-radius:20px;background:var(--paper-2);box-shadow:0 2px 0 var(--ink)}
+.cab-chip b{font-family:var(--font-m);font-size:.62rem;font-weight:700;color:var(--ink)}
+.cab-chip.good{background:#d8f3e6}
+.cab-chip.bad{background:#ffd9d4}
+.cab-chip.mid{background:var(--paper-3)}

@@ -24,6 +24,7 @@ import { applyChoice } from './resolve';
 import { deathCause, advanceTurnState } from './turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './contest';
 import { blankRun } from './state';
+import { advisorSlate, appointAdvisor } from './cabinet';
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
 
@@ -96,6 +97,10 @@ function runContest(S: GameState, rng: Rng): string | null {
     const axis = rng.pick(['economy', 'mood', 'tension'] as const);
     S.world[axis] = rng.pick(WORLD[axis]);
   }
+  // Headless appointment: take the first of the seeded slate (the live game lets
+  // the player choose, but the sim exercises the same cabinet perk + loyalty).
+  const slate = advisorSlate(S, rng, 2);
+  if (slate[0]) appointAdvisor(S, slate[0].id);
   return null;
 }
 

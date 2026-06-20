@@ -19,6 +19,7 @@ import { pickHeadlines } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
 import { blocList } from './engine/factions';
+import { advisorDef, advisorSlate, appointAdvisor, servingAdvisors } from './engine/cabinet';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
@@ -334,8 +335,44 @@ function advancePhase(){
   S.player.title=curPhase().title;
   assignOpponent();
   maybeRerollWorld();
-  S.mode="event";
   toast("Promoted to "+S.player.title+"!");
+  renderHUD();
+  offerCabinet();
+}
+
+/* ---- cabinet: appoint an advisor at each promotion ---- */
+function offerCabinet(){
+  const slate=advisorSlate(S,_rng,2);
+  S.cabinetOffer=slate.map(a=>a.id);
+  if(!S.cabinetOffer.length){ S.mode="event"; nextEvent(); save(); return; }
+  S.mode="cabinet";
+  renderCabinet();
+  save();
+}
+function renderCabinet(){
+  const defs=(S.cabinetOffer||[]).map(id=>advisorDef(S.path,id)).filter(Boolean);
+  const cards=defs.map(d=>`<button class="choice advisor-card" data-adv="${d.id}">
+      <span class="adv-emoji">${d.emoji}</span>
+      <span class="adv-body">
+        <span class="adv-title">${esc(d.title)}</span>
+        <span class="adv-name">${esc(d.name)}</span>
+        <span class="adv-desc">${esc(d.desc)}</span>
+      </span>
+    </button>`).join("");
+  $("#stage").innerHTML=`<div class="cabinet-pick">
+    <div class="cab-eyebrow">A Higher Office</div>
+    <h3 class="cab-h">Appoint an Advisor</h3>
+    <p class="cab-sub">Choose who joins your inner circle. They serve you — and keep serving only as long as you keep them loyal.</p>
+    ${cards}
+    <button class="choice adv-decline" data-adv="">Appoint no one — keep your own counsel</button>
+  </div>`;
+  $$("#stage .choice").forEach(el=>el.addEventListener("click",()=>chooseAdvisor(el.dataset.adv)));
+}
+function chooseAdvisor(id){
+  if(S.mode!=="cabinet") return;
+  if(id){ appointAdvisor(S,id); const d=advisorDef(S.path,id); if(d) toast(d.emoji+" "+d.name+" joins your cabinet"); }
+  S.cabinetOffer=null;
+  S.mode="event";
   renderHUD();
   nextEvent();
   save();
@@ -386,6 +423,13 @@ function gaugeHtml(k){
 }
 function factionName(id){ const fs=(PATHS[S.path]&&PATHS[S.path].factions)||[]; const f=fs.find(x=>x.id===id); return f?f.name:id; }
 function blocStance(v){ return v>=62?"good":(v<=38?"bad":"mid"); }
+function loyaltyStance(v){ return v>=55?"good":(v<=30?"bad":"mid"); }
+function cabinetChipsHtml(){
+  const adv=servingAdvisors(S);
+  if(!adv.length) return "";
+  const chips=adv.map(a=>`<span class="cab-chip ${loyaltyStance(a.loyalty)}" title="${esc(a.name)} · ${esc(a.title)} · Loyalty ${a.loyalty}/100">${a.emoji}<b>${a.loyalty}</b></span>`).join("");
+  return `<div class="cabinet-chips" aria-label="Cabinet">${chips}</div>`;
+}
 function blocStripHtml(){
   return blocList(S).map(b=>`<div class="bloc" title="${esc(factionName(b.id))} · ${b.value}/100">
     <span class="bloc-lbl">${esc(b.short)}</span>
@@ -410,7 +454,8 @@ function renderHUD(){
       </div>
     </div>
     <div class="gauges">${STAT_KEYS.map(gaugeHtml).join("")}</div>
-    <div class="blocs" aria-label="Faction standings">${blocStripHtml()}</div>`;
+    <div class="blocs" aria-label="Faction standings">${blocStripHtml()}</div>
+    ${cabinetChipsHtml()}`;
   // stat-change floaties
   if(S.lastDeltas){
     for(const k in S.lastDeltas){
@@ -588,6 +633,11 @@ function renderEnding(){
     const v=b.value, st=blocStance(v), word=v>=62?"stands with you":(v<=38?"has turned on you":"keeps its distance");
     return `<div class="coal-row"><span class="coal-name">${esc(factionName(b.id))}</span><span class="coal-tag ${st}">${word}</span></div>`;
   }).join("");
+  const advisors=servingAdvisors(S);
+  const cabinet=advisors.length?advisors.map(a=>{
+    const st=loyaltyStance(a.loyalty), word=a.loyalty>=55?"stayed loyal":(a.loyalty<=30?"turned on you":"served warily");
+    return `<div class="coal-row"><span class="coal-name">${a.emoji} ${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
+  }).join(""):"";
   $("#over-mount").innerHTML=`<div class="over-card">
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
       <div class="oe">${e.emoji}</div>
@@ -599,6 +649,7 @@ function renderEnding(){
       <p>${fmt(e.text)}</p>
       <div class="ideo"><div class="ideo-head">Political Profile</div>${ideo}</div>
       <div class="coalition"><div class="coal-head">The Coalition</div>${coalition}</div>
+      ${cabinet?`<div class="coalition"><div class="coal-head">Your Cabinet</div>${cabinet}</div>`:""}
       <div class="epilogue"><div class="epi-head">Years Later…</div>${epilogue}</div>
       <div class="legacy">${legacy}</div>
     </div>
@@ -775,12 +826,14 @@ function resumeGame(){
   if(!S.npcs){ S.npcs={}; S.antagonistId=S.antagonistId||""; } // migrate (pre-NPC-roster)
   if(!S.scandals){ S.scandals=[]; S.activeScandal=S.activeScandal||null; } // migrate (pre-scandals)
   if(!S.difficulty){ S.difficulty=DEFAULT_DIFFICULTY; S.modifiers=S.modifiers||[]; S.daily=!!S.daily; } // migrate (pre-setup)
+  if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
   setTheme(PATHS[S.path].theme);
   go("game"); S.lastDeltas=null; renderHUD();
   if(S.mode==="over"){ renderEnding(); return; }
+  if(S.mode==="cabinet" && S.cabinetOffer && S.cabinetOffer.length){ renderCabinet(); return; }
   if(S.mode==="promo" && S.promo){ S.promo.resolved? renderPromotionResult(): renderPromotion(); return; }
   if(S.mode==="result" && S.lastResult){ renderResult(); return; }
   const ev=S.current && EVENTS.find(e=>e.id===S.current);
