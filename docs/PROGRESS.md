@@ -3,7 +3,7 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-20
-**Current phase:** **Phase 8 COMPLETE** — Meta-Progression & Persistence (3 save slots + autosave routing, migration-safe versioning, run history/lifetime stats, achievements, unlockables, New Game+). Next: Phase 9 — Performance. (Phases 5–7 done lean; a full UX/UI redesign is scheduled after Phase 12, then the deferred "Dark Mirrors" expansion.)
+**Current phase:** **Phase 9 COMPLETE** — Performance (event bank code-split into a lazy precached chunk: initial JS 100kB→33kB gzip; CI gzip bundle-budget gate; Lighthouse perf+a11y gated ≥90). Next: Phase 10 — Testing & QA Hardening. (Phases 5–7 done lean; a full UX/UI redesign is scheduled after Phase 12, then the deferred "Dark Mirrors" expansion.)
 **Roadmap note (2026-06-20):** Per product direction, sequence is **finish core (Phases 5–12) → massive UX/UI redesign → "Dark Mirrors" expansion** (see `EXPANSION_BRIEF.md`, deferred). Phases 5–7 are deliberately kept lean since the redesign will own final visual polish; the expansion brief targets the pre-migration architecture and needs a retarget pass before it's built.
 **Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
@@ -22,7 +22,8 @@
 - [x] Phase 6 — Audio & Juice — **complete (lean)** (opt-in synth SFX for choices/promotions/endings; Sound setting, default off, persisted)
 - [x] Phase 7 — Art Expansion — **complete (lean)** (broadened procedural avatar variety; full art direction deferred to the redesign)
 - [x] Phase 8 — Meta-Progression & Persistence — **complete** (save slots, autosave, run history/stats, achievements, unlockables, New Game+; designed + adversarially reviewed via workflows)
-- [ ] Phases 9–12 — not started
+- [x] Phase 9 — Performance — **complete** (lazy-loaded event-bank chunk, CI bundle budget, Lighthouse perf+a11y gated ≥90)
+- [ ] Phases 10–12 — not started
 
 ### Phase 1 checklist
 
@@ -129,6 +130,7 @@
 - **Closed Phase 5** with five increments (`aadbd3d` settings · `169fcea` tutorial · `853ef1a` run-summary · `ab858e6` axe+contrast+responsive). Added `@axe-core/playwright`. New E2E: settings, tutorial, axe, responsive (24 E2E total, all green; 98 unit; typecheck/build/lint green). Real WCAG 1.4.3 contrast bugs fixed at token level (kept reversible for the redesign).
 - **Closed Phases 6 (lean audio) & 7 (lean art)** (`b6a7ddb`, `ff39265`); pushed Phases 1–7 to PR #1 (CI green). Set ultracode mode.
 - **Closed Phase 8 (Meta-Progression & Persistence)** under ultracode: ran a design workflow (Map→Design→Synthesize blueprint) and an adversarial review workflow; implemented in 4 commits (`e72ff1a` meta+history+achievements+Records · `89ccc70` save slots · `503241e` New Game+ · `ac8ca7d` review hardening). 111 unit + 33 E2E green. (Review note: a transient API rate-limit killed 16/18 verifier subagents; those candidate findings were re-verified by hand — all false positives or lean-acceptable; the one confirmed gap was fixed.)
+- **Closed Phase 9 (Performance)** under ultracode: ran a measure→plan workflow, then implemented the code-split + CI budget gate + Lighthouse gate (`854cb7f` + lighthouse commit). Initial JS parse 99.8kB→32.6kB gzip; offline intact; 111 unit + 33 E2E green.
 
 ## Phase 4 — Systems Depth (complete)
 
@@ -180,9 +182,22 @@ Designed and reviewed with multi-agent workflows (a Map→Design→Synthesize bl
 - **AD-11 — Two persistence tiers:** ephemeral per-slot run saves (full serialized `S`) + a durable cross-run META store. Pure logic in `engine/meta.ts`; I/O + UI in `main.js`. Each store keeps a distinct in-memory fallback global. `S.version` remains the per-run anchor; `META.metaVersion` anchors the meta schema (additive merges, no value-gating yet).
 - **AD-12 — New Game+ as a deterministic tier:** a single integer scales existing difficulty knobs; no new content, no stat-table forks. Optional field ⇒ legacy saves and the headless sweep need no changes. Disabled for daily so the shared scenario stays identical for everyone.
 
+## Phase 9 — Performance (complete)
+
+Measured first (a measure→plan workflow): the build was one monolithic JS chunk **~99.8 kB gzip**, of which the 251-event bank was **~67.6 kB (~68%)** — and it parsed before the title screen even painted, though title/menu need none of it. zod already tree-shakes to 0 bytes; the win was code-splitting + a budget gate, not manual tree-shaking.
+
+- **Lazy event bank** (`854cb7f`): removed 4 dead content imports (`ARC_EVENTS`/`NPC_EVENTS`/`SCANDAL_EVENTS`/`PACK_1`) that pinned data to the entry chunk, then replaced the static `content/all-events` import with `loadBank()` (dynamic `import()`, cached). `startCareer`/`resumeGame` are now `async` and `await loadBank()` before the first event; the chunk is **prefetched on title idle** (`requestIdleCallback`) so career start is instant. Result: a separate `all-events-*.js` chunk (**67.3 kB gzip**, lazy) and an entry chunk down to **32.6 kB gzip** — a ~67% cut to initial JS parse, same total transfer. The lazy chunk is auto-precached by the SW (`injectManifest` globs include js; verified it's in the precache manifest), so **offline start still works** (offline E2E green).
+- **CI bundle-budget gate** (`854cb7f`): zero-dep `scripts/check-size.mjs` (`npm run size`) gzips the built assets and **fails** when the initial entry chunk > 70 kB, total JS > 300 kB, or CSS > 30 kB (warns on a large non-entry chunk / CSS). Added to the CI verify job after build — locks the win in and prevents regression as the expansion adds packs 10+.
+- **Lighthouse gate** (`<this commit>`): flipped `lighthouserc.json` performance + accessibility to **error ≥0.9** (from warn 0.8/0.9) with `numberOfRuns: 3` to cut runner variance; renamed the CI job. (Verified on the CI Lighthouse job after push.)
+- **Acceptance — MET:** initial JS within budget and enforced; offline + installable intact; 60fps unaffected (no runtime-hotspot changes needed — the win was the data split); **111 unit + 33 E2E** green. **Phase 9 closed.**
+
+## Architecture decisions (Phase 9)
+
+- **AD-13 — Content is lazy data, engine is eager:** the engine already took the event pool as a parameter (`chooseNext(S, EVENTS, …)`), so the bank splits cleanly at the data boundary with no engine refactor. One dynamic-import seam at `content/all-events` (not per-pack) keeps it simple; both paths and the headless sim still share one pool (sim keeps a static import for the deterministic sweep). The SW precaches the lazy chunk, so code-splitting never costs offline capability.
+
 ## Next steps (concrete)
 
-1. **Phase 9 — Performance:** code-split/lazy-load the content packs, tree-shake, enforce a bundle budget in CI, Lighthouse perf ≥90, 60fps, memory hygiene. The event bank (251 events) is the obvious split candidate. Gate: budgets enforced; perf ≥90 on the prod build.
-2. **Phases 10–12** per roadmap (QA hardening + large seed sweep + optional visual-regression; business/legal behind flags; launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
+1. **Phase 10 — Testing & QA Hardening:** engine unit coverage ≥80%, a large seeded E2E sweep, optional visual-regression, opt-in error reporting (flagged). Gate: CI green incl. the sweep; coverage threshold enforced.
+2. **Phases 11–12** per roadmap (business/legal behind flags; launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
 3. At a checkpoint: keep `phase-1-foundation` pushed so **PR #1** CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
 4. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.

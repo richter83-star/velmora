@@ -48,7 +48,7 @@ jobs:
           retention-days: 7
 
   lighthouse:
-    name: Lighthouse CI (budgets warn-only until Phase 9/12)
+    name: Lighthouse CI (perf + a11y gated ≥90)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
