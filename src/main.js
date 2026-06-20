@@ -190,7 +190,11 @@ function buildAvatar(a,expr="neutral",sweat=false){
    ENGINE — all game state lives in S (a plain, serializable object).
    ================================================================ */
 let S=null;
-const DRAFT={path:"ballot",name:"",avatar:null,faction:null,trait:null,difficulty:DEFAULT_DIFFICULTY,seed:null,daily:false};
+const DRAFT={path:"ballot",name:"",avatar:null,faction:null,trait:null,difficulty:DEFAULT_DIFFICULTY,seed:null,daily:false,ngPlus:0};
+/* New Game+ tier of the live run (0 = a normal first climb). Scales opponent
+   strength, crisis/scandal frequency, and starting modifier rolls — all
+   deterministic functions of the tier, so seeded/daily runs stay reproducible. */
+function ngP(){ return (S && typeof S.ngPlus==="number" && S.ngPlus>0) ? S.ngPlus : 0; }
 
 const curPhase=()=>PATHS[S.path].phases[S.phase-1];
 
@@ -249,7 +253,8 @@ function generateRivals(){
 function curDifficulty(){ return difficultyById(DIFFICULTIES, (S&&S.difficulty)||DEFAULT_DIFFICULTY); }
 /* ---- the core turn driver (selection logic lives in engine/draw.ts) ---- */
 function nextEvent(){
-  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult, scandalMult: curDifficulty().scandalMult });
+  const ngm=1+0.1*ngP();
+  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult*ngm, scandalMult: curDifficulty().scandalMult*ngm });
   if(d.type==="promotion"){ startPromotion(); return; }
   showEvent(d.event);
 }
@@ -336,7 +341,7 @@ function startPromotion(){
   }
   const _antag=antagonist(S);
   const _hostility=_antag?antagonistContestModifier(_antag.relationship):0;
-  const oppStrength=contestOppStrength(S,_rng,ph.promo.baseOpp,_hostility,curDifficulty().oppBonus);
+  const oppStrength=contestOppStrength(S,_rng,ph.promo.baseOpp,_hostility,curDifficulty().oppBonus+4*ngP());
   S.promo={
     type:ph.promo.type, ph,
     opp:{name:S.opp,avatar:S.oppAvatar,strength:oppStrength,disposition:_antag?dispositionLabel(_antag.relationship):""},
@@ -791,6 +796,25 @@ function openCreate(path){
     const dd=DIFFICULTIES.find(x=>x.id===ch.dataset.d); if(dd)$("#difficulty-desc").textContent=dd.desc;
   }));
 
+  // New Game+ tier selector — only when unlocked (a prior win) and not a daily run.
+  DRAFT.ngPlus=0;
+  const ngWrap=$("#ngplus-field"), maxTier=META.ngPlus.maxCleared;
+  if(ngWrap){
+    if(maxTier>0 && !DRAFT.daily){
+      ngWrap.classList.remove("hidden");
+      const tiers=[]; for(let t=0;t<=maxTier;t++) tiers.push(t);
+      $("#ngplus-chips").innerHTML = tiers.map((t,i)=>`<button class="chip" data-ng="${t}" aria-pressed="${i===0}">${t===0?"Standard":"NG+"+t}</button>`).join("");
+      $$("#ngplus-chips .chip").forEach(ch=>ch.addEventListener("click",()=>{
+        $$("#ngplus-chips .chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+        ch.setAttribute("aria-pressed","true"); DRAFT.ngPlus=+ch.dataset.ng;
+        $("#ngplus-desc").textContent=DRAFT.ngPlus?("Tougher rivals, more crises and scandals, extra opening twists."):"A standard climb.";
+      }));
+      $("#ngplus-desc").textContent="A standard climb.";
+    } else {
+      ngWrap.classList.add("hidden");
+    }
+  }
+
   DRAFT.avatar=randAvatar(path);
   $("#create-ava").innerHTML=buildAvatar(DRAFT.avatar,"happy");
   go("create");
@@ -811,16 +835,17 @@ function startCareer(d){
   const P=PATHS[d.path];
   // Seed this run from an explicit DRAFT.seed (shared/daily scenario) or a fresh one.
   _rng = createRng(d.seed!=null ? d.seed : randomSeed());
+  const ngTier=d.daily?0:(d.ngPlus||0); // New Game+ never applies to the daily scenario
   S=blankRun({
     version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path,
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
-    difficulty:d.difficulty||DEFAULT_DIFFICULTY, daily:!!d.daily
+    difficulty:d.difficulty||DEFAULT_DIFFICULTY, daily:!!d.daily, ngPlus:ngTier
   });
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(S,tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
   applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
-  const _mods=rollModifiers(_rng, MODIFIERS, 1); S.modifiers=_mods.map(m=>m.id);
+  const _mods=rollModifiers(_rng, MODIFIERS, 1+Math.min(ngTier,2)); S.modifiers=_mods.map(m=>m.id);
   _mods.forEach(m=>applyModifier(S,m));
   if(_mods.length) toast("This run — "+_mods.map(m=>m.name).join(" · "));
   setTheme(P.theme);
@@ -1177,6 +1202,7 @@ function resumeGame(){
   if(!S.difficulty){ S.difficulty=DEFAULT_DIFFICULTY; S.modifiers=S.modifiers||[]; S.daily=!!S.daily; } // migrate (pre-setup)
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
+  if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);

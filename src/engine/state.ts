@@ -17,6 +17,7 @@ export interface BlankRunOpts {
   player: GameState['player'];
   difficulty: string;
   daily: boolean;
+  ngPlus?: number;
 }
 
 export function blankRun(opts: BlankRunOpts): GameState {
@@ -60,5 +61,6 @@ export function blankRun(opts: BlankRunOpts): GameState {
     ending: null,
     promo: null,
     current: null,
+    ngPlus: opts.ngPlus ?? 0,
   };
 }

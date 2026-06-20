@@ -215,6 +215,8 @@ export interface GameState {
   ending: Ending | null;
   promo: unknown;
   current: string | null;
+  /** New Game+ tier (Phase 8). Optional so legacy saves migrate to 0. */
+  ngPlus?: number;
 }
 
 export interface LegacyEntry {
