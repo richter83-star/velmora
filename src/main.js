@@ -36,7 +36,7 @@ import { blankRun } from './engine/state';
 const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1";
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, tutorialSeen:false };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, tutorialSeen:false };
 function loadSettings(){
   let raw=null;
   try{ raw=localStorage.getItem(SETTINGS_KEY); }catch(e){}
@@ -570,7 +570,7 @@ function renderEvent(ev){
     <div class="choices">${choices}</div>
   </div>`;
   $$("#stage .choice").forEach(el=>{
-    el.addEventListener("click",()=>{ if(el.classList.contains("locked"))return; resolveChoice(+el.dataset.i); });
+    el.addEventListener("click",()=>{ if(el.classList.contains("locked"))return; sfx("click"); resolveChoice(+el.dataset.i); });
   });
   focusHeading(".ev-title");
   announce("New decision: "+ev.title+".");
@@ -649,6 +649,7 @@ function renderPromotionResult(){
     </div></div>`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ $$("#stage .cf").forEach(el=>{ el.style.width=el.dataset.fill+"%"; }); }));
   animateNum($("#stage .pp"),res.pShare); animateNum($("#stage .oo"),res.oShare);
+  sfx(res.win?"promote":"fail");
   if(res.win) setTimeout(confetti,500);
   $("#btn-promo-next").addEventListener("click",afterPromotion);
 }
@@ -705,6 +706,7 @@ function renderEnding(){
   go("over");
   focusHeading(".over-card h2");
   announce("Career over. "+e.rank+". "+e.verdict+".");
+  sfx(e.win?"win":"lose");
   if(e.win) setTimeout(confetti,350);
 }
 
@@ -870,6 +872,7 @@ function closeCodex(){ go("title"); const b=$("#btn-codex"); if(b) b.focus(); }
 function renderSettings(){
   const r=$("#set-reduce"); if(r) r.setAttribute("aria-checked",SETTINGS.reduceMotion?"true":"false");
   const h=$("#set-high"); if(h) h.setAttribute("aria-checked",SETTINGS.highContrast?"true":"false");
+  const s=$("#set-sound"); if(s) s.setAttribute("aria-checked",SETTINGS.sound?"true":"false");
 }
 function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
 function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
@@ -919,6 +922,38 @@ function maybeTutorial(){ if(!SETTINGS.tutorialSeen) openTutorial(); }
 let fxCanvas=null, fxCtx=null;
 function sizeCanvas(){ fxCanvas=$("#fx-canvas"); if(!fxCanvas)return; fxCtx=fxCanvas.getContext("2d"); fxCanvas.width=window.innerWidth; fxCanvas.height=window.innerHeight; }
 function reduced(){ if(SETTINGS.reduceMotion) return true; try{return window.matchMedia("(prefers-reduced-motion:reduce)").matches;}catch(e){return false;} }
+
+/* ---------- audio: synth SFX, opt-in (Settings → Sound), lazily created ---------- */
+let _actx=null;
+function actx(){
+  if(_actx) return _actx;
+  try{ const AC=window.AudioContext||window.webkitAudioContext; _actx=AC?new AC():null; }catch(e){ _actx=null; }
+  return _actx;
+}
+function blip(freq,start,dur,type,gain){
+  const ac=actx(); if(!ac) return;
+  const t0=ac.currentTime+start;
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||"triangle"; o.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.linearRampToValueAtTime(gain||0.12,t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g).connect(ac.destination);
+  o.start(t0); o.stop(t0+dur+0.03);
+}
+function sfx(name){
+  if(!SETTINGS.sound) return;
+  const ac=actx(); if(!ac) return;
+  try{ if(ac.state==="suspended") ac.resume(); }catch(e){}
+  switch(name){
+    case "click":   blip(330,0,0.09,"triangle",0.09); break;
+    case "promote": [523.25,659.25,783.99].forEach((f,i)=>blip(f,i*0.07,0.18,"triangle",0.11)); break;
+    case "fail":    [330,247,196].forEach((f,i)=>blip(f,i*0.12,0.30,"sawtooth",0.10)); break;
+    case "win":     [523.25,659.25,783.99,1046.5].forEach((f,i)=>blip(f,i*0.09,0.24,"triangle",0.12)); break;
+    case "lose":    [392,329.63,261.63].forEach((f,i)=>blip(f,i*0.13,0.32,"sawtooth",0.10)); break;
+    default: break;
+  }
+}
 function confetti(){
   if(reduced()||!fxCtx) return;
   const cols=["#F2B705","#E63B5B","#3B6FE6","#2FB67D","#A65BD6","#FF7A3C","#ffffff"];
@@ -1011,6 +1046,7 @@ function boot(){
   $("#btn-settings-back").addEventListener("click",closeSettings);
   $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
+  $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); const c=$("#btn-continue"); if(c)c.classList.add("hidden"); toast("Saved career cleared"); });
   $("#tut-next").addEventListener("click",tutNext);
