@@ -98,22 +98,50 @@ export function defaultMeta(): MetaState {
  * Normalize possibly-partial / legacy stored meta into a complete MetaState.
  * Additive + defensive so future fields and old data both load cleanly.
  */
+/** Coerce any stored value to a finite number, falling back to a default. */
+function num(v: unknown, d = 0): number {
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : d;
+}
+
 export function mergeMeta(stored: unknown): MetaState {
   const m = defaultMeta();
   if (!stored || typeof stored !== 'object') return m;
   const s = stored as Partial<MetaState> & Record<string, unknown>;
-  if (typeof s.activeSlot === 'number') m.activeSlot = clampSlot(s.activeSlot);
+  if (s.activeSlot !== undefined) m.activeSlot = clampSlot(num(s.activeSlot));
+  // Whitelist + numerically coerce stat fields so tampered/garbage/future data
+  // can never poison the lifetime rollups (recordRun does += / Math.max on these).
   if (s.stats && typeof s.stats === 'object') {
-    m.stats = { ...m.stats, ...(s.stats as MetaStats) };
-    m.stats.byPath = { ...m.stats.byPath, ...((s.stats as MetaStats).byPath || {}) };
+    const ss = s.stats as unknown as Record<string, unknown>;
+    const bp = (ss.byPath && typeof ss.byPath === 'object' ? ss.byPath : {}) as Record<
+      string,
+      unknown
+    >;
+    m.stats = {
+      runsStarted: num(ss.runsStarted),
+      runsFinished: num(ss.runsFinished),
+      wins: num(ss.wins),
+      losses: num(ss.losses),
+      byPath: { ballot: num(bp.ballot), vanguard: num(bp.vanguard) },
+      bestComposite: num(ss.bestComposite),
+      totalYears: num(ss.totalYears),
+      totalPurges: num(ss.totalPurges),
+      totalScandals: num(ss.totalScandals),
+      bestNgPlus: num(ss.bestNgPlus),
+    };
   }
   if (Array.isArray(s.history)) m.history = s.history.slice(-HISTORY_CAP) as RunRecord[];
   if (s.achievements && typeof s.achievements === 'object')
     m.achievements = { ...(s.achievements as Record<string, { ts: number }>) };
   if (s.unlockables && typeof s.unlockables === 'object')
     m.unlockables = { ...(s.unlockables as Record<string, boolean>) };
-  if (s.ngPlus && typeof s.ngPlus === 'object')
-    m.ngPlus = { ...m.ngPlus, ...(s.ngPlus as MetaState['ngPlus']) };
+  if (s.ngPlus && typeof s.ngPlus === 'object') {
+    const ng = s.ngPlus as unknown as Record<string, unknown>;
+    m.ngPlus = {
+      maxCleared: num(ng.maxCleared),
+      lastSeed: (ng.lastSeed as number | string | null) ?? null,
+    };
+  }
   return m;
 }
 

@@ -445,7 +445,9 @@ function recordRunOutcome(){
   try{
     const ts=Date.now();
     META=metaRecordRun(META,S,ts);
-    if(S.ending && S.ending.win) META.ngPlus.maxCleared=Math.max(META.ngPlus.maxCleared, (S.ngPlus||0)+1);
+    if(S.ending && S.ending.win){
+      META={...META, ngPlus:{...META.ngPlus, maxCleared:Math.max(META.ngPlus.maxCleared, (S.ngPlus||0)+1)}};
+    }
     const res=unlockAchievements(META,S,ts);
     META=refreshUnlockables(res.meta);
     saveMeta();

@@ -80,6 +80,24 @@ describe('meta — defaults & merge', () => {
     expect(merged.activeSlot).toBe(2); // clamped into [0, SLOT_COUNT-1]
     expect(merged.history).toEqual([]); // bad history dropped
   });
+
+  it('mergeMeta coerces non-numeric stat fields so rollups stay numeric', () => {
+    const merged = mergeMeta({
+      stats: { wins: 'lots', runsFinished: null, bestComposite: NaN, byPath: { ballot: '4' } },
+      ngPlus: { maxCleared: 'x' },
+      activeSlot: 'nope',
+    });
+    expect(merged.stats.wins).toBe(0); // 'lots' → 0
+    expect(merged.stats.runsFinished).toBe(0); // null → 0
+    expect(merged.stats.bestComposite).toBe(0); // NaN → 0
+    expect(merged.stats.byPath.ballot).toBe(4); // '4' → 4
+    expect(merged.ngPlus.maxCleared).toBe(0); // 'x' → 0
+    expect(merged.activeSlot).toBe(0);
+    // And a subsequent recordRun produces clean numbers (no NaN / string concat).
+    const after = recordRun(merged, makeRun({ ending: { win: true } }), 1);
+    expect(after.stats.wins).toBe(1);
+    expect(Number.isFinite(after.stats.bestComposite)).toBe(true);
+  });
 });
 
 describe('meta — run history & stats', () => {
