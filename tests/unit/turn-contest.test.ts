@@ -69,6 +69,22 @@ describe('advanceTurnState', () => {
     expect(S.queue[0]!.inTurns).toBe(2);
     expect(S.stats.heat).toBe(0); // 1 - 2, clamped at 0
   });
+
+  it('does not erode approval at or below the comfort level', () => {
+    const S = makeState({ stats: { support: 50, heat: 10 } });
+    advanceTurnState(S);
+    expect(S.stats.support).toBe(50);
+  });
+
+  it('erodes approval faster the higher you ride, and under scandal pressure', () => {
+    const high = makeState({ stats: { support: 80, heat: 10 } });
+    advanceTurnState(high);
+    expect(high.stats.support).toBe(78); // > 55 and > 75 → -2
+
+    const besieged = makeState({ stats: { support: 80, heat: 70 } });
+    advanceTurnState(besieged);
+    expect(besieged.stats.support).toBe(77); // -2 incumbency, -1 scandal (heat still >= 60)
+  });
 });
 
 describe('promoPlayerStrength', () => {

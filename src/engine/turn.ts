@@ -8,6 +8,8 @@ import { clampStat } from './mutate';
 
 /** Scrutiny ("heat") cools by this much each turn the player survives. */
 const HEAT_DECAY_PER_TURN = 2;
+/** Above this approval level, the cost of incumbency starts to erode support. */
+const APPROVAL_COMFORT = 55;
 
 /** Removal cause if a vital stat has crossed a lethal threshold this turn, else null. */
 export function deathCause(S: GameState): string | null {
@@ -22,4 +24,14 @@ export function advanceTurnState(S: GameState): void {
   S.phaseTurn++;
   for (const q of S.queue) q.inTurns = (q.inTurns ?? 0) - 1;
   S.stats.heat = clampStat(S.stats.heat - HEAT_DECAY_PER_TURN);
+  // Approval decay (term dynamics): riding high erodes support (the cost of
+  // incumbency), and scandal or a sour economy accelerate it. There is no
+  // baseline drain while you are already struggling, so this adds "you can't
+  // coast at the top" pressure without dooming weak runs outright.
+  let decay = 0;
+  if (S.stats.support > APPROVAL_COMFORT) decay += 1;
+  if (S.stats.support > 75) decay += 1;
+  if (S.stats.heat >= 60) decay += 1;
+  if ((S.world?.economy?.mood ?? 0) < 0) decay += 1;
+  if (decay) S.stats.support = clampStat(S.stats.support - decay);
 }
