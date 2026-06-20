@@ -3,8 +3,8 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-19
-**Current phase:** Phase 3 — Content Volume (in progress)
-**Current branch:** `phase-1-foundation` → **PR #1** (pushed; CI green on the foundation commit, re-running on pack 1)
+**Current phase:** Phase 3 — Content Volume (in progress; bank at **76** events, ~49 eligible per path, toward the 250+ target)
+**Current branch:** `phase-1-foundation` → **PR #1** (pushed; CI green through the engine extraction; re-running on pack 2)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -109,7 +109,8 @@
 - Phase 3 kicked off (`5025dea`): scalable **event-pack** structure + **content pack 1** (+12 events; bank ~50); **all-14-endings reachability gate**; arc E2E made robust to content growth (multi-seed via the `?seed=` URL hook, asserting the arc advances in at least one run). 52 unit/content + 10 E2E green.
 - Engine decomposition + sweep (`cf450a4`): extracted the pure draw engine (`engine/draw.ts`, shared via `chooseNext`), single-sourced the pool (`content/all-events.ts`), built a headless simulator (`engine/sim.ts`) + a seeded sweep gate (50 runs/path: repeat-rate < 0.2, ≥18 distinct events, ≥3 endings). 62 unit/content + 10 E2E green.
 - **Engine extraction finished** (`177cba4` → `14f9a1b` → `5c9f812`): unified the live engine and the simulator onto shared pure modules — `mutate` (helpers + roll), `resolve` (`applyChoice`), `turn` (`deathCause`/`advanceTurnState`), `contest` (promo strength/opponent/odds), and `state` (`blankRun`). `main.js`'s `resolveChoice`/`advanceTurn`/promotion + `sim.ts` now call the same code; orphaned imports cleaned; +9 turn/contest unit tests. 71 unit/content + 10 E2E green; the seed sweep is byte-for-byte unchanged (sim behavior preserved through the refactor).
-- **Phase 3 cadence (resumes):** add validated event packs toward 250+, watching the sweep's variety/repeat-rate metrics; expand endings + epilogues; add the headline-ticker flavor.
+- **Content pack 2** (`7d396c5`): +22 events (`events-pack-2.ts`) across ballot/vanguard/shared/crisis + all phases, with rolls, scandals, antagonist relationship shifts, and two delayed `then`-chains. Bank **54 → 76** (~49 eligible/path). Sweep: repeat-rate **0.013/0.022** (gate < 0.2), 49 distinct events/path, 6–8 endings. Also hardened the recurring-antagonist E2E to be content-growth-robust (multi-seed via `?seed=` + a fast `playToPhaseOrEnding` helper, replacing a brittle pinned seed). 71 unit/content + 10 E2E green.
+- **Phase 3 cadence (continues):** keep adding validated event packs toward 250+, watching the sweep's variety/repeat-rate metrics; expand endings + epilogues; add the headline-ticker flavor.
 
 ## Next steps (concrete)
 
