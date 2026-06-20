@@ -9,6 +9,7 @@ import { PACK_3 } from '../../src/content/events-pack-3';
 import { PACK_4 } from '../../src/content/events-pack-4';
 import { PACK_5 } from '../../src/content/events-pack-5';
 import { PACK_6 } from '../../src/content/events-pack-6';
+import { PACK_7 } from '../../src/content/events-pack-7';
 import { validateContent } from '../../src/content/lint';
 
 // The engine plays the base bank plus arc-step, NPC-aware, scandal, and pack events.
@@ -23,6 +24,7 @@ const ALL = [
   ...PACK_4,
   ...PACK_5,
   ...PACK_6,
+  ...PACK_7,
 ];
 
 describe('content validation', () => {
