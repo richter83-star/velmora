@@ -277,6 +277,15 @@ button{font-family:var(--font-b);cursor:pointer}
 .tut-actions{display:flex;gap:10px}
 .tut-actions .btn{flex:1}
 
+/* ===== career slots ===== */
+.slot-card{border:3px solid var(--ink);border-radius:var(--r-sm);background:var(--paper-2);box-shadow:var(--shadow-sm);padding:14px 16px;margin:0 0 12px}
+.slot-card.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent) inset, var(--shadow-sm)}
+.slot-card.empty{background:var(--paper-3);border-style:dashed}
+.slot-h{font-family:var(--font-d);font-size:1.05rem;color:var(--ink)}
+.slot-sub{font-family:var(--font-m);font-size:.74rem;color:var(--ink-soft);line-height:1.45;margin:5px 0 12px}
+.slot-actions{display:flex;gap:10px;flex-wrap:wrap}
+.slot-actions .btn{flex:1;min-width:120px}
+
 /* ===== records (cross-run history / achievements) ===== */
 .cdx-card.rec-locked{border-style:dashed}
 .cdx-card.rec-locked .cdx-emoji{filter:grayscale(1)}

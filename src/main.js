@@ -25,7 +25,7 @@ import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
 import { blankRun } from './engine/state';
-import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, ACHIEVEMENTS, UNLOCKABLES } from './engine/meta';
+import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, ACHIEVEMENTS, UNLOCKABLES, SLOT_COUNT } from './engine/meta';
 // The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
@@ -957,6 +957,65 @@ function openRecords(){ renderRecords(); go("records"); focusHeading("#records-t
 function closeRecords(){ go("title"); const b=$("#btn-records"); if(b) b.focus(); }
 
 /* ================================================================
+   CAREER SLOTS (Phase 8) — resume / switch / delete / start-in-slot
+   ================================================================ */
+let pendingStart={seed:null,daily:false};
+function slotInfo(i){
+  const o=loadRaw(i);
+  if(!o || !o.path) return {used:false};
+  return {used:true, over:!!o.over, path:o.path,
+    pathName:(o.path==="ballot"?"Ballot":(o.path==="vanguard"?"Vanguard":o.path)),
+    title:(o.player&&o.player.title)||"", phase:o.phase||1, totalTurns:o.totalTurns||0,
+    daily:!!o.daily, ngPlus:o.ngPlus||0};
+}
+function renderSlots(){
+  const cards=[];
+  for(let i=0;i<SLOT_COUNT;i++){
+    const info=slotInfo(i), n="Slot "+(i+1);
+    if(info.used && !info.over){
+      const sub=esc(info.pathName+" · "+info.title+" · Yr "+info.totalTurns
+        +(info.daily?" · 🗓️ Daily":"")+(info.ngPlus?" · NG+"+info.ngPlus:""));
+      cards.push(`<div class="slot-card${i===activeSlot?" active":""}">
+        <div class="slot-h">${n}</div><div class="slot-sub">${sub}</div>
+        <div class="slot-actions">
+          <button class="btn primary" data-act="resume" data-slot="${i}">Resume</button>
+          <button class="btn" data-act="del" data-slot="${i}">Delete</button>
+        </div></div>`);
+    } else {
+      cards.push(`<div class="slot-card empty">
+        <div class="slot-h">${n}</div><div class="slot-sub">Empty career slot</div>
+        <div class="slot-actions"><button class="btn gold" data-act="start" data-slot="${i}">Start a career</button></div>
+      </div>`);
+    }
+  }
+  $("#slots-mount").innerHTML=cards.join("");
+  $$("#slots-mount [data-act]").forEach(b=>b.addEventListener("click",()=>slotAction(b.dataset.act,+b.dataset.slot)));
+}
+function slotAction(act,i){
+  if(act==="resume"){ setActiveSlot(i); resumeGame(); return; }
+  if(act==="del"){ clearSave(i); toast("Slot "+(i+1)+" cleared"); renderSlots(); refreshContinueBtn(); return; }
+  if(act==="start"){
+    setActiveSlot(i);
+    DRAFT.seed=pendingStart.seed; DRAFT.daily=pendingStart.daily;
+    setTheme("theme-neutral");
+    if(pendingStart.daily) toast("Scenario of the Day — everyone plays the same run today");
+    go("path");
+  }
+}
+function openSlots(intent){ pendingStart=intent||{seed:null,daily:false}; renderSlots(); go("slots"); focusHeading("#slots-title"); announce("Career slots. Resume, delete, or start a new career in a slot."); }
+function closeSlots(){ go("title"); const b=$("#btn-continue"); if(b) b.focus(); }
+/* Quick-start a brand-new career: straight to path-select when the active slot is
+   free, otherwise open the slot picker so an in-progress career isn't clobbered. */
+function quickStart(intent){
+  if(hasSave(activeSlot)){ openSlots(intent); return; }
+  pendingStart=intent;
+  DRAFT.seed=intent.seed; DRAFT.daily=intent.daily;
+  setTheme("theme-neutral");
+  if(intent.daily) toast("Scenario of the Day — everyone plays the same run today");
+  go("path");
+}
+
+/* ================================================================
    SETTINGS — accessibility + device preferences (persisted)
    ================================================================ */
 function renderSettings(){
@@ -1071,21 +1130,42 @@ function toast(msg){
 /* ================================================================
    SAVE / LOAD  (localStorage with in-memory fallback for sandboxes)
    ================================================================ */
+/* ---- save slots (Phase 8) ----
+   Runs persist per slot at SAVE_KEY+"__"+i (e.g. velmora_save_v1__0). The legacy
+   bare SAVE_KEY (pre-Phase-8) is adopted as slot 0. The in-memory fallback for
+   save data is a per-slot map on window._velmoraMem (tolerating a legacy string
+   as the slot-0 value). activeSlot is the slot the live run reads/writes. */
+let activeSlot=0;
+function slotKey(i){ return SAVE_KEY+"__"+i; }
+function memGet(i){ const m=window._velmoraMem; if(m&&typeof m==="object") return m[i]||null; if(typeof m==="string"&&i===0) return m; return null; }
+function memSet(i,data){ let m=window._velmoraMem; if(!m||typeof m!=="object") m={}; m[i]=data; window._velmoraMem=m; }
+function memDel(i){ const m=window._velmoraMem; if(m&&typeof m==="object"){ delete m[i]; } else if(typeof m==="string"&&i===0){ window._velmoraMem=null; } }
+function setActiveSlot(i){ activeSlot=i; META.activeSlot=i; saveMeta(); }
+
 function save(){
   if(!S) return;
   S.rngState=_rng.getState();
   let data; try{ data=JSON.stringify(S); }catch(e){ return; }
-  try{ localStorage.setItem(SAVE_KEY,data); }catch(e){ window._velmoraMem=data; }
+  try{ localStorage.setItem(slotKey(activeSlot),data); }catch(e){ memSet(activeSlot,data); }
 }
-function loadRaw(){
+function loadRaw(i){
+  if(i===undefined) i=activeSlot;
   let data=null;
-  try{ data=localStorage.getItem(SAVE_KEY); }catch(e){}
-  if(!data && window._velmoraMem) data=window._velmoraMem;
+  try{ data=localStorage.getItem(slotKey(i)); }catch(e){}
+  if(!data && i===0){ try{ data=localStorage.getItem(SAVE_KEY); }catch(e){} } // legacy bare key → slot 0
+  if(!data) data=memGet(i);
   if(!data) return null;
   try{ return JSON.parse(data); }catch(e){ return null; }
 }
-function hasSave(){ const o=loadRaw(); return !!(o && o.path && !o.over); }
-function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} window._velmoraMem=null; }
+function hasSave(i){ const o=loadRaw(i===undefined?activeSlot:i); return !!(o && o.path && !o.over); }
+function clearSave(i){
+  if(i===undefined) i=activeSlot;
+  try{ localStorage.removeItem(slotKey(i)); }catch(e){}
+  if(i===0){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} } // also drop adopted legacy key
+  memDel(i);
+}
+function anySave(){ for(let i=0;i<SLOT_COUNT;i++){ if(hasSave(i)) return true; } return false; }
+function refreshContinueBtn(){ const c=$("#btn-continue"); if(c) c.classList.toggle("hidden", !anySave()); }
 
 function resumeGame(){
   const o=loadRaw();
@@ -1124,12 +1204,13 @@ function registerSW(){
    ================================================================ */
 function boot(){
   loadSettings(); applySettings();
-  loadMeta();
+  loadMeta(); activeSlot=META.activeSlot;
   sizeCanvas();
   window.addEventListener("resize",sizeCanvas);
 
-  $("#btn-new").addEventListener("click",()=>{ DRAFT.seed=null; DRAFT.daily=false; setTheme("theme-neutral"); go("path"); });
-  $("#btn-continue").addEventListener("click",resumeGame);
+  $("#btn-new").addEventListener("click",()=>quickStart({seed:null,daily:false}));
+  $("#btn-continue").addEventListener("click",()=>openSlots({seed:null,daily:false}));
+  $("#btn-slots-back").addEventListener("click",closeSlots);
   $("#btn-how").addEventListener("click",showHow);
   $("#btn-codex").addEventListener("click",openCodex);
   $("#btn-codex-back").addEventListener("click",closeCodex);
@@ -1141,11 +1222,11 @@ function boot(){
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
-  $("#set-clear").addEventListener("click",()=>{ clearSave(); const c=$("#btn-continue"); if(c)c.classList.add("hidden"); toast("Saved career cleared"); });
+  $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);
   $("#tut-skip").addEventListener("click",closeTutorial);
   $("#tutorial").addEventListener("keydown",e=>{ if(e.key==="Escape") closeTutorial(); });
-  $("#btn-daily").addEventListener("click",()=>{ DRAFT.seed=dailySeed(); DRAFT.daily=true; setTheme("theme-neutral"); toast("Scenario of the Day — everyone plays the same run today"); go("path"); });
+  $("#btn-daily").addEventListener("click",()=>quickStart({seed:dailySeed(),daily:true}));
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 
   $$(".path-card").forEach(c=>{
@@ -1168,7 +1249,7 @@ function boot(){
   $("#drawer-close").addEventListener("click",()=>$("#drawer").classList.remove("open"));
   $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") $("#drawer").classList.remove("open"); });
 
-  if(hasSave()) $("#btn-continue").classList.remove("hidden");
+  refreshContinueBtn();
 
   // Debug/test hook: expose the live run state (used by E2E arc assertions).
   window.__VELMORA_STATE = () => S;
