@@ -23,20 +23,18 @@ import { applyFx } from './mutate';
 import { applyChoice } from './resolve';
 import { deathCause, advanceTurnState } from './turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './contest';
+import { blankRun } from './state';
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
 
-/** Build a fresh run state (faithful port of startCareer's pure parts). */
+/** Build a fresh run state (faithful headless port of startCareer's pure parts). */
 function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
   const P = PATHS[path];
-  const S: GameState = {
+  const S = blankRun({
     version: 'sim',
     seed: rng.seed,
     rngState: rng.getState(),
     path,
-    phase: 1,
-    phaseTurn: 0,
-    totalTurns: 0,
     stats: { ...P.start },
     player: {
       name: 'Sim',
@@ -45,33 +43,9 @@ function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
       faction: P.factions[0]!.id,
       trait: TRAITS[0]!.id,
     },
-    world: {},
-    rivals: [],
-    usedOpp: [],
-    opp: '',
-    oppAvatar: '',
-    npcs: {},
-    antagonistId: '',
-    scandals: [],
-    activeScandal: null,
     difficulty: difficulty || DEFAULT_DIFFICULTY,
-    modifiers: [],
     daily: false,
-    flags: {},
-    arcs: {},
-    seen: [],
-    queue: [],
-    log: [],
-    lastResult: null,
-    lastDeltas: null,
-    pendingDeath: null,
-    pendingEndingCause: null,
-    mode: 'event',
-    over: false,
-    ending: null,
-    promo: null,
-    current: null,
-  };
+  });
   const tr = TRAITS.find((t) => t.id === S.player.trait);
   if (tr) applyFx(S, tr.fx);
   S.world = {

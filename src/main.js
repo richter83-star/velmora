@@ -19,6 +19,7 @@ import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
+import { blankRun } from './engine/state';
 // The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
@@ -631,16 +632,12 @@ function startCareer(d){
   const P=PATHS[d.path];
   // Seed this run from an explicit DRAFT.seed (shared/daily scenario) or a fresh one.
   _rng = createRng(d.seed!=null ? d.seed : randomSeed());
-  S={
-    version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path, phase:1, phaseTurn:0, totalTurns:0,
+  S=blankRun({
+    version:VERSION, seed:_rng.seed, rngState:_rng.getState(), path:d.path,
     stats:Object.assign({},P.start),
     player:{name:d.name.trim(), title:P.phases[0].title, avatar:d.avatar, faction:d.faction, trait:d.trait},
-    world:{}, rivals:[], usedOpp:[], opp:"", oppAvatar:"", npcs:{}, antagonistId:"", scandals:[], activeScandal:null,
-    difficulty:d.difficulty||DEFAULT_DIFFICULTY, modifiers:[], daily:!!d.daily,
-    flags:{}, arcs:{}, seen:[], queue:[], log:[],
-    lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
-    mode:"event", over:false, ending:null, promo:null, current:null
-  };
+    difficulty:d.difficulty||DEFAULT_DIFFICULTY, daily:!!d.daily
+  });
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(S,tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
   applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
