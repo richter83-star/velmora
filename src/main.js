@@ -654,9 +654,20 @@ function renderPromotionResult(){
 }
 
 /* ---- ending ---- */
+function runSummaryRows(){
+  const rows=[];
+  rows.push({l:"Highest office",v:S.player.title});
+  rows.push({l:"Years served",v:String(S.totalTurns)});
+  rows.push({l:"Decisions made",v:String(S.log.length)});
+  const d=curDifficulty(); if(d) rows.push({l:"Difficulty",v:d.name});
+  const sc=(S.scandals||[]).length; if(sc) rows.push({l:"Scandals",v:String(sc)});
+  const pc=(S.flags&&S.flags.purge_count)||0; if(pc) rows.push({l:"Purges ordered",v:String(pc)});
+  return rows;
+}
 function renderEnding(){
   const e=S.ending;
   const ava=buildAvatar(S.player.avatar,e.win?"smug":"worried",!e.win);
+  const summary=runSummaryRows().map(r=>`<div class="lc"><div class="ll">${esc(r.l)}</div><div class="lv">${esc(r.v)}</div></div>`).join("");
   const legacy=e.legacy.map(l=>`<div class="lc"><div class="ll">${esc(l.l)}</div><div class="lv">${esc(l.v)}</div></div>`).join("");
   const epilogue=buildEpilogue(S).map(b=>`<div class="epi-beat">${esc(b)}</div>`).join("");
   const ideo=deriveIdeology(S).map(a=>`<div class="ideo-row">
@@ -686,6 +697,7 @@ function renderEnding(){
       <div class="ideo"><div class="ideo-head">Political Profile</div>${ideo}</div>
       <div class="coalition"><div class="coal-head">The Coalition</div>${coalition}</div>
       ${cabinet?`<div class="coalition"><div class="coal-head">Your Cabinet</div>${cabinet}</div>`:""}
+      <div class="runsum"><div class="rs-head">By the Numbers</div><div class="legacy">${summary}</div></div>
       <div class="epilogue"><div class="epi-head">Years Later…</div>${epilogue}</div>
       <div class="legacy">${legacy}</div>
     </div>

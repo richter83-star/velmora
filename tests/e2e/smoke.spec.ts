@@ -30,6 +30,10 @@ for (const path of PATHS) {
       await page.locator('#over-mount .coal-row').count(),
       'ending should summarize the coalition (3 blocs, plus any cabinet)',
     ).toBeGreaterThanOrEqual(3);
+    expect(
+      await page.locator('#over-mount .runsum .lc').count(),
+      'ending should show the By the Numbers run summary',
+    ).toBeGreaterThanOrEqual(3);
     expect(errors, `errors during ${path} run:\n${errors.join('\n')}`).toEqual([]);
   });
 }

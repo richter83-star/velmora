@@ -329,6 +329,10 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
 .epi-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent);margin:0 0 10px;text-transform:uppercase}
 .epi-beat{font-family:var(--font-b);font-size:.94rem;line-height:1.5;color:var(--ink);padding:5px 0 5px 14px;border-left:4px solid var(--gold);margin:0 0 9px}
 
+/* ---- ending run-summary ("By the Numbers") ---- */
+.runsum{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
+.rs-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--pop);margin:0 0 12px;text-transform:uppercase}
+
 /* ---- ending ideology profile (Phase 4) ---- */
 .ideo{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
 .ideo-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent2);margin:0 0 12px;text-transform:uppercase}
