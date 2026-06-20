@@ -249,6 +249,8 @@ function resolveChoice(ci){
   S.lastResult={title:ev.title,text:out.text,rollLine,tone:ch.tone||"good"};
   S.mode="result";
   renderHUD(); renderResult();
+  const ds=STAT_KEYS.filter(k=>out.deltas[k]).map(k=>statLabel(k)+" "+(out.deltas[k]>0?"+":"")+out.deltas[k]).join(", ");
+  announce((rollLine?(rollLine.win?"Roll succeeded. ":"Roll failed. "):"")+"Outcome — "+(ds||"no stat change")+".");
   save();
 }
 function statLabel(k){ return PATHS[S.path].statNames[k]||cap(k); }
@@ -372,6 +374,8 @@ function renderCabinet(){
     <button class="choice adv-decline" data-adv="">Appoint no one — keep your own counsel</button>
   </div>`;
   $$("#stage .choice").forEach(el=>el.addEventListener("click",()=>chooseAdvisor(el.dataset.adv)));
+  focusHeading(".cab-h");
+  announce("Promotion. Appoint an advisor to your cabinet.");
 }
 function chooseAdvisor(id){
   if(S.mode!=="cabinet") return;
@@ -403,6 +407,9 @@ function pushLog(ev,choice,result){
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function fmt(s){return esc(s);}
 function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); try{window.scrollTo(0,0);}catch(e){} }
+/* ---- accessibility: live announcements + focus management (Phase 5) ---- */
+function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
+function focusHeading(sel){ const el=$(sel); if(el){ el.setAttribute("tabindex","-1"); try{ el.focus({preventScroll:true}); }catch(e){} } }
 function setTheme(cls){ document.body.className=cls||"theme-neutral"; }
 function worldShort(){ return cap(S.world.economy.k)+" · "+cap(S.world.mood.k); }
 
@@ -543,6 +550,8 @@ function renderEvent(ev){
   $$("#stage .choice").forEach(el=>{
     el.addEventListener("click",()=>{ if(el.classList.contains("locked"))return; resolveChoice(+el.dataset.i); });
   });
+  focusHeading(".ev-title");
+  announce("New decision: "+ev.title+".");
 }
 function renderResult(){
   const r=S.lastResult; if(!r)return;
@@ -660,6 +669,8 @@ function renderEnding(){
     </div>
   </div>`;
   go("over");
+  focusHeading(".over-card h2");
+  announce("Career over. "+e.rank+". "+e.verdict+".");
   if(e.win) setTimeout(confetti,350);
 }
 
