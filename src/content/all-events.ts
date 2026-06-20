@@ -5,6 +5,7 @@ import { NPC_EVENTS } from './npc-events';
 import { SCANDAL_EVENTS } from './scandals';
 import { PACK_1 } from './events-pack-1';
 import { PACK_2 } from './events-pack-2';
+import { PACK_3 } from './events-pack-3';
 
 /**
  * The full draw pool: the base bank plus every content pack. Single source of
@@ -18,4 +19,5 @@ export const ALL_EVENTS: GameEvent[] = [
   ...SCANDAL_EVENTS,
   ...PACK_1,
   ...PACK_2,
+  ...PACK_3,
 ];
