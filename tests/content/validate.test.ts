@@ -11,6 +11,7 @@ import { PACK_5 } from '../../src/content/events-pack-5';
 import { PACK_6 } from '../../src/content/events-pack-6';
 import { PACK_7 } from '../../src/content/events-pack-7';
 import { PACK_8 } from '../../src/content/events-pack-8';
+import { PACK_9 } from '../../src/content/events-pack-9';
 import { validateContent } from '../../src/content/lint';
 
 // The engine plays the base bank plus arc-step, NPC-aware, scandal, and pack events.
@@ -27,6 +28,7 @@ const ALL = [
   ...PACK_6,
   ...PACK_7,
   ...PACK_8,
+  ...PACK_9,
 ];
 
 describe('content validation', () => {
@@ -36,8 +38,8 @@ describe('content validation', () => {
     expect(result.errors, `content errors:\n${result.errors.join('\n')}`).toEqual([]);
   });
 
-  it('has a non-trivial event bank', () => {
-    expect(ALL.length).toBeGreaterThanOrEqual(20);
+  it('meets the Phase 3 commercial-volume target (250+ events)', () => {
+    expect(ALL.length).toBeGreaterThanOrEqual(250);
   });
 
   it('every event id is unique', () => {
