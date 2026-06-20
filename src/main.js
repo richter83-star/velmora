@@ -6,17 +6,17 @@ import { WORLD } from './content/world';
 import { ALL_EVENTS as EVENTS } from './content/all-events';
 import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
-import { applyArcSet } from './engine/arcs';
 import { ARC_EVENTS } from './content/arcs';
-import { applyNpcFx, antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
+import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { NPC_EVENTS } from './content/npc-events';
-import { recordScandal, resolveActiveScandal } from './engine/scandals';
 import { SCANDAL_EVENTS } from './content/scandals';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { PACK_1 } from './content/events-pack-1';
 import { chooseNext } from './engine/draw';
+import { applyFx } from './engine/mutate';
+import { applyChoice } from './engine/resolve';
 // The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
@@ -148,19 +148,11 @@ const DRAFT={path:"ballot",name:"",avatar:null,faction:null,trait:null,difficult
 
 const curPhase=()=>PATHS[S.path].phases[S.phase-1];
 
-/* ---- mutation helpers ---- */
-function applyFx(fx){ if(!fx)return; for(const k in fx){ if(k in S.stats) S.stats[k]=clamp(S.stats[k]+fx[k]); } }
-function setFlags(set){ if(!set)return; for(const k in set) S.flags[k]=set[k]; }
-function incFlags(inc){ if(!inc)return; for(const k in inc) S.flags[k]=(S.flags[k]||0)+inc[k]; }
-function queueThen(arr){ if(!arr)return; arr.forEach(t=>S.queue.push({id:t.id,inTurns:Math.max(1,t.inTurns||2)})); }
-function markSeen(ev){ if(!ev.recurring && !S.seen.includes(ev.id)) S.seen.push(ev.id); }
-
-function doRoll(roll){
-  const sv=S.stats[roll.stat]||0;
-  const winChance=clamp(50+(sv-roll.dc)*1.5,8,93);
-  const win=rng()*100<winChance;
-  return {win,chance:Math.round(winChance),stat:roll.stat};
-}
+/* ---- Mutation helpers (applyFx/setFlags/incFlags/queueThen/markSeen), the dice
+   roll, and full choice resolution now live in the shared pure engine modules
+   engine/mutate.ts + engine/resolve.ts, used by BOTH this live engine and the
+   headless simulator (engine/sim.ts) so the two can never diverge. applyFx is
+   imported at the top of this file for the trait bonus in startCareer. ---- */
 
 /* ---- world + rivals ---- */
 function rollWorld(){
@@ -227,41 +219,25 @@ function resolveChoice(ci){
   const ch=ev.choices[ci];
   if(!ch) return;
   if(ch.req && !ch.req(S)) return; // locked
-  const before=Object.assign({},S.stats);
-  let text=ch.result||"";
-  let rollLine=null;
-  let endingCause=ch.ending||null;
 
-  applyFx(ch.fx); setFlags(ch.set); incFlags(ch.inc); applyArcSet(S,ch.arcSet); applyNpcFx(S,ch.npcFx);
-  recordScandal(S,ch.scandal); resolveActiveScandal(S,ch.scandalResolve);
+  // All state mutation (fx/flags/arcs/npcs/scandals, the roll, queued `then`s,
+  // stat deltas and markSeen) happens in the shared pure resolver. This wrapper
+  // only translates the outcome into UI state and renders it.
+  const out=applyChoice(S, ev, ci, _rng);
+  if(!out) return;
+  S.lastDeltas=out.deltas;
 
-  if(ch.roll){
-    const r=doRoll(ch.roll);
-    const br=r.win?ch.roll.success:ch.roll.fail;
-    if(br){
-      applyFx(br.fx); setFlags(br.set); incFlags(br.inc); applyArcSet(S,br.arcSet); applyNpcFx(S,br.npcFx);
-      recordScandal(S,br.scandal); resolveActiveScandal(S,br.scandalResolve);
-      if(br.text) text=br.text;
-      if(br.then) queueThen(br.then);
-      if(br.ending) endingCause=br.ending;
-    }
-    rollLine={win:r.win,stat:statLabel(r.stat),chance:r.chance};
-  }
-  if(ch.then) queueThen(ch.then);
+  const rollLine=out.rollLine
+    ? {win:out.rollLine.win, stat:statLabel(out.rollLine.stat), chance:out.rollLine.chance}
+    : null;
 
-  // deltas for floaties
-  const deltas={};
-  for(const k of STAT_KEYS){ const d=S.stats[k]-before[k]; if(d) deltas[k]=d; }
-  S.lastDeltas=deltas;
-
-  pushLog(ev,ch.label,text);
-  markSeen(ev);
+  pushLog(ev,ch.label,out.text);
 
   // death check (show the consequence first, resolve on continue)
   S.pendingDeath=deathCause();
-  S.pendingEndingCause=endingCause;
+  S.pendingEndingCause=out.endingCause;
 
-  S.lastResult={title:ev.title,text,rollLine,tone:ch.tone||"good"};
+  S.lastResult={title:ev.title,text:out.text,rollLine,tone:ch.tone||"good"};
   S.mode="result";
   renderHUD(); renderResult();
   save();
@@ -683,7 +659,7 @@ function startCareer(d){
     lastResult:null, lastDeltas:null, pendingDeath:null, pendingEndingCause:null,
     mode:"event", over:false, ending:null, promo:null, current:null
   };
-  const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(tr.fx);
+  const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(S,tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
   applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
   const _mods=rollModifiers(_rng, MODIFIERS, 1); S.modifiers=_mods.map(m=>m.id);

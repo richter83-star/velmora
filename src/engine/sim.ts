@@ -1,13 +1,13 @@
 /**
  * Headless run simulator — plays a full career with no DOM, using the SHARED
- * draw engine (`chooseNext`) and ending logic (`evaluateEnding`), plus faithful
- * pure ports of the factory / choice resolution / turn / contest. Enables a fast
- * seeded sweep (repeat-rate + ending reachability) without a browser.
+ * engine modules (draw `chooseNext`, `applyChoice`, mutation helpers, ending
+ * logic) plus faithful pure ports of the factory / turn / contest. Enables a
+ * fast seeded sweep (repeat-rate + ending reachability) without a browser.
  *
  * The choice policy is a seeded random unlocked choice, so the sweep exercises
  * varied flag/stat paths and reaches a spread of endings.
  */
-import type { GameState, GameEvent, PathKey, StatKey, Fx, Roll } from './types';
+import type { GameState, GameEvent, PathKey } from './types';
 import { createRng, type Rng } from './rng';
 import { ALL_EVENTS } from '../content/all-events';
 import { PATHS } from '../content/paths';
@@ -16,42 +16,13 @@ import { WORLD } from '../content/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from '../content/setup';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from '../content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './setup';
-import { antagonist, antagonistContestModifier, applyNpcFx } from './npcs';
-import { applyArcSet } from './arcs';
-import { recordScandal, resolveActiveScandal } from './scandals';
+import { antagonist, antagonistContestModifier } from './npcs';
 import { evaluateEnding } from './endings';
 import { chooseNext } from './draw';
+import { applyFx } from './mutate';
+import { applyChoice } from './resolve';
 
-const STAT_KEYS: StatKey[] = ['support', 'funds', 'influence', 'media', 'base', 'heat'];
 const clamp = (n: number, a = 0, b = 100): number => Math.max(a, Math.min(b, n));
-
-function applyFx(S: GameState, fx: Fx | undefined): void {
-  if (!fx) return;
-  for (const k of STAT_KEYS) {
-    const d = fx[k];
-    if (typeof d === 'number') S.stats[k] = clamp(S.stats[k] + d);
-  }
-}
-function setFlags(S: GameState, set: Record<string, boolean | number | string> | undefined): void {
-  if (!set) return;
-  for (const k of Object.keys(set)) S.flags[k] = set[k] as number | boolean;
-}
-function incFlags(S: GameState, inc: Record<string, number> | undefined): void {
-  if (!inc) return;
-  for (const k of Object.keys(inc)) {
-    const cur = S.flags[k];
-    S.flags[k] = (typeof cur === 'number' ? cur : 0) + (inc[k] ?? 0);
-  }
-}
-function queueThen(S: GameState, arr: { id: string; inTurns?: number }[] | undefined): void {
-  if (!arr) return;
-  for (const t of arr) S.queue.push({ id: t.id, inTurns: Math.max(1, t.inTurns ?? 2) });
-}
-function doRoll(S: GameState, rng: Rng, roll: Roll): boolean {
-  const sv = S.stats[roll.stat] ?? 0;
-  const wc = clamp(50 + (sv - roll.dc) * 1.5, 8, 93);
-  return rng.next() * 100 < wc;
-}
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
 
@@ -148,36 +119,6 @@ function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
   return S;
 }
 
-/** Apply a choice (faithful port of resolveChoice's mutations). Returns an ending cause if set. */
-function applyChoice(S: GameState, ev: GameEvent, ci: number, rng: Rng): string | null {
-  const ch = ev.choices[ci];
-  if (!ch) return null;
-  let endingCause = ch.ending ?? null;
-  applyFx(S, ch.fx);
-  setFlags(S, ch.set);
-  incFlags(S, ch.inc);
-  applyArcSet(S, ch.arcSet);
-  applyNpcFx(S, ch.npcFx);
-  recordScandal(S, ch.scandal);
-  resolveActiveScandal(S, ch.scandalResolve);
-  if (ch.roll) {
-    const win = doRoll(S, rng, ch.roll);
-    const br = win ? ch.roll.success : ch.roll.fail;
-    applyFx(S, br.fx);
-    setFlags(S, br.set);
-    incFlags(S, br.inc);
-    applyArcSet(S, br.arcSet);
-    applyNpcFx(S, br.npcFx);
-    recordScandal(S, br.scandal);
-    resolveActiveScandal(S, br.scandalResolve);
-    if (br.then) queueThen(S, br.then);
-    if (br.ending) endingCause = br.ending;
-  }
-  if (ch.then) queueThen(S, ch.then);
-  if (!ev.recurring && !S.seen.includes(ev.id)) S.seen.push(ev.id);
-  return endingCause;
-}
-
 /** Resolve the contest (faithful port). Returns an ending cause if the run ends, else null (phase advanced). */
 function runContest(S: GameState, rng: Rng): string | null {
   const ph = curPhase(S);
@@ -191,8 +132,9 @@ function runContest(S: GameState, rng: Rng): string | null {
     90,
   );
   const wc = clamp(50 + (promoPlayerStrength(S) - oppStrength) * 1.4, 4, 96);
-  if (rng.next() * 100 >= wc)
+  if (rng.next() * 100 >= wc) {
     return ph.promo.type === 'election' ? 'lost_election' : 'lost_powerplay';
+  }
   // advance phase
   S.phase++;
   S.phaseTurn = 0;
@@ -205,8 +147,7 @@ function runContest(S: GameState, rng: Rng): string | null {
   return null;
 }
 
-/** Pick a random unlocked choice (seeded) — explores the decision space so the
- * sweep exercises varied flag/stat paths and reaches a spread of endings. */
+/** Pick a random unlocked choice (seeded). */
 function randomUnlocked(S: GameState, ev: GameEvent, rng: Rng): number {
   const idxs: number[] = [];
   ev.choices.forEach((c, i) => {
@@ -246,7 +187,7 @@ export function simulateRun(opts: {
       continue;
     }
     drawn.push(d.event.id);
-    cause = applyChoice(S, d.event, randomUnlocked(S, d.event, rng), rng);
+    cause = applyChoice(S, d.event, randomUnlocked(S, d.event, rng), rng)?.endingCause ?? null;
     if (cause) break;
     cause = deathCause(S);
     if (cause) break;
