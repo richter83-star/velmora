@@ -14,7 +14,9 @@ async function step(page: import('@playwright/test').Page, times = 2) {
   }
 }
 
-test('save slots: two independent careers persist and resume to the right run', async ({ page }) => {
+test('save slots: two independent careers persist and resume to the right run', async ({
+  page,
+}) => {
   const errors = captureErrors(page);
   await stubFonts(page);
   await page.goto('/');
@@ -38,10 +40,11 @@ test('save slots: two independent careers persist and resume to the right run', 
   const axe = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();
-  const blocking = axe.violations.filter(
-    (v) => v.impact === 'serious' || v.impact === 'critical',
-  );
-  expect(blocking.map((v) => v.id), 'slots picker axe').toEqual([]);
+  const blocking = axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+  expect(
+    blocking.map((v) => v.id),
+    'slots picker axe',
+  ).toEqual([]);
 
   // Start career 2 in the first EMPTY slot (vanguard).
   await page.locator('#slots-mount [data-act="start"]').first().click();
