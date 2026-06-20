@@ -11,6 +11,7 @@ import { applyArcSet } from './arcs';
 import { applyNpcFx } from './npcs';
 import { recordScandal, resolveActiveScandal } from './scandals';
 import { applyBlocShift } from './factions';
+import { traitRollBonus } from './perks';
 
 /** Collect the keys of a `set` map whose value is truthy (a flag turned on). */
 function flagsTurnedOn(set: Record<string, boolean | number | string> | undefined): string[] {
@@ -48,7 +49,7 @@ export function applyChoice(
   resolveActiveScandal(S, ch.scandalResolve);
 
   if (ch.roll) {
-    const r = doRoll(S, rng, ch.roll);
+    const r = doRoll(S, rng, ch.roll, traitRollBonus(S.player?.trait, ch.roll.stat));
     const br = r.win ? ch.roll.success : ch.roll.fail;
     applyFx(S, br.fx);
     setFlags(S, br.set);

@@ -7,6 +7,7 @@
 import type { GameState } from './types';
 import type { Rng } from './rng';
 import { coalitionContestMod } from './factions';
+import { traitContestBonus } from './perks';
 
 const clamp = (n: number, a: number, b: number): number => Math.max(a, Math.min(b, n));
 
@@ -16,13 +17,13 @@ const clamp = (n: number, a: number, b: number): number => Math.max(a, Math.min(
  */
 export function promoPlayerStrength(S: GameState, promoType: string): number {
   const s = S.stats;
-  const coalition = coalitionContestMod(S);
+  const edge = coalitionContestMod(S) + traitContestBonus(S.player?.trait, promoType);
   if (promoType === 'election') {
-    return clamp(s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12 + coalition, 0, 100);
+    return clamp(s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12 + edge, 0, 100);
   }
   // power-play
   return clamp(
-    s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22 + coalition,
+    s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22 + edge,
     0,
     100,
   );

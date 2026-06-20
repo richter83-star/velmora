@@ -45,8 +45,8 @@ export interface RollResult {
   chance: number;
 }
 
-export function doRoll(S: GameState, rng: Rng, roll: Roll): RollResult {
-  const sv = S.stats[roll.stat] ?? 0;
+export function doRoll(S: GameState, rng: Rng, roll: Roll, bonus = 0): RollResult {
+  const sv = (S.stats[roll.stat] ?? 0) + bonus;
   const chance = Math.max(8, Math.min(93, 50 + (sv - roll.dc) * 1.5));
   return { win: rng.next() * 100 < chance, stat: roll.stat, chance: Math.round(chance) };
 }

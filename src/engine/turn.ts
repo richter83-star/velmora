@@ -5,6 +5,7 @@
  */
 import type { GameState } from './types';
 import { clampStat } from './mutate';
+import { traitHeatDecayBonus } from './perks';
 
 /** Scrutiny ("heat") cools by this much each turn the player survives. */
 const HEAT_DECAY_PER_TURN = 2;
@@ -23,7 +24,7 @@ export function advanceTurnState(S: GameState): void {
   S.totalTurns++;
   S.phaseTurn++;
   for (const q of S.queue) q.inTurns = (q.inTurns ?? 0) - 1;
-  S.stats.heat = clampStat(S.stats.heat - HEAT_DECAY_PER_TURN);
+  S.stats.heat = clampStat(S.stats.heat - HEAT_DECAY_PER_TURN - traitHeatDecayBonus(S.player?.trait));
   // Approval decay (term dynamics): riding high erodes support (the cost of
   // incumbency), and scandal or a sour economy accelerate it. There is no
   // baseline drain while you are already struggling, so this adds "you can't
