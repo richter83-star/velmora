@@ -2,8 +2,9 @@
 
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
-**Last updated:** 2026-06-19
-**Current phase:** **Phase 4 COMPLETE** (ideology axes · faction/bloc + coalition math · approval decay · trait perks · cabinet/advisors · crisis sub-decisions). Next: Phase 5 — UX, Onboarding & Accessibility. (Phase 3: 251 events, ticker, epilogue.)
+**Last updated:** 2026-06-20
+**Current phase:** **Phase 5 COMPLETE** (a11y foundation · codex/almanac · settings · skippable tutorial · run-summary · axe-clean key screens · responsive gate). Next: Phase 6 — Audio & Juice (kept lean; a full UX/UI redesign is scheduled after Phase 12, so 5–7 are functional, not gold-plated). (Phase 4: 6 systems. Phase 3: 251 events, ticker, epilogue.)
+**Roadmap note (2026-06-20):** Per product direction, sequence is **finish core (Phases 5–12) → massive UX/UI redesign → "Dark Mirrors" expansion** (see `EXPANSION_BRIEF.md`, deferred). Phases 5–7 are deliberately kept lean since the redesign will own final visual polish; the expansion brief targets the pre-migration architecture and needs a retarget pass before it's built.
 **Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
@@ -15,8 +16,10 @@
 - [x] Phase 0 — Audit & Architecture (plan approved)
 - [x] Phase 1 — Foundation & Tooling — acceptance criteria met
 - [x] Phase 2 — Content Engine Depth — **complete** (arcs on both paths, NPC roster + antagonist, scandals-with-memory, difficulty/modifiers/daily)
-- [~] Phase 3 — Content Volume — **in progress** (event-pack structure + pack 1; event bank ~50, target 250+)
-- [ ] Phases 4–12 — not started
+- [x] Phase 3 — Content Volume — **complete** (251 events, ticker, personalized epilogue; all endings reachable in the seed sweep)
+- [x] Phase 4 — Systems Depth — **complete** (ideology axes, faction/coalition math, approval decay, trait perks, cabinet/advisors, crisis sub-decisions)
+- [x] Phase 5 — UX, Onboarding & Accessibility — **complete** (a11y foundation, codex, settings, tutorial, run-summary, axe-clean, responsive)
+- [ ] Phases 6–12 — not started (6–7 to be built **lean**; full visual polish deferred to the post-Phase-12 redesign)
 
 ### Phase 1 checklist
 
@@ -116,7 +119,13 @@
 - **Personalized epilogue** (`b653bc0`): `engine/epilogue.ts` `buildEpilogue(S)` closes the ending screen with up to three flag-driven "Years Later…" beats + a rival-parting note + a path-flavored closer, so two runs reaching the same ending read differently. 4 unit tests; smoke asserts beats render on both paths.
 - **Phase 3 acceptance — MET:** 251 validated events (100% schema-valid); cross-run repeat-rate 0.014/0.007 over 50 seeded runs/path (gate < 0.2); all 14 endingIds producible (endings unit test); fictional/non-partisan invariant held. **Phase 3 closed.**
 
-## Phase 4 — Systems Depth (in progress)
+### Session 3 — 2026-06-20
+
+- Reviewed `EXPANSION_BRIEF.md` ("The Dark Mirrors" 3-path expansion). Verdict: sound design, but **build it after core + redesign** — it's out of roadmap sequence (core was at Phase 5/12) and, more importantly, it targets the **pre-migration single-file architecture** (`PATHS{}` literal, `openCreate`/`deathCause`/`evaluateEnding`/`renderPromotion`, `ADVISORS{}`, `SHELL_VERSION`) that no longer exists; needs a retarget pass + four gap fixes (emergent-faction wiring for new blocs, ending-cause enum/linter, `own_cult`↔`cult_building` flag reconciliation, sim/sweep wiring) before it's executable.
+- Product direction set: **finish core (5–12) → massive UX/UI redesign → expansion.** Phases 5–7 kept lean (redesign owns final visuals), running continuously.
+- **Closed Phase 5** with five increments (`aadbd3d` settings · `169fcea` tutorial · `853ef1a` run-summary · `ab858e6` axe+contrast+responsive). Added `@axe-core/playwright`. New E2E: settings, tutorial, axe, responsive (24 E2E total, all green; 98 unit; typecheck/build/lint green). Real WCAG 1.4.3 contrast bugs fixed at token level (kept reversible for the redesign).
+
+## Phase 4 — Systems Depth (complete)
 
 Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/economy, cabinet/advisors with loyalty, trait/perk synergies, crisis sub-decisions, term limits/approval decay. Accept: no soft-locks in auto-play; documented; unit-tested where non-trivial.
 
@@ -127,18 +136,25 @@ Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/e
 - **Cabinet / advisors with loyalty** (`72e7cf9`, `8ef5bf0`): `engine/cabinet.ts` — at each promotion you appoint an advisor from a seeded slate (a new "cabinet" UI mode, with a decline option); each grants a passive per-turn stat lift and carries a loyalty meter that drifts with the flags your choices set. A cratered advisor (loyalty ≤ 22) **resigns and leaks** (heat hit + loses their perk), so loyalty matters. HUD loyalty chips, an ending "Your Cabinet" summary, save/resume migration, and headless auto-appointment so the sim exercises it. 7 unit tests; smoke asserts the appointment screen + HUD chip.
 - **Crisis sub-decisions** (`c497c25`): a choice can carry a `sub` pointer to an event shown immediately in the same turn (no advance), distinct from delayed `then`-chains. `sub` on Choice/RollOutcome + schema + linter (`sub` refs resolve, queueOnly targets reachable); `resolve.ts` returns it, `main.js` afterResult shows it, `sim.ts` resolves it inline. `content/crisis-subs.ts` ships two crisis chains. 2 unit tests. **Phase 4 closed — all 6 systems shipped.**
 
-## Phase 5 — UX, Onboarding & Accessibility (in progress)
+## Phase 5 — UX, Onboarding & Accessibility (complete)
 
 Per the roadmap: skippable tutorial, full settings, main menu, codex/almanac, run-summary, responsive layouts, **WCAG 2.1 AA**, annoyance budget. Accept: axe clean on key screens; Lighthouse a11y ≥ 90; keyboard-only E2E passes.
 
 - **Accessibility foundation** (`2341354`): fixed the WCAG 1.4.4 zoom lock (dropped `maximum-scale`/`user-scalable=no`); added a skip-to-game link, a polite ARIA live region, and a `main` landmark; live announcements (new decisions, outcome + stat deltas, promotions, ending); focus moves to the heading on each screen transition with visible `:focus-visible` outlines; choices were already real `<button>`s so play is keyboard-operable. New `a11y.spec.ts` proves keyboard-only play + the live region. (Lighthouse a11y score is gated in CI.)
 - **Codex / Almanac** (`e476e8c`): an in-game reference (`#screen-codex`, reached via "📖 The Almanac" on the title) that surfaces the systems — how to rule, the six stats, the four systems, and per-path sections listing each path's factions (from `content/paths`) and advisors (from `engine/cabinet`), plus the starting traits. Built from live data so it never drifts; accessible (heading focus on open, focus returned to trigger on close). New `codex.spec.ts`.
-- **Remaining Phase 5** (not started): skippable tutorial, settings panel (reduced-motion/contrast toggles, persisted via the localStorage+memory fallback), main menu, run-summary, responsive QA at the standard breakpoints, and an axe sweep on key screens.
-- **Decision-gated later phases (true blockers needing user input):** Phase 6–7 art/audio creative direction; Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Flag before starting these.
+- **Settings panel** (`aadbd3d`): a `#screen-settings` reached from the title with persisted **reduce-motion** and **high-contrast** toggles (role=switch, keyboard-operable) plus a clear-saved-career action. New `velmora_settings_v1` store mirrors the save's localStorage+in-memory fallback; `applySettings()` toggles `body.force-reduce-motion`/`body.high-contrast`, `setTheme()` preserves those classes across theme swaps, and `reduced()` now also honors the setting. New `settings.spec.ts` (apply + persist-across-reload + keyboard).
+- **Skippable tutorial** (`169fcea`): a 4-step accessible modal (`#tutorial`, role=dialog/aria-modal, Escape to skip, focus moved in/restored out) shown once on first career (persisted `tutorialSeen`) and replayable from Settings. Test helpers dismiss it so playthroughs aren't blocked. New `tutorial.spec.ts` (first-run + skip + no-reappear + replay).
+- **Run-summary** (`853ef1a`): a "By the Numbers" recap on the ending (highest office, years served, decisions, difficulty, scandals, purges), data-driven from `S`. Smoke asserts it renders.
+- **axe sweep + contrast fixes** (`ab858e6`): `axe.spec.ts` runs `@axe-core/playwright` (WCAG 2.0/2.1 A/AA) over title, settings, codex, path, create, game, and ending — **zero serious/critical**. Fixed real WCAG 1.4.3 failures surfaced by it: darkened `--accent` (#E63B5B→#CC2D4F; vanguard #E5332A→#C42A1F) so white text clears 4.5:1; pinned the small section heads (`.ideo-head`/`.coal-head`→#2F5BC8, `.rs-head`→#1A7A50) to theme-independent accessible shades (the vanguard `--accent2` is gold, which failed on cream); dark text on green delta/coalition tags; darker `.delta.down` red; dark `.muted` inside light panels. **axe must scan the settled state** — the scan neutralizes the `.screen` entrance fade, else dark text mid-fade reads as low-contrast (false positives).
+- **Responsive gate** (`ab858e6`): `responsive.spec.ts` asserts no horizontal overflow at 320/375/768/1024/1440 across the key screens.
+- **Main menu:** the title screen serves this role (New · Continue · How to Rule · Almanac · Settings · Scenario of the Day).
+- **Phase 5 acceptance — MET:** axe clean on key screens; keyboard-only play (a11y.spec); responsive at standard breakpoints; Lighthouse a11y gated in CI. 24 E2E + 98 unit green. **Phase 5 closed.**
+- **Decision-gated later phases (true blockers needing user input):** Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Phase 6–7 art/audio creative direction is **no longer a near-term blocker** — they're built lean with functional defaults (synth audio, procedural art) because the post-Phase-12 redesign owns the real creative direction.
 
 ## Next steps (concrete)
 
-1. **Phase 3 — Content Volume:** scale the event bank toward **250+** validated events across paths/phases/crises/arcs; more endings + epilogue slides; flavor systems (headline ticker). Hold the fictional/non-partisan invariant. Targets: 100% schema-valid, cross-run repeat-rate below threshold over 50 seeded runs/path, every ending reachable in a seed sweep.
-2. Build the **ending-reachability seed sweep** (AD-4) and consider lifting endings to data as volume grows.
-3. **Engine logic extraction is complete.** What remains for retiring the `src/main.js` lint/typecheck ignores is the **UI layer** (rendering, drawer, avatar generator → `ui/`) — optional, lower priority than content volume.
-4. At a checkpoint: push `phase-1-foundation` and open a PR so CI runs (verify · e2e · lighthouse).
+1. **Phase 6 — Audio & Juice (lean):** Web Audio synth-first SFX (choice click, promotion win/lose, ending), optional per-theme ambient pad, all behind a **Sound** settings toggle that defaults off and persists; respect `reduced()`/reduced-motion for any motion-coupled juice; no perf regression. Keep it functional, not gold-plated — the redesign will own final sound/motion design. Gate: toggle persists; SFX fire in E2E without console errors; all paths still green.
+2. **Phase 7 — Art Expansion (lean):** broaden the procedural avatar parts + a few cosmetic options and per-theme background motifs using the existing token system; full art direction deferred to the redesign.
+3. **Phases 8–12** per roadmap (meta-progression/persistence, performance, QA hardening, business/legal behind flags, launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated.
+4. At a checkpoint: push `phase-1-foundation` and update **PR #1** so CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
+5. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.
