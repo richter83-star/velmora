@@ -8,6 +8,7 @@ import { PACK_2 } from './events-pack-2';
 import { PACK_3 } from './events-pack-3';
 import { PACK_4 } from './events-pack-4';
 import { PACK_5 } from './events-pack-5';
+import { PACK_6 } from './events-pack-6';
 
 /**
  * The full draw pool: the base bank plus every content pack. Single source of
@@ -24,4 +25,5 @@ export const ALL_EVENTS: GameEvent[] = [
   ...PACK_3,
   ...PACK_4,
   ...PACK_5,
+  ...PACK_6,
 ];
