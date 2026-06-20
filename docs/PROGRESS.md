@@ -3,8 +3,8 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-19
-**Current phase:** Phase 3 — Content Volume (**250+ target met: 251 events**; remaining Phase 3 threads: endings/epilogue expansion, headline ticker)
-**Current branch:** `phase-1-foundation` → **PR #1** (pushed; CI green through pack 7; re-running on packs 8–9)
+**Current phase:** **Phase 3 COMPLETE** (251 events; repeat-rate < gate; all 14 endings reachable; headline ticker + personalized epilogue shipped). Next: Phase 4 — Systems Depth.
+**Current branch:** `phase-1-foundation` → **PR #1** (pushed; CI green through pack 7; re-running through epilogue)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -112,7 +112,13 @@
 - **Content pack 2** (`7d396c5`): +22 events (`events-pack-2.ts`) across ballot/vanguard/shared/crisis + all phases, with rolls, scandals, antagonist relationship shifts, and two delayed `then`-chains. Bank **54 → 76** (~49 eligible/path). Sweep: repeat-rate **0.013/0.022** (gate < 0.2), 49 distinct events/path, 6–8 endings. Also hardened the recurring-antagonist E2E to be content-growth-robust (multi-seed via `?seed=` + a fast `playToPhaseOrEnding` helper, replacing a brittle pinned seed). 71 unit/content + 10 E2E green.
 - **Content packs 4–9 + arc-injection fix** (`5496a7a`…`931bd52`): drove the bank **96 → 251**, meeting the Phase 3 250+ target. Packs span governing dilemmas, media circus, vanguard apparatus, summits, and ~46 crises across both paths and all phases; choices feed the ending flags. Fixed a real design problem surfaced by the growing bank — authored arcs were being diluted toward invisibility, so added an **arc-progression injection** to the shared draw (entry ~0.16/turn, continue 0.35/turn), raising arc entry-surfacing ~41% → ~78% and guaranteeing started arcs reach their reckoning. Final sweep: repeat-rate 0.014/0.007, 146–147 distinct events/path. The content test now asserts the 250+ milestone. 71 unit/content + 10 E2E green throughout.
 - **Content pack 3** (`a608887`): +20 events (`events-pack-3.ts`), tilted to early-game depth (phase 1 was thinnest — ballot 34→40, vanguard 30→37 eligible) plus phase-3 capstones and two crises; choices set ending-feeding flags (secret_reformer/bloody_hands/corrupt_streak/cult_building/has_network/purge_count) and add two then-chains (the boss collects; the reform circle exposed). Bank **76 → 96** (crises 13→16). Sweep: repeat-rate 0.027/0.016, 62–63 distinct/path. 71 unit/content + 10 E2E green.
-- **Phase 3 cadence (continues):** keep adding validated event packs toward 250+, watching the sweep's variety/repeat-rate metrics; expand endings + epilogues; add the headline-ticker flavor.
+- **Headline ticker** (`28fa3ce`): a fake-news newswire crawl under the HUD — `content/headlines.ts` `pickHeadlines(S)` mixes generic press satire with path/phase-flavored and state-reactive lines (high heat, active scandal, corruption, cult, etc.), rotated by the turn counter and pure (never touches the gameplay RNG). aria-hidden decorative; reduced-motion aware. E2E asserts it renders.
+- **Personalized epilogue** (`b653bc0`): `engine/epilogue.ts` `buildEpilogue(S)` closes the ending screen with up to three flag-driven "Years Later…" beats + a rival-parting note + a path-flavored closer, so two runs reaching the same ending read differently. 4 unit tests; smoke asserts beats render on both paths.
+- **Phase 3 acceptance — MET:** 251 validated events (100% schema-valid); cross-run repeat-rate 0.014/0.007 over 50 seeded runs/path (gate < 0.2); all 14 endingIds producible (endings unit test); fictional/non-partisan invariant held. **Phase 3 closed.**
+
+## Phase 4 — Systems Depth (next)
+
+Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/economy, cabinet/advisors with loyalty, trait/perk synergies, crisis sub-decisions, term limits/approval decay. Accept: no soft-locks in auto-play; documented; unit-tested where non-trivial. **Decision-gated items further out:** Phase 11 monetization path (needs a product call), store packaging + analytics (need credentials/services) — flag these to the user before starting.
 
 ## Next steps (concrete)
 
