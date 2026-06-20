@@ -21,12 +21,19 @@ export function captureErrors(page: Page): string[] {
   return errors;
 }
 
+/** Dismiss the first-run tutorial modal if it is showing. */
+export async function dismissTutorial(page: Page): Promise<void> {
+  const skip = page.locator('#tutorial:not([hidden]) #tut-skip');
+  if (await skip.count()) await skip.click();
+}
+
 /** Start a new career on the given path (defaults for name/faction/trait). */
 export async function startCareer(page: Page, path: 'ballot' | 'vanguard'): Promise<void> {
   await page.locator('#btn-new').click();
   await page.locator(`.path-card[data-path="${path}"]`).click();
   await page.locator('#btn-begin-career').click();
   await expect(page.locator('#screen-game.active')).toBeVisible();
+  await dismissTutorial(page);
 }
 
 /**
@@ -40,6 +47,7 @@ export async function playToEnding(page: Page, maxSteps = 800): Promise<string> 
       await expect(page.locator('#over-mount .over-card')).toBeVisible();
       return (await page.locator('#over-mount .orank').first().textContent())?.trim() ?? '';
     }
+    await dismissTutorial(page);
     const order = ['#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
     let acted = false;
     for (const sel of order) {
@@ -71,6 +79,7 @@ export async function playToPhaseOrEnding(page: Page, minPhase: number, maxSteps
     const s = await page.evaluate(() => window.__VELMORA_STATE?.());
     if ((s?.phase ?? 1) >= minPhase) return s;
     if (await page.locator('#screen-over.active').count()) return s;
+    await dismissTutorial(page);
     const order = ['#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
     let acted = false;
     for (const sel of order) {

@@ -183,6 +183,20 @@
   </div>
 </div>
 
+<!-- first-run tutorial (skippable, replayable from Settings) -->
+<div class="tut" id="tutorial" role="dialog" aria-modal="true" aria-labelledby="tut-title" hidden>
+  <div class="tut-card">
+    <p class="tut-step" id="tut-step"></p>
+    <h2 class="tut-title" id="tut-title"></h2>
+    <p class="tut-body" id="tut-body"></p>
+    <div class="tut-dots" id="tut-dots" aria-hidden="true"></div>
+    <div class="tut-actions">
+      <button class="btn" id="tut-skip">Skip</button>
+      <button class="btn primary" id="tut-next">Next</button>
+    </div>
+  </div>
+</div>
+
 <canvas id="fx-canvas"></canvas>
 <div id="toast-mount"></div>
   <script type="module" src="/src/main.js"></script>

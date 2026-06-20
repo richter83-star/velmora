@@ -773,6 +773,7 @@ function startCareer(d){
   go("game"); renderHUD();
   S.lastDeltas=null;
   nextEvent(); save();
+  maybeTutorial();
 }
 
 /* ================================================================
@@ -865,6 +866,40 @@ function toggleSetting(key,label){
   applySettings(); saveSettings(); renderSettings();
   announce(label+" "+(SETTINGS[key]?"on":"off"));
 }
+
+/* ================================================================
+   FIRST-RUN TUTORIAL — skippable, replayable from Settings
+   ================================================================ */
+const TUTORIAL=[
+  {t:"Welcome to Velmora",b:"You begin as a nobody. Across three offices, claw your way to the most powerful seat in a fictional nation. Two roads, one prize — and no two careers play the same."},
+  {t:"Your six stats",b:"Every choice nudges the six stats at the top of the screen. Keep most of them high — but the danger gauge (Scrutiny or Suspicion) is the opposite: let it reach 100 and you fall. Let your core support reach 0 and you collapse."},
+  {t:"Choices & promotions",b:"Pick a response to each dilemma — 🎲 options are real gambles. Survive enough turns and you face a contest: an election or a power-play. Spend resources to swing the odds, then win it to rise."},
+  {t:"How you rule",b:"Appoint advisors, manage factions, and weather crises and scandals. Save any time and resume later. There is no single right way to rule — only the legacy you leave behind. Good luck."}
+];
+let tutIx=0, tutReturnFocus=null;
+function renderTut(){
+  const s=TUTORIAL[tutIx];
+  $("#tut-step").textContent="Step "+(tutIx+1)+" of "+TUTORIAL.length;
+  $("#tut-title").textContent=s.t;
+  $("#tut-body").textContent=s.b;
+  $("#tut-dots").innerHTML=TUTORIAL.map((_,i)=>`<span class="tut-dot${i===tutIx?" on":""}"></span>`).join("");
+  $("#tut-next").textContent= tutIx===TUTORIAL.length-1 ? "Got it" : "Next";
+}
+function openTutorial(){
+  tutIx=0; tutReturnFocus=document.activeElement; renderTut();
+  $("#tutorial").hidden=false;
+  focusHeading("#tut-title"); announce("Tutorial, "+TUTORIAL.length+" steps. Press Escape to skip.");
+}
+function closeTutorial(){
+  SETTINGS.tutorialSeen=true; saveSettings();
+  $("#tutorial").hidden=true;
+  try{ if(tutReturnFocus && tutReturnFocus.focus) tutReturnFocus.focus(); }catch(e){}
+}
+function tutNext(){
+  if(tutIx>=TUTORIAL.length-1){ closeTutorial(); return; }
+  tutIx++; renderTut(); focusHeading("#tut-title");
+}
+function maybeTutorial(){ if(!SETTINGS.tutorialSeen) openTutorial(); }
 
 /* ================================================================
    CONFETTI / FX CANVAS + TOAST
@@ -964,8 +999,11 @@ function boot(){
   $("#btn-settings-back").addEventListener("click",closeSettings);
   $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
-  $("#set-replay-tut").addEventListener("click",()=>{ SETTINGS.tutorialSeen=false; saveSettings(); toast("Tutorial will show on your next new career"); });
+  $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); const c=$("#btn-continue"); if(c)c.classList.add("hidden"); toast("Saved career cleared"); });
+  $("#tut-next").addEventListener("click",tutNext);
+  $("#tut-skip").addEventListener("click",closeTutorial);
+  $("#tutorial").addEventListener("keydown",e=>{ if(e.key==="Escape") closeTutorial(); });
   $("#btn-daily").addEventListener("click",()=>{ DRAFT.seed=dailySeed(); DRAFT.daily=true; setTheme("theme-neutral"); toast("Scenario of the Day — everyone plays the same run today"); go("path"); });
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 
