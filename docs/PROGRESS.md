@@ -3,8 +3,8 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-19
-**Current phase:** **Phase 4 — Systems Depth (nearly done)**: ideology axes, faction/bloc + coalition math, approval decay, trait perks, and cabinet/advisors-with-loyalty are all live. Only crisis sub-decisions remain. (Phase 3 complete: 251 events, ticker, epilogue.)
-**Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 96 unit + 12 E2E green)
+**Current phase:** **Phase 4 COMPLETE** (ideology axes · faction/bloc + coalition math · approval decay · trait perks · cabinet/advisors · crisis sub-decisions). Next: Phase 5 — UX, Onboarding & Accessibility. (Phase 3: 251 events, ticker, epilogue.)
+**Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -125,7 +125,11 @@ Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/e
 - **Approval decay / term dynamics** (`eedfbfb`): `advanceTurnState` erodes support while riding high (the cost of incumbency) and faster under scrutiny / a sour economy, with no baseline drain on weak runs. Sweep-verified (avg phase ~1.8–2.0, arcs stay reachable). 2 unit tests.
 - **Trait perks** (`0bc0f9e`): `engine/perks.ts` delivers the ongoing synergy each trait advertised (orator/operator/rainmaker easier signature-stat rolls + contest edge; clean sheds scrutiny faster), hooked via `doRoll`/`promoPlayerStrength`/`advanceTurnState`. 3 unit tests.
 - **Cabinet / advisors with loyalty** (`72e7cf9`, `8ef5bf0`): `engine/cabinet.ts` — at each promotion you appoint an advisor from a seeded slate (a new "cabinet" UI mode, with a decline option); each grants a passive per-turn stat lift and carries a loyalty meter that drifts with the flags your choices set. A cratered advisor (loyalty ≤ 22) **resigns and leaks** (heat hit + loses their perk), so loyalty matters. HUD loyalty chips, an ending "Your Cabinet" summary, save/resume migration, and headless auto-appointment so the sim exercises it. 7 unit tests; smoke asserts the appointment screen + HUD chip.
-- **Remaining Phase 4** (last item): crisis sub-decisions — an *immediate* in-turn follow-up mechanic (a crisis choice branches straight into a sub-decision), distinct from the delayed `then`-chains. Needs a small engine + UI hook plus content. Everything else in Phase 4 is shipped.
+- **Crisis sub-decisions** (`c497c25`): a choice can carry a `sub` pointer to an event shown immediately in the same turn (no advance), distinct from delayed `then`-chains. `sub` on Choice/RollOutcome + schema + linter (`sub` refs resolve, queueOnly targets reachable); `resolve.ts` returns it, `main.js` afterResult shows it, `sim.ts` resolves it inline. `content/crisis-subs.ts` ships two crisis chains. 2 unit tests. **Phase 4 closed — all 6 systems shipped.**
+
+## Phase 5 — UX, Onboarding & Accessibility (next)
+
+Per the roadmap: skippable tutorial, full settings, main menu, codex/almanac, run-summary, responsive layouts, **WCAG 2.1 AA** (fix the viewport zoom lock, focus management, ARIA live stat announcements, contrast), annoyance budget. Accept: axe clean on key screens; Lighthouse a11y ≥ 90; keyboard-only E2E passes. All doable without user decisions — starting with the accessibility pass (highest-value acceptance criterion).
 - **Decision-gated later phases (true blockers needing user input):** Phase 6–7 art/audio creative direction; Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Flag before starting these.
 
 ## Next steps (concrete)
