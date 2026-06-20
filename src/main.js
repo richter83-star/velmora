@@ -15,6 +15,7 @@ import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } fr
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { PACK_1 } from './content/events-pack-1';
 import { chooseNext } from './engine/draw';
+import { pickHeadlines } from './content/headlines';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
@@ -408,6 +409,15 @@ function renderHUD(){
     }
     S.lastDeltas=null;
   }
+  renderTicker();
+}
+function renderTicker(){
+  const el=$("#ticker"); if(!el) return;
+  const items=pickHeadlines(S);
+  if(!items.length){ el.innerHTML=""; return; }
+  // Two copies of the sequence so the CSS marquee can loop seamlessly.
+  const seq=items.map(h=>`<span class="tk-item">${esc(h)}</span>`).join('<span class="tk-dot">•</span>');
+  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${seq}</div>`;
 }
 function spawnDelta(x,y,d,good){
   const el=document.createElement("div");

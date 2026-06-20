@@ -255,3 +255,27 @@ button{font-family:var(--font-b);cursor:pointer}
   *{animation-duration:.01ms !important;transition-duration:.08s !important}
   .title-emblem{animation:none}
 }
+
+/* ---- headline ticker (fake-news flavor newswire under the HUD) ---- */
+.ticker{
+  margin:10px 0 0; border:3px solid var(--ink); border-radius:var(--r-sm);
+  background:var(--ink); color:var(--paper); box-shadow:var(--shadow-sm);
+  overflow:hidden; white-space:nowrap; position:relative;
+}
+.tk-track{
+  display:inline-flex; align-items:center; padding:6px 0; will-change:transform;
+  animation:tk-scroll 64s linear infinite;
+}
+.ticker:hover .tk-track,.ticker:focus-within .tk-track{animation-play-state:paused}
+.tk-item{font-family:var(--font-m);font-size:.74rem;letter-spacing:.3px;padding:0 14px}
+.tk-dot{color:var(--gold);padding:0 2px}
+.tk-tag{
+  font-family:var(--font-d);background:var(--accent);color:var(--accent-ink);
+  font-size:.66rem;letter-spacing:1px;padding:4px 10px;margin:0 14px 0 0;
+  border-radius:5px;flex:0 0 auto;
+}
+@keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .tk-track{animation:none !important;transform:none !important}
+  .ticker{overflow-x:auto}
+}
