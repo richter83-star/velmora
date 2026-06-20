@@ -6,6 +6,7 @@
  * difficulty, modifiers) is layered on by each caller afterward.
  */
 import type { GameState, Stats, PathKey } from './types';
+import { initBlocs } from './factions';
 
 export interface BlankRunOpts {
   version: string;
@@ -41,6 +42,7 @@ export function blankRun(opts: BlankRunOpts): GameState {
     difficulty: opts.difficulty,
     modifiers: [],
     daily: opts.daily,
+    blocs: initBlocs(opts.path),
     flags: {},
     arcs: {},
     seen: [],

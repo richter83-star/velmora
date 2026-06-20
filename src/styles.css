@@ -293,3 +293,22 @@ button{font-family:var(--font-b);cursor:pointer}
 .ideo-track{position:relative;height:10px;background:var(--paper-3);border:2px solid var(--ink);border-radius:6px}
 .ideo-mark{position:absolute;top:50%;width:16px;height:16px;background:var(--gold);border:2px solid var(--ink);border-radius:50%;transform:translate(-50%,-50%);box-shadow:2px 2px 0 var(--ink)}
 .ideo-read{grid-column:1/-1;font-family:var(--font-b);font-size:.78rem;color:var(--ink-soft);text-align:right;margin-top:-8px}
+
+/* ---- HUD faction/bloc strip (Phase 4) ---- */
+.blocs{display:flex;gap:10px;margin-top:12px;padding-top:10px;border-top:2px dashed var(--ink)}
+.bloc{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.bloc-lbl{font-family:var(--font-m);font-size:.6rem;font-weight:700;letter-spacing:.5px;color:var(--ink-soft);width:32px;flex:0 0 auto;text-transform:uppercase}
+.bloc-bar{position:relative;flex:1;height:9px;background:var(--paper-3);border:2px solid var(--ink);border-radius:5px;overflow:hidden}
+.bloc-fill{position:absolute;left:0;top:0;bottom:0;background:var(--gold);transition:width .4s ease}
+.bloc-fill.good{background:var(--pop)}
+.bloc-fill.bad{background:var(--danger)}
+
+/* ---- ending coalition summary (Phase 4) ---- */
+.coalition{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
+.coal-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent2);margin:0 0 10px;text-transform:uppercase}
+.coal-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:2px dotted rgba(26,23,38,.15)}
+.coal-name{font-family:var(--font-b);font-weight:600;font-size:.9rem;color:var(--ink)}
+.coal-tag{font-family:var(--font-m);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border:2px solid var(--ink);border-radius:5px;flex:0 0 auto}
+.coal-tag.good{background:var(--pop);color:#fff}
+.coal-tag.bad{background:var(--danger);color:#fff}
+.coal-tag.mid{background:var(--paper-3);color:var(--ink)}

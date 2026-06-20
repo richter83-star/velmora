@@ -191,6 +191,8 @@ export interface GameState {
   modifiers: string[];
   /** True if this run is the shared scenario-of-the-day. */
   daily: boolean;
+  /** Faction/bloc standings (blocId -> 0..100); initialized at run start. */
+  blocs?: Record<string, number>;
   seen: string[];
   queue: ThenRef[];
   log: unknown[];

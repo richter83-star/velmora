@@ -6,18 +6,23 @@
  */
 import type { GameState } from './types';
 import type { Rng } from './rng';
+import { coalitionContestMod } from './factions';
 
 const clamp = (n: number, a: number, b: number): number => Math.max(a, Math.min(b, n));
 
-/** The player's contest strength, weighted by promotion type. */
+/**
+ * The player's contest strength, weighted by promotion type, plus coalition
+ * math: a happy bloc coalition lifts you, an alienated one drags you down.
+ */
 export function promoPlayerStrength(S: GameState, promoType: string): number {
   const s = S.stats;
+  const coalition = coalitionContestMod(S);
   if (promoType === 'election') {
-    return s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12;
+    return clamp(s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12 + coalition, 0, 100);
   }
   // power-play
   return clamp(
-    s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22,
+    s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22 + coalition,
     0,
     100,
   );

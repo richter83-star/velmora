@@ -18,6 +18,7 @@ import { chooseNext } from './engine/draw';
 import { pickHeadlines } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
+import { blocList } from './engine/factions';
 import { applyFx } from './engine/mutate';
 import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
@@ -383,6 +384,14 @@ function gaugeHtml(k){
     </div>
   </div>`;
 }
+function factionName(id){ const fs=(PATHS[S.path]&&PATHS[S.path].factions)||[]; const f=fs.find(x=>x.id===id); return f?f.name:id; }
+function blocStance(v){ return v>=62?"good":(v<=38?"bad":"mid"); }
+function blocStripHtml(){
+  return blocList(S).map(b=>`<div class="bloc" title="${esc(factionName(b.id))} · ${b.value}/100">
+    <span class="bloc-lbl">${esc(b.short)}</span>
+    <span class="bloc-bar"><span class="bloc-fill ${blocStance(b.value)}" style="width:${b.value}%"></span></span>
+  </div>`).join("");
+}
 function renderHUD(){
   if(!S) return;
   const P=PATHS[S.path], ph=curPhase(), m=moodExpr();
@@ -400,7 +409,8 @@ function renderHUD(){
         <div>${esc(worldShort())}</div>
       </div>
     </div>
-    <div class="gauges">${STAT_KEYS.map(gaugeHtml).join("")}</div>`;
+    <div class="gauges">${STAT_KEYS.map(gaugeHtml).join("")}</div>
+    <div class="blocs" aria-label="Faction standings">${blocStripHtml()}</div>`;
   // stat-change floaties
   if(S.lastDeltas){
     for(const k in S.lastDeltas){
@@ -574,6 +584,10 @@ function renderEnding(){
       <span class="ideo-end r">${esc(a.right)}</span>
       <span class="ideo-read">${esc(a.read)}</span>
     </div>`).join("");
+  const coalition=blocList(S).map(b=>{
+    const v=b.value, st=blocStance(v), word=v>=62?"stands with you":(v<=38?"has turned on you":"keeps its distance");
+    return `<div class="coal-row"><span class="coal-name">${esc(factionName(b.id))}</span><span class="coal-tag ${st}">${word}</span></div>`;
+  }).join("");
   $("#over-mount").innerHTML=`<div class="over-card">
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
       <div class="oe">${e.emoji}</div>
@@ -584,6 +598,7 @@ function renderEnding(){
       <div class="avatar-stage" style="margin:0 auto 14px;width:104px;height:104px">${ava}</div>
       <p>${fmt(e.text)}</p>
       <div class="ideo"><div class="ideo-head">Political Profile</div>${ideo}</div>
+      <div class="coalition"><div class="coal-head">The Coalition</div>${coalition}</div>
       <div class="epilogue"><div class="epi-head">Years Later…</div>${epilogue}</div>
       <div class="legacy">${legacy}</div>
     </div>

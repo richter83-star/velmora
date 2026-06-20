@@ -26,6 +26,10 @@ for (const path of PATHS) {
       await page.locator('#over-mount .ideo-row').count(),
       'ending should show the two ideology axes',
     ).toBe(2);
+    expect(
+      await page.locator('#over-mount .coal-row').count(),
+      'ending should summarize the three-bloc coalition',
+    ).toBe(3);
     expect(errors, `errors during ${path} run:\n${errors.join('\n')}`).toEqual([]);
   });
 }
@@ -49,5 +53,6 @@ test('the headline ticker renders fictional flavor news on the game screen', asy
   const items = page.locator('#ticker .tk-item');
   await expect(items.first()).toBeVisible();
   expect(await items.count(), 'ticker should show several headlines').toBeGreaterThan(3);
+  expect(await page.locator('#hud .bloc').count(), 'HUD shows the three faction blocs').toBe(3);
   expect(errors).toEqual([]);
 });

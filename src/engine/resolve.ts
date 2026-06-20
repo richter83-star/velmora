@@ -10,6 +10,13 @@ import { STAT_KEYS, applyFx, setFlags, incFlags, queueThen, markSeen, doRoll } f
 import { applyArcSet } from './arcs';
 import { applyNpcFx } from './npcs';
 import { recordScandal, resolveActiveScandal } from './scandals';
+import { applyBlocShift } from './factions';
+
+/** Collect the keys of a `set` map whose value is truthy (a flag turned on). */
+function flagsTurnedOn(set: Record<string, boolean | number | string> | undefined): string[] {
+  if (!set) return [];
+  return Object.keys(set).filter((k) => !!set[k]);
+}
 
 export interface ChoiceOutcome {
   text: string;
@@ -27,6 +34,7 @@ export function applyChoice(
   const ch = ev.choices[ci];
   if (!ch) return null;
   const before = { ...S.stats };
+  const flagsOn = flagsTurnedOn(ch.set);
   let text = ch.result ?? '';
   let rollLine: ChoiceOutcome['rollLine'] = null;
   let endingCause = ch.ending ?? null;
@@ -44,6 +52,7 @@ export function applyChoice(
     const br = r.win ? ch.roll.success : ch.roll.fail;
     applyFx(S, br.fx);
     setFlags(S, br.set);
+    flagsOn.push(...flagsTurnedOn(br.set));
     incFlags(S, br.inc);
     applyArcSet(S, br.arcSet);
     applyNpcFx(S, br.npcFx);
@@ -61,6 +70,7 @@ export function applyChoice(
     const d = S.stats[k] - before[k];
     if (d) deltas[k] = d;
   }
+  applyBlocShift(S, deltas, flagsOn);
   markSeen(S, ev);
 
   return { text, rollLine, endingCause, deltas };
