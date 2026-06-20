@@ -3,8 +3,8 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-19
-**Current phase:** **Phase 4 — Systems Depth (core shipped)**: ideology axes, faction/bloc standings + coalition math, approval decay, and trait perks are live. Remaining: cabinet/advisors, crisis sub-decisions. (Phase 3 complete: 251 events, ticker, epilogue.)
-**Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 89 unit + 11 E2E green)
+**Current phase:** **Phase 4 — Systems Depth (nearly done)**: ideology axes, faction/bloc + coalition math, approval decay, trait perks, and cabinet/advisors-with-loyalty are all live. Only crisis sub-decisions remain. (Phase 3 complete: 251 events, ticker, epilogue.)
+**Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 96 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
 **Build/run:** `npm install` → `npm run dev` (HMR) · `npm run build` + `npm run preview` (serves `dist/` at :4173)
 
@@ -124,7 +124,8 @@ Per the roadmap: faction/bloc meters, ideology axes + coalition math, treasury/e
 - **Faction/bloc standings + coalition math** (`6b8710d`): `engine/factions.ts` — each path's three factions get live 0–100 meters that move EMERGENTLY from the stat deltas + flags the existing 251 events already produce (no per-event authoring). Wired through `resolve.ts` (shift on every choice) and `contest.ts` (`coalitionContestMod` feeds promotion strength — happy coalition lifts, alienated drags). HUD bloc strip + "The Coalition" ending summary. 5 unit tests; smoke asserts HUD blocs + ending coalition.
 - **Approval decay / term dynamics** (`eedfbfb`): `advanceTurnState` erodes support while riding high (the cost of incumbency) and faster under scrutiny / a sour economy, with no baseline drain on weak runs. Sweep-verified (avg phase ~1.8–2.0, arcs stay reachable). 2 unit tests.
 - **Trait perks** (`0bc0f9e`): `engine/perks.ts` delivers the ongoing synergy each trait advertised (orator/operator/rainmaker easier signature-stat rolls + contest edge; clean sheds scrutiny faster), hooked via `doRoll`/`promoPlayerStrength`/`advanceTurnState`. 3 unit tests.
-- **Remaining Phase 4** (not yet started): cabinet/advisors with loyalty (needs a promotion-time appointment flow + a defection event — the largest remaining piece), and crisis sub-decisions (an immediate in-turn follow-up mechanic, distinct from the delayed `then`-chains). The mechanical core of Phase 4 — ideology, coalition, term dynamics, perks — is shipped and shippable.
+- **Cabinet / advisors with loyalty** (`72e7cf9`, `8ef5bf0`): `engine/cabinet.ts` — at each promotion you appoint an advisor from a seeded slate (a new "cabinet" UI mode, with a decline option); each grants a passive per-turn stat lift and carries a loyalty meter that drifts with the flags your choices set. A cratered advisor (loyalty ≤ 22) **resigns and leaks** (heat hit + loses their perk), so loyalty matters. HUD loyalty chips, an ending "Your Cabinet" summary, save/resume migration, and headless auto-appointment so the sim exercises it. 7 unit tests; smoke asserts the appointment screen + HUD chip.
+- **Remaining Phase 4** (last item): crisis sub-decisions — an *immediate* in-turn follow-up mechanic (a crisis choice branches straight into a sub-decision), distinct from the delayed `then`-chains. Needs a small engine + UI hook plus content. Everything else in Phase 4 is shipped.
 - **Decision-gated later phases (true blockers needing user input):** Phase 6–7 art/audio creative direction; Phase 11 monetization model (product call), opt-in analytics + store packaging (credentials/services). Flag before starting these.
 
 ## Next steps (concrete)
