@@ -23,10 +23,12 @@ export interface AdvisorDef {
 }
 
 export const START_LOYALTY = 60;
-/** Loyalty at or below this is the "will defect" danger zone. */
+/** Loyalty at or below this and the advisor resigns in disloyalty. */
 export const DEFECT_LOYALTY = 22;
 const LIKE_STEP = 4;
 const DISLIKE_STEP = 5;
+/** Scrutiny a resigning advisor inflicts on the way out (the leak). */
+const LEAK_HEAT = 6;
 const clamp = (n: number): number => Math.max(0, Math.min(100, n));
 
 export const ADVISORS: Record<PathKey, AdvisorDef[]> = {
@@ -199,4 +201,21 @@ export function defectingAdvisor(S: GameState): { id: string; loyalty: number } 
 export function removeAdvisor(S: GameState, id: string): void {
   if (!S.cabinet) return;
   S.cabinet = S.cabinet.filter((c) => c.id !== id);
+}
+
+/**
+ * Resolve disloyalty: any advisor whose loyalty has cratered resigns this turn,
+ * leaking on the way out (a scrutiny hit) and taking their perk with them.
+ * Returns the advisors who left, for messaging. Pure; shared by engine + sim.
+ */
+export function processResignations(S: GameState): { id: string; name: string }[] {
+  if (!S.cabinet?.length) return [];
+  const leaving = S.cabinet.filter((c) => c.loyalty <= DEFECT_LOYALTY);
+  if (!leaving.length) return [];
+  S.cabinet = S.cabinet.filter((c) => c.loyalty > DEFECT_LOYALTY);
+  S.stats.heat = clamp(S.stats.heat + LEAK_HEAT * leaving.length);
+  return leaving.map((c) => {
+    const d = advisorDef(S.path, c.id);
+    return { id: c.id, name: d?.name ?? c.id };
+  });
 }

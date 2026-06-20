@@ -259,7 +259,10 @@ function afterResult(){
   advanceTurn();
 }
 function advanceTurn(){
+  const before=(S.cabinet||[]).map(c=>c.id);
   advanceTurnState(S);
+  const left=before.filter(id=>!(S.cabinet||[]).some(c=>c.id===id));
+  if(left.length){ const d=advisorDef(S.path,left[0]); toast((d?d.emoji+" "+d.name:"An advisor")+" resigns in disloyalty — and leaks on the way out"); }
   const dc=deathCause(S); if(dc){ endGame(dc); return; }
   if(S.phaseTurn>=curPhase().goalTurns){ startPromotion(); return; }
   nextEvent(); save();

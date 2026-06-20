@@ -8,6 +8,7 @@ import {
   servingAdvisors,
   defectingAdvisor,
   removeAdvisor,
+  processResignations,
   START_LOYALTY,
 } from '../../src/engine/cabinet';
 import { createRng } from '../../src/engine/rng';
@@ -106,6 +107,21 @@ describe('cabinet / advisors', () => {
     removeAdvisor(S, 'bagman');
     expect(S.cabinet).toHaveLength(0);
     expect(defectingAdvisor(S)).toBeNull();
+  });
+
+  it('a cratered advisor resigns and leaks (heat hit); loyal ones stay', () => {
+    const S = makeState('ballot');
+    appointAdvisor(S, 'spin');
+    appointAdvisor(S, 'bagman');
+    S.cabinet![0]!.loyalty = 10; // spin craters
+    S.cabinet![1]!.loyalty = 60; // bagman stays
+    const heatBefore = S.stats.heat;
+    const left = processResignations(S);
+    expect(left.map((l) => l.id)).toEqual(['spin']);
+    expect(S.cabinet).toHaveLength(1);
+    expect(S.cabinet![0]!.id).toBe('bagman');
+    expect(S.stats.heat).toBe(heatBefore + 6);
+    expect(processResignations(S)).toEqual([]); // nothing left to resign
   });
 
   it('defines four advisors per path', () => {

@@ -6,7 +6,7 @@
 import type { GameState, StatKey } from './types';
 import { clampStat } from './mutate';
 import { traitHeatDecayBonus } from './perks';
-import { cabinetPerk } from './cabinet';
+import { cabinetPerk, processResignations } from './cabinet';
 
 /** Scrutiny ("heat") cools by this much each turn the player survives. */
 const HEAT_DECAY_PER_TURN = 2;
@@ -36,6 +36,8 @@ export function advanceTurnState(S: GameState): void {
   if (S.stats.heat >= 60) decay += 1;
   if ((S.world?.economy?.mood ?? 0) < 0) decay += 1;
   if (decay) S.stats.support = clampStat(S.stats.support - decay);
+  // A cratered advisor resigns (and leaks) before the cabinet's perks apply.
+  processResignations(S);
   // Serving advisors lend a small passive lift to their specialty each turn.
   const perk = cabinetPerk(S);
   for (const k of Object.keys(perk) as StatKey[]) {
