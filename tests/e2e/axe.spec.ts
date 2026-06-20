@@ -36,6 +36,10 @@ test('axe: key static screens have no serious/critical violations', async ({ pag
   await scan(page, 'codex');
   await page.locator('#btn-codex-back').click();
 
+  await page.locator('#btn-records').click();
+  await scan(page, 'records');
+  await page.locator('#btn-records-back').click();
+
   await page.locator('#btn-new').click();
   await scan(page, 'path-select');
 

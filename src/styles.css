@@ -277,6 +277,14 @@ button{font-family:var(--font-b);cursor:pointer}
 .tut-actions{display:flex;gap:10px}
 .tut-actions .btn{flex:1}
 
+/* ===== records (cross-run history / achievements) ===== */
+.cdx-card.rec-locked{border-style:dashed}
+.cdx-card.rec-locked .cdx-emoji{filter:grayscale(1)}
+.rec-run{border:2px solid var(--ink);border-radius:var(--r-sm);background:var(--paper-2);box-shadow:var(--shadow-sm);padding:10px 12px;margin:0 0 10px}
+.rec-run-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rec-rank{font-family:var(--font-d);font-size:.84rem;letter-spacing:.5px;color:var(--ink)}
+.rec-run-sub{font-family:var(--font-m);font-size:.72rem;color:var(--ink-soft);line-height:1.45;margin-top:5px}
+
 /* ===== settings ===== */
 .settings-top{display:flex;align-items:center;gap:12px;margin:6px 0 18px}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 2px;border-bottom:2px dashed var(--ink-soft)}
@@ -359,7 +367,7 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
 .coal-name{font-family:var(--font-b);font-weight:600;font-size:.9rem;color:var(--ink)}
 .coal-tag{font-family:var(--font-m);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border:2px solid var(--ink);border-radius:5px;flex:0 0 auto}
 .coal-tag.good{background:var(--pop);color:var(--ink)}
-.coal-tag.bad{background:var(--danger);color:#fff}
+.coal-tag.bad{background:#C42A1F;color:#fff}
 .coal-tag.mid{background:var(--paper-3);color:var(--ink)}
 
 /* ---- cabinet appointment screen (Phase 4) ---- */

@@ -25,6 +25,7 @@ import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
 import { blankRun } from './engine/state';
+import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, ACHIEVEMENTS, UNLOCKABLES } from './engine/meta';
 // The full draw pool (base bank + packs) is assembled in content/all-events.ts.
 
 /* ================================================================
@@ -33,7 +34,25 @@ import { blankRun } from './engine/state';
    ================================================================ */
 (function(){
 "use strict";
-const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1";
+const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1", META_KEY="velmora_meta_v1";
+
+/* ---------- cross-run meta-progression store (Phase 8) ----------
+   Mirrors the save/settings localStorage+in-memory pattern, but uses its OWN
+   dedicated fallback global (window._velmoraMeta) so it never collides with the
+   save (_velmoraMem) or settings (_velmoraSet) fallbacks. Pure logic lives in
+   engine/meta.ts; this layer only does I/O. */
+let META=defaultMeta();
+function loadMeta(){
+  let raw=null;
+  try{ raw=localStorage.getItem(META_KEY); }catch(e){}
+  if(!raw && window._velmoraMeta) raw=window._velmoraMeta;
+  let stored=null; if(raw){ try{ stored=JSON.parse(raw); }catch(e){} }
+  META=mergeMeta(stored);
+}
+function saveMeta(){
+  let data; try{ data=JSON.stringify(META); }catch(e){ return; }
+  try{ localStorage.setItem(META_KEY,data); }catch(e){ window._velmoraMeta=data; }
+}
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
 const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, tutorialSeen:false };
@@ -410,8 +429,27 @@ function chooseAdvisor(id){
 function endGame(cause){
   S.over=true; S.mode="over";
   S.ending=evaluateEnding(S,cause);
+  recordRunOutcome();   // meta: history + lifetime stats + achievements + unlockables (before clearSave)
   clearSave();
   renderEnding();
+}
+/* Roll the finished run into the cross-run META. Order matters: this MUST run
+   before clearSave() (it reads the complete S). Wrapped so a meta failure can
+   never block the ending from rendering. */
+function recordRunOutcome(){
+  try{
+    const ts=Date.now();
+    META=metaRecordRun(META,S,ts);
+    if(S.ending && S.ending.win) META.ngPlus.maxCleared=Math.max(META.ngPlus.maxCleared, (S.ngPlus||0)+1);
+    const res=unlockAchievements(META,S,ts);
+    META=refreshUnlockables(res.meta);
+    saveMeta();
+    if(res.newly.length){
+      const names=res.newly.map(id=>{ const a=ACHIEVEMENTS.find(x=>x.id===id); return a?a.name:id; });
+      toast("🏅 "+(res.newly.length>1?names.length+" achievements":"Achievement: "+names[0]));
+      announce("Achievement unlocked: "+names.join(", "));
+    }
+  }catch(e){}
 }
 
 /* ---- career log ---- */
@@ -789,6 +827,7 @@ function startCareer(d){
   go("game"); renderHUD();
   S.lastDeltas=null;
   nextEvent(); save();
+  META=metaRecordStart(META); saveMeta();
   maybeTutorial();
 }
 
@@ -867,6 +906,55 @@ function renderCodex(){
 }
 function openCodex(){ renderCodex(); go("codex"); focusHeading("#codex-title"); announce("The Almanac — a reference for the paths, factions, advisors, and traits."); }
 function closeCodex(){ go("title"); const b=$("#btn-codex"); if(b) b.focus(); }
+
+/* ================================================================
+   RECORDS — cross-run progress: lifetime stats, achievements, history
+   ================================================================ */
+function recCard(emoji,name,desc,locked){
+  return `<div class="cdx-card${locked?" rec-locked":""}">
+    <span class="cdx-emoji" aria-hidden="true">${locked?"🔒":(emoji||"•")}</span>
+    <div class="cdx-card-body">
+      <div class="cdx-name">${esc(name)}</div>
+      <div class="cdx-desc">${esc(desc)}</div>
+    </div>
+  </div>`;
+}
+function recRunRow(r){
+  const pathName=r.path==="ballot"?"Ballot":(r.path==="vanguard"?"Vanguard":esc(r.path));
+  const tag=r.win?`<span class="coal-tag good">WON</span>`:`<span class="coal-tag bad">FELL</span>`;
+  const extra=[r.daily?"🗓️ Daily":"", r.ngPlus?("NG+"+r.ngPlus):""].filter(Boolean).join(" · ");
+  return `<div class="rec-run">
+    <div class="rec-run-top"><span class="rec-rank">${esc(r.rank||r.endingId)}</span>${tag}</div>
+    <div class="rec-run-sub">${esc(pathName)} · ${esc(r.title)} · ${r.totalTurns} yrs · ${esc(cap(r.difficulty||""))}${extra?" · "+esc(extra):""}</div>
+  </div>`;
+}
+function renderRecords(){
+  const s=META.stats;
+  const winRate=s.runsFinished?Math.round(100*s.wins/s.runsFinished):0;
+  const statRows=[
+    {l:"Careers finished",v:String(s.runsFinished)},
+    {l:"Wins / Losses",v:s.wins+" / "+s.losses},
+    {l:"Win rate",v:winRate+"%"},
+    {l:"Best composite",v:String(s.bestComposite)},
+    {l:"Years in the arena",v:String(s.totalYears)},
+    {l:"Ballot / Vanguard",v:s.byPath.ballot+" / "+s.byPath.vanguard}
+  ];
+  const achUnlocked=ACHIEVEMENTS.filter(a=>META.achievements[a.id]).length;
+  const achHtml=ACHIEVEMENTS.map(a=>recCard(a.emoji,a.name,a.desc,!META.achievements[a.id])).join("");
+  const unlUnlocked=UNLOCKABLES.filter(u=>META.unlockables[u.id]).length;
+  const unlHtml=UNLOCKABLES.map(u=>recCard(u.emoji,u.name,u.desc,!META.unlockables[u.id])).join("");
+  const histHtml=META.history.length
+    ? META.history.slice().reverse().map(recRunRow).join("")
+    : `<p class="cdx-p">No careers yet — your history will appear here once you finish a run.</p>`;
+  $("#records-mount").innerHTML=
+    codexSection("Lifetime",
+      `<div class="legacy">`+statRows.map(r=>`<div class="lc"><div class="ll">${esc(r.l)}</div><div class="lv">${esc(r.v)}</div></div>`).join("")+`</div>`)
+    + codexSection("Achievements — "+achUnlocked+"/"+ACHIEVEMENTS.length, achHtml)
+    + codexSection("Unlocks — "+unlUnlocked+"/"+UNLOCKABLES.length, unlHtml)
+    + codexSection("Past Lives", histHtml);
+}
+function openRecords(){ renderRecords(); go("records"); focusHeading("#records-title"); announce("Records — your lifetime stats, achievements, and past careers."); }
+function closeRecords(){ go("title"); const b=$("#btn-records"); if(b) b.focus(); }
 
 /* ================================================================
    SETTINGS — accessibility + device preferences (persisted)
@@ -1036,6 +1124,7 @@ function registerSW(){
    ================================================================ */
 function boot(){
   loadSettings(); applySettings();
+  loadMeta();
   sizeCanvas();
   window.addEventListener("resize",sizeCanvas);
 
@@ -1046,6 +1135,8 @@ function boot(){
   $("#btn-codex-back").addEventListener("click",closeCodex);
   $("#btn-settings").addEventListener("click",openSettings);
   $("#btn-settings-back").addEventListener("click",closeSettings);
+  $("#btn-records").addEventListener("click",openRecords);
+  $("#btn-records-back").addEventListener("click",closeRecords);
   $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
