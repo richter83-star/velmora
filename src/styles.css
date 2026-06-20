@@ -14,7 +14,7 @@
   --ink:#1A1726; --ink-soft:#3b3550;
   --paper:#FFF4E0; --paper-2:#FBE7C2; --paper-3:#F3D9A8;
   --gold:#F2B705; --pop:#2FB67D; --warn:#FF7A3C; --danger:#E5332A; --purple:#A65BD6;
-  --bg1:#322B4F; --bg2:#211B36; --accent:#E63B5B; --accent2:#3B6FE6; --accent-ink:#fff;
+  --bg1:#322B4F; --bg2:#211B36; --accent:#CC2D4F; --accent2:#3B6FE6; --accent-ink:#fff;
   --radius:18px; --r-sm:12px;
   --shadow:8px 8px 0 var(--ink);
   --shadow-sm:5px 5px 0 var(--ink);
@@ -25,11 +25,11 @@
 }
 /* ---- Theme: Ballot (democracy) red-white-blue-gold ---- */
 body.theme-ballot{
-  --bg1:#1F407F; --bg2:#0E2148; --accent:#E63B5B; --accent2:#3B6FE6; --gold:#F5C542; --accent-ink:#fff;
+  --bg1:#1F407F; --bg2:#0E2148; --accent:#CC2D4F; --accent2:#3B6FE6; --gold:#F5C542; --accent-ink:#fff;
 }
 /* ---- Theme: Vanguard (one-party) red-gold-black ---- */
 body.theme-vanguard{
-  --bg1:#7A1410; --bg2:#330907; --accent:#E5332A; --accent2:#F2B705; --gold:#F2B705; --accent-ink:#fff;
+  --bg1:#7A1410; --bg2:#330907; --accent:#C42A1F; --accent2:#F2B705; --gold:#F2B705; --accent-ink:#fff;
 }
 html,body{margin:0;height:100%}
 body{
@@ -140,7 +140,7 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* delta floaties */
 .delta{position:fixed;font-family:var(--font-m);font-weight:700;font-size:.9rem;padding:2px 8px;border:2px solid var(--ink);border-radius:20px;pointer-events:none;z-index:60;animation:floatUp 1.2s ease forwards}
-.delta.up{background:var(--pop);color:#fff}.delta.down{background:var(--danger);color:#fff}
+.delta.up{background:var(--pop);color:var(--ink)}.delta.down{background:#C42A1F;color:#fff}
 @keyframes floatUp{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-34px) scale(1)}}
 
 /* ===== EVENT CARD ===== */
@@ -252,6 +252,7 @@ button{font-family:var(--font-b);cursor:pointer}
 
 .divider{height:3px;background:repeating-linear-gradient(90deg,var(--ink) 0 12px,transparent 12px 20px);margin:14px 0;opacity:.4}
 .muted{color:rgba(255,255,255,.6);font-family:var(--font-m);font-size:.72rem;text-align:center;margin-top:14px;line-height:1.5}
+.panel .muted{color:var(--ink-soft)}
 
 @media (max-width:480px){
   .gauges{grid-template-columns:1fr}
@@ -331,11 +332,11 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
 
 /* ---- ending run-summary ("By the Numbers") ---- */
 .runsum{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
-.rs-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--pop);margin:0 0 12px;text-transform:uppercase}
+.rs-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:#1A7A50;margin:0 0 12px;text-transform:uppercase}
 
 /* ---- ending ideology profile (Phase 4) ---- */
 .ideo{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
-.ideo-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent2);margin:0 0 12px;text-transform:uppercase}
+.ideo-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:#2F5BC8;margin:0 0 12px;text-transform:uppercase}
 .ideo-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:0 0 14px}
 .ideo-end{font-family:var(--font-m);font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft)}
 .ideo-track{position:relative;height:10px;background:var(--paper-3);border:2px solid var(--ink);border-radius:6px}
@@ -353,11 +354,11 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
 
 /* ---- ending coalition summary (Phase 4) ---- */
 .coalition{margin:16px 0 4px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
-.coal-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent2);margin:0 0 10px;text-transform:uppercase}
+.coal-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:#2F5BC8;margin:0 0 10px;text-transform:uppercase}
 .coal-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:2px dotted rgba(26,23,38,.15)}
 .coal-name{font-family:var(--font-b);font-weight:600;font-size:.9rem;color:var(--ink)}
 .coal-tag{font-family:var(--font-m);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border:2px solid var(--ink);border-radius:5px;flex:0 0 auto}
-.coal-tag.good{background:var(--pop);color:#fff}
+.coal-tag.good{background:var(--pop);color:var(--ink)}
 .coal-tag.bad{background:var(--danger);color:#fff}
 .coal-tag.mid{background:var(--paper-3);color:var(--ink)}
 
