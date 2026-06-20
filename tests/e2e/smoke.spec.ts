@@ -22,6 +22,10 @@ for (const path of PATHS) {
       await page.locator('#over-mount .epi-beat').count(),
       'ending should show personalized epilogue beats',
     ).toBeGreaterThan(0);
+    expect(
+      await page.locator('#over-mount .ideo-row').count(),
+      'ending should show the two ideology axes',
+    ).toBe(2);
     expect(errors, `errors during ${path} run:\n${errors.join('\n')}`).toEqual([]);
   });
 }
