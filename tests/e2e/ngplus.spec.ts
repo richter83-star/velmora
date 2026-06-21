@@ -29,6 +29,7 @@ test('New Game+ tier selector appears once unlocked and sets the run tier', asyn
 
   await page.locator('#ngplus-chips .chip[data-ng="1"]').click();
   await page.locator('#btn-begin-career').click();
+  await expect(page.locator('#screen-game.active')).toBeVisible(); // startCareer is async (lazy bank)
   await dismissTutorial(page);
 
   expect(await page.evaluate(() => window.__VELMORA_STATE?.().ngPlus)).toBe(1);
@@ -50,6 +51,7 @@ test('the daily scenario ignores New Game+ (always tier 0)', async ({ page }) =>
   await expect(page.locator('#ngplus-field')).toBeHidden();
 
   await page.locator('#btn-begin-career').click();
+  await expect(page.locator('#screen-game.active')).toBeVisible(); // startCareer is async (lazy bank)
   await dismissTutorial(page);
 
   const s = await page.evaluate(() => window.__VELMORA_STATE?.());

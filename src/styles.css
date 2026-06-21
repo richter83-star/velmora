@@ -143,13 +143,28 @@ button{font-family:var(--font-b);cursor:pointer}
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:0 6px 0 var(--ink);transform:none;filter:grayscale(.4)}
 
 /* ===== TITLE ===== */
-.title-emblem{display:block;margin:6vh auto 0;width:152px;height:152px;filter:drop-shadow(6px 8px 0 rgba(0,0,0,.45));animation:bob 4s ease-in-out infinite}
+/* ===== TITLE — riso paper poster (Step 4). A "pulled sheet" on the dark press table. ===== */
+#screen-title{
+  background:var(--rp-paper);
+  background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);
+  background-size:var(--rp-dot) var(--rp-dot);
+  border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
+  box-shadow:var(--rp-shadow-misreg);
+  padding:20px 18px 26px;margin-top:10px;text-align:center;position:relative;
+}
+.title-emblem{display:block;margin:8px auto 0;width:128px;height:128px;filter:drop-shadow(4px 5px 0 var(--rp-ink-key));animation:bob 4s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
-.title-name{font-family:var(--font-d);text-align:center;color:var(--paper);font-size:clamp(2.8rem,12vw,5rem);letter-spacing:2px;margin:14px 0 0;line-height:.95;
-  text-shadow:4px 4px 0 var(--danger),8px 8px 0 var(--ink);}
-.title-sub{text-align:center;color:var(--gold);font-family:var(--font-m);font-weight:700;letter-spacing:4px;text-transform:uppercase;margin:14px 0 28px;font-size:.82rem}
-.title-actions{max-width:340px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-.title-foot{text-align:center;color:rgba(255,255,255,.5);font-family:var(--font-m);font-size:.7rem;margin-top:30px;line-height:1.6}
+.title-name{display:inline-block;font-family:var(--font-d);color:var(--rp-spot-ink);background:var(--rp-ink-spot);
+  font-size:clamp(2.6rem,11vw,4.6rem);letter-spacing:3px;margin:16px 0 0;line-height:1;padding:6px 18px 4px;
+  text-transform:uppercase;border:var(--bw-base) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg);}
+.title-sub{color:var(--rp-ink-key);font-family:var(--font-m);font-weight:700;letter-spacing:4px;text-transform:uppercase;margin:18px 0 26px;font-size:.78rem}
+.title-actions{max-width:340px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+/* buttons styled for the dark body must read on the paper sheet here */
+#screen-title .btn.ghost{background:var(--rp-paper-2);color:var(--rp-ink-key);border-color:var(--rp-ink-key);box-shadow:0 5px 0 var(--rp-ink-key)}
+#screen-title .btn.ghost:active{box-shadow:0 1px 0 var(--rp-ink-key)}
+/* credits move onto paper (colophon) — fixes the prior white-on-dark AA failure */
+.title-foot{color:var(--ink-soft);font-family:var(--font-m);font-size:.7rem;margin-top:26px;line-height:1.6;
+  border-top:var(--bw-hair) solid var(--rp-ink-key);padding-top:14px}
 
 /* ===== panel (paper) ===== */
 .panel{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);padding:20px;position:relative;overflow:hidden}
