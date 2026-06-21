@@ -37,6 +37,10 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "@fontsource/anton": "^5.2.7",
+    "@fontsource/hanken-grotesk": "^5.2.8",
+    "@fontsource/space-mono": "^5.2.9",
+    "@fontsource/stardos-stencil": "^5.2.7",
     "zod": "^4.4.3"
   }
 }

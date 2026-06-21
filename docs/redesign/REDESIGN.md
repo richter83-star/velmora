@@ -54,5 +54,6 @@ Themes (AA-checked): **neutral** paper `#FBF1DC` / key `#161320` / spot `#C8324A
 - [x] Design-direction exploration (5 directions, scored, synthesized) — workflow
 - [x] Direction chosen: **Overprint** · prototype built + render-verified (zero console errors, all 3 current themes)
 - [x] **Step 1 — token foundation** — `--rp-*` riso tokens added to `:root` + all 5 theme blocks (ballot/vanguard + future iron/gilded/anointed) + high-contrast flatten; additive/unconsumed so rendering is unchanged. CSS 6.3→6.8 kB gzip; build + 34 E2E (incl. axe) green. Defaults locked: per-phase 3-tier fidelity · static serif · keep v1 avatars · flat gold foil · steps 1–9 = v1.
-- [ ] Step 2 — self-host + subset fonts (drop Google Fonts CDN; fixes the offline violation)
-- [ ] Steps 3–10
+- [x] **Step 2 — self-hosted fonts** — Fontsource `.woff2` (Anton/Hanken Grotesk/Stardos Stencil/Space Mono, latin subsets, only weights used) imported in the entry + precached for offline; dropped the Google Fonts CDN `<link>`s (**fixes the offline-PWA font violation**). Repointed `--font-d`→Anton, `--font-b`→Hanken; added `--rp-font-stencil`. 8 woff2 (~120 kB precached), CSS 6.8→7.1 kB; build + 34 E2E (offline/responsive/axe) green. The new typography now shows on the existing layout; per-screen layout/color reskins follow.
+- [ ] Step 3 — global primitives (.btn/.panel/.chip + border-weight + off-register shadow + halftone ground)
+- [ ] Steps 4–10

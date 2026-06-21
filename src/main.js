@@ -1,4 +1,15 @@
 import './styles.css';
+/* Self-hosted, subset fonts (offline-safe; replaces the Google Fonts CDN <link>).
+   Anton = display, Hanken Grotesk = body, Stardos Stencil = stencil/stamp accent,
+   Space Mono = data/dossier. Latin subset only; just the weights actually used. */
+import '@fontsource/anton/latin-400.css';
+import '@fontsource/hanken-grotesk/latin-400.css';
+import '@fontsource/hanken-grotesk/latin-600.css';
+import '@fontsource/hanken-grotesk/latin-700.css';
+import '@fontsource/stardos-stencil/latin-400.css';
+import '@fontsource/stardos-stencil/latin-700.css';
+import '@fontsource/space-mono/latin-400.css';
+import '@fontsource/space-mono/latin-700.css';
 import { createRng, randomSeed, dailySeed } from './engine/rng';
 import { PATHS } from './content/paths';
 import { TRAITS } from './content/traits';
