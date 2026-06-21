@@ -64,7 +64,24 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, tutorialSeen:false };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false };
+
+/* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
+   errors are recorded to a capped on-device ring buffer (no network — there is no
+   backend; this is the collection scaffold a future endpoint would drain). */
+const ERROR_LOG=[]; const ERROR_LOG_CAP=20;
+function recordError(kind,message){
+  if(!SETTINGS.errorReports) return;
+  ERROR_LOG.push({ kind, message:String(message==null?"":message).slice(0,300) });
+  if(ERROR_LOG.length>ERROR_LOG_CAP) ERROR_LOG.shift();
+}
+function installErrorReporting(){
+  try{
+    window.addEventListener("error",e=>recordError("error", e&&e.message));
+    window.addEventListener("unhandledrejection",e=>recordError("promise", e&&e.reason&&(e.reason.message||e.reason)));
+    window.__VELMORA_ERRORS=()=>ERROR_LOG.slice();
+  }catch(e){}
+}
 function loadSettings(){
   let raw=null;
   try{ raw=localStorage.getItem(SETTINGS_KEY); }catch(e){}
@@ -1059,6 +1076,7 @@ function renderSettings(){
   const r=$("#set-reduce"); if(r) r.setAttribute("aria-checked",SETTINGS.reduceMotion?"true":"false");
   const h=$("#set-high"); if(h) h.setAttribute("aria-checked",SETTINGS.highContrast?"true":"false");
   const s=$("#set-sound"); if(s) s.setAttribute("aria-checked",SETTINGS.sound?"true":"false");
+  const er=$("#set-errors"); if(er) er.setAttribute("aria-checked",SETTINGS.errorReports?"true":"false");
 }
 function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
 function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
@@ -1243,6 +1261,7 @@ function registerSW(){
    ================================================================ */
 function boot(){
   loadSettings(); applySettings();
+  installErrorReporting();
   loadMeta(); activeSlot=META.activeSlot;
   sizeCanvas();
   window.addEventListener("resize",sizeCanvas);
@@ -1260,6 +1279,7 @@ function boot(){
   $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
+  $("#set-errors").addEventListener("click",()=>toggleSetting("errorReports","Error reporting"));
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);

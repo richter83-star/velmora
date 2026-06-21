@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { simulateRun, type RunTrace } from '../../src/engine/sim';
 import type { PathKey } from '../../src/engine/types';
 
-const RUNS = 50;
+const RUNS = 120;
+/** The sim aborts at a 600-draw safety guard; a healthy run ends far sooner, so
+ * any run approaching it would signal a soft-lock / runaway loop. */
+const SOFT_LOCK_BOUND = 300;
 
 function sweep(path: PathKey): RunTrace[] {
   const runs: RunTrace[] = [];
@@ -45,6 +48,11 @@ for (const path of ['ballot', 'vanguard'] as const) {
 
     it('every run reaches a tagged ending', () => {
       for (const r of runs) expect(r.endingId.length).toBeGreaterThan(0);
+    });
+
+    it('no run soft-locks (draws stay well under the safety guard)', () => {
+      const maxDraws = Math.max(...runs.map((r) => r.drawn.length));
+      expect(maxDraws, `max draws in a run = ${maxDraws}`).toBeLessThan(SOFT_LOCK_BOUND);
     });
 
     it('within-run repeat rate is below threshold', () => {
