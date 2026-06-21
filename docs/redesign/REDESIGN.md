@@ -62,5 +62,9 @@ Themes (AA-checked): **neutral** paper `#FBF1DC` / key `#161320` / spot `#C8324A
 - [x] **Step 7 — path-select + create** — path-cards as riso campaign handbills (each scopes its own ink theme); create panel riso (Step 3); fixed `.panel .btn.ghost` (create Back / settings Clear were light-on-light).
 - [x] **Step 8 — contest + ending** — `.promo`/`.over-card` riso; result win/lose header moved to AA classes (#1A7A50 / #C42A1F + white, fixing white-on-green); odds/tally meters tokenized; over-banner spot band; commemorative front-page ending.
 - [x] **Step 9 — codex / records / slots / settings / tutorial** — "ministry archive" riso pass (paper section panels + halftone, riso cards/toggles/tutorial). Full matrix green: build · size (CSS 7.6 kB) · lint · **34 E2E** (axe all screens incl. high-contrast + reduced-motion + responsive).
-- [ ] Step 10 — OPTIONAL B&B deepening (broadsheet grid + avatar SVG tokenization) — deferred (v1 = steps 1–9)
-- **Screenshots:** `docs/redesign/{title,game-ballot,game-vanguard,path,create,ending,records,codex,settings}.png`
+- [x] **Step 10 — polish (focused)** — re-inked the state seal (title emblem) to `--rp-*` tokens; themed the win confetti to the active theme's inks ("ink flecks"). Deliberately **skipped** avatar skin/hair re-inking (faces shouldn't change color per regime) and the marginal broadsheet-grid rebuild (per-screen reskins already deliver the layout). 34 E2E green.
+- **Screenshots:** `docs/redesign/{title,game-ballot,game-vanguard,path,create,ending,records,codex,settings,title-seal}.png`
+
+## ✅ Redesign complete
+
+The Overprint riso-propaganda redesign is shipped end-to-end (Steps 1–10): token system (5 themes) → self-hosted fonts → primitives → every screen → seal/confetti polish. AA-clean across all themes incl. high-contrast + reduced-motion, offline-capable, CSS 7.6 kB gzip, initial JS unchanged. **Next stage: the "Dark Mirrors" expansion** — its 3 theme tokens + the content-safety linter are already in place from the redesign.

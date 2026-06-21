@@ -1196,7 +1196,14 @@ function sfx(name){
 }
 function confetti(){
   if(reduced()||!fxCtx) return;
-  const cols=["#F2B705","#E63B5B","#3B6FE6","#2FB67D","#A65BD6","#FF7A3C","#ffffff"];
+  // "ink flecks / torn poster scraps" in the active theme's inks (Overprint)
+  let cols=["#F2B705","#E63B5B","#3B6FE6","#2FB67D","#A65BD6","#FF7A3C","#ffffff"];
+  try{
+    const cs=getComputedStyle(document.body);
+    const rp=k=>cs.getPropertyValue(k).trim();
+    const themed=[rp("--rp-ink-spot"),rp("--rp-ink-b"),rp("--rp-foil"),rp("--rp-ink-key"),rp("--rp-paper")].filter(Boolean);
+    if(themed.length>=4) cols=themed;
+  }catch(e){}
   const parts=[];
   for(let i=0;i<130;i++) parts.push({x:window.innerWidth/2+rint(-70,70),y:window.innerHeight*0.32,vx:rng()*8-4,vy:rng()*-11-3,g:0.28+rng()*0.22,r:rint(5,10),c:pick(cols),rot:rng()*6,vr:rng()*0.3-0.15});
   let t0=performance.now();
