@@ -13,6 +13,10 @@ import { PACK_7 } from './events-pack-7';
 import { PACK_8 } from './events-pack-8';
 import { PACK_9 } from './events-pack-9';
 import { CRISIS_SUB_EVENTS } from './crisis-subs';
+import { IRON_EVENTS } from './events-iron';
+import { GILDED_EVENTS } from './events-gilded';
+import { ANOINTED_EVENTS } from './events-anointed';
+import { SHARED_CRISES } from './events-shared';
 
 /**
  * The full draw pool: the base bank plus every content pack. Single source of
@@ -34,4 +38,9 @@ export const ALL_EVENTS: GameEvent[] = [
   ...PACK_8,
   ...PACK_9,
   ...CRISIS_SUB_EVENTS,
+  // Dark Mirrors expansion — per-path seed banks + shared crises.
+  ...IRON_EVENTS,
+  ...GILDED_EVENTS,
+  ...ANOINTED_EVENTS,
+  ...SHARED_CRISES,
 ];

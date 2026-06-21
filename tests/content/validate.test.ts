@@ -1,38 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { EVENTS } from '../../src/content/events';
-import { ARC_EVENTS, ARCS } from '../../src/content/arcs';
-import { NPC_EVENTS } from '../../src/content/npc-events';
-import { SCANDAL_EVENTS } from '../../src/content/scandals';
-import { PACK_1 } from '../../src/content/events-pack-1';
-import { PACK_2 } from '../../src/content/events-pack-2';
-import { PACK_3 } from '../../src/content/events-pack-3';
-import { PACK_4 } from '../../src/content/events-pack-4';
-import { PACK_5 } from '../../src/content/events-pack-5';
-import { PACK_6 } from '../../src/content/events-pack-6';
-import { PACK_7 } from '../../src/content/events-pack-7';
-import { PACK_8 } from '../../src/content/events-pack-8';
-import { PACK_9 } from '../../src/content/events-pack-9';
-import { CRISIS_SUB_EVENTS } from '../../src/content/crisis-subs';
+import { ALL_EVENTS } from '../../src/content/all-events';
+import { ARCS } from '../../src/content/arcs';
 import { validateContent } from '../../src/content/lint';
 import type { GameEvent } from '../../src/engine/types';
 
-// The engine plays the base bank plus arc-step, NPC-aware, scandal, and pack events.
-const ALL = [
-  ...EVENTS,
-  ...ARC_EVENTS,
-  ...NPC_EVENTS,
-  ...SCANDAL_EVENTS,
-  ...PACK_1,
-  ...PACK_2,
-  ...PACK_3,
-  ...PACK_4,
-  ...PACK_5,
-  ...PACK_6,
-  ...PACK_7,
-  ...PACK_8,
-  ...PACK_9,
-  ...CRISIS_SUB_EVENTS,
-];
+// Validate exactly the pool the engine plays (base + arcs + NPC + scandal +
+// packs + the Dark Mirrors expansion banks). Imported from the single source of
+// truth so new banks are always covered without editing this list.
+const ALL = ALL_EVENTS;
 
 describe('content validation', () => {
   const result = validateContent(ALL, ARCS);
