@@ -540,12 +540,12 @@ function moodExpr(){
 
 function gaugeHtml(k){
   const v=S.stats[k];
-  return `<div class="gauge" data-k="${k}">
-    <div class="gi">${ICON[k]}</div>
-    <div class="gbody">
-      <div class="grow"><span class="glabel">${esc(statLabel(k))}</span><span class="gnum">${v}</span></div>
-      <div class="gbar"><div class="gfill" style="width:${v}%;background:${FILL[k]}"></div></div>
-    </div>
+  // Press-strip "ink level" column: screened glyph cap, an ink reservoir, the numeral.
+  return `<div class="gauge" data-k="${k}" aria-label="${esc(statLabel(k))} ${v} of 100">
+    <span class="gi" aria-hidden="true">${ICON[k]}</span>
+    <span class="gtrack"><span class="gfill" style="height:${v}%"></span></span>
+    <span class="gnum">${v}</span>
+    <span class="glabel">${esc(statLabel(k))}</span>
   </div>`;
 }
 function factionName(id){ const fs=(PATHS[S.path]&&PATHS[S.path].factions)||[]; const f=fs.find(x=>x.id===id); return f?f.name:id; }
