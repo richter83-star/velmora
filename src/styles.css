@@ -99,6 +99,10 @@ body.theme-anointed{
   --rp-ink-spot:#3A2E7A; --rp-spot-ink:#FFFFFF; --rp-ink-b:#2A2150;
   --rp-foil:#C0A24A; --rp-halftone:rgba(58,46,122,.12); --rp-misreg:rgba(58,46,122,.5);
 }
+/* PRINT-FIDELITY RAMP — the press tightens as you climb. Default (no attr / phase 1)
+   uses the loose tier-1 values in :root; renderHUD sets body[data-phase]. */
+body[data-phase="2"]{ --rp-misreg-offset:1.5px; --rp-dot:5.5px; }
+body[data-phase="3"]{ --rp-misreg-offset:0px;  --rp-dot:4.5px; --rp-foil-on:1; }
 html,body{margin:0;height:100%}
 body{
   font-family:var(--font-b);
@@ -123,15 +127,15 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* ===== generic cartoon button ===== */
 .btn{
-  appearance:none;border:3px solid var(--ink);background:var(--paper);color:var(--ink);
-  border-radius:var(--r-sm);box-shadow:0 6px 0 var(--ink);padding:13px 18px;
-  font-weight:600;font-size:1rem;transition:transform .06s var(--ease),box-shadow .06s,filter .15s;
+  appearance:none;border:var(--bw-base) solid var(--rp-ink-key);background:var(--rp-paper);color:var(--rp-ink-key);
+  border-radius:var(--r-sm);box-shadow:0 5px 0 var(--rp-ink-key);padding:13px 18px;
+  font-weight:700;font-size:1rem;letter-spacing:.2px;transition:transform .06s var(--ease),box-shadow .06s,filter .15s;
   line-height:1.15;
 }
 .btn:hover{filter:brightness(1.03)}
-.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--rp-ink-key)}
 .btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--rp-ink-spot);color:var(--rp-spot-ink);border-color:var(--rp-ink-key)}
 .btn.gold{background:var(--gold);color:var(--ink)}
 .btn.ghost{background:transparent;color:var(--paper);border-color:var(--paper);box-shadow:0 6px 0 rgba(0,0,0,.35)}
 .btn.block{display:block;width:100%}
@@ -148,9 +152,11 @@ button{font-family:var(--font-b);cursor:pointer}
 .title-foot{text-align:center;color:rgba(255,255,255,.5);font-family:var(--font-m);font-size:.7rem;margin-top:30px;line-height:1.6}
 
 /* ===== panel (paper) ===== */
-.panel{background:var(--paper);border:4px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;position:relative}
+.panel{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);padding:20px;position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);background-size:var(--rp-dot) var(--rp-dot);pointer-events:none;z-index:0}
+.panel>*{position:relative;z-index:1}
 .panel.tilt{transform:rotate(-.5deg)}
-.eyebrow{font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;color:var(--accent)}
+.eyebrow{font-family:var(--rp-font-stencil);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:.72rem;color:var(--accent)}
 .h-screen{font-family:var(--font-d);color:var(--paper);font-size:clamp(1.6rem,6vw,2.4rem);letter-spacing:1px;margin:4px 0 4px;
   text-shadow:3px 3px 0 var(--ink)}
 .lead{color:rgba(255,255,255,.82);font-size:1rem;margin:0 0 20px;line-height:1.5}
@@ -179,8 +185,8 @@ button{font-family:var(--font-b);cursor:pointer}
 .field input,.field select{width:100%;font-family:var(--font-b);font-size:1.05rem;padding:11px 13px;border:3px solid var(--ink);border-radius:var(--r-sm);background:#fff;color:var(--ink)}
 .field input:focus,.field select:focus{outline:3px solid var(--gold);outline-offset:2px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{border:3px solid var(--ink);background:#fff;border-radius:20px;padding:7px 14px;font-weight:600;font-size:.9rem;box-shadow:0 4px 0 var(--ink)}
-.chip[aria-pressed="true"]{background:var(--accent);color:#fff}
+.chip{border:var(--bw-base) solid var(--rp-ink-key);background:var(--rp-paper);color:var(--rp-ink-key);border-radius:20px;padding:7px 14px;font-weight:600;font-size:.9rem;box-shadow:0 4px 0 var(--rp-ink-key)}
+.chip[aria-pressed="true"]{background:var(--rp-ink-spot);color:var(--rp-spot-ink)}
 .chip:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 
 /* ===== GAME HUD ===== */

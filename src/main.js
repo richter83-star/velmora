@@ -565,6 +565,7 @@ function blocStripHtml(){
 }
 function renderHUD(){
   if(!S) return;
+  try{ document.body.dataset.phase = String(S.phase||1); }catch(e){} // print-fidelity ramp (Overprint)
   const P=PATHS[S.path], ph=curPhase(), m=moodExpr();
   const ava=buildAvatar(S.player.avatar,m.expr,m.sweat);
   $("#hud").innerHTML=`
