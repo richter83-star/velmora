@@ -3,7 +3,7 @@
 > **Source of truth for continuity.** Re-read this at the start of every session before doing anything. Update it at the end of every session. See `ROADMAP.md` for the full phase plan.
 
 **Last updated:** 2026-06-20
-**Current phase:** **Phase 9 COMPLETE** — Performance (event bank code-split into a lazy precached chunk: initial JS 100kB→33kB gzip; CI gzip bundle-budget gate; Lighthouse perf+a11y gated ≥90). Next: Phase 10 — Testing & QA Hardening. (Phases 5–7 done lean; a full UX/UI redesign is scheduled after Phase 12, then the deferred "Dark Mirrors" expansion.)
+**Current phase:** **Phase 10 COMPLETE** — Testing & QA Hardening (engine coverage gated ≥80% in CI; enlarged seed sweep 120/path + no-soft-lock bound; flagged on-device error reporting). Next: Phase 11 — Business, Distribution & Legal (**decision-gated**: monetization model + store/analytics are product/credential calls). (Phases 5–7 done lean; CI green incl. Lighthouse perf+a11y ≥90 gate + bundle budget; a full UX/UI redesign is scheduled after Phase 12, then the deferred "Dark Mirrors" expansion.)
 **Roadmap note (2026-06-20):** Per product direction, sequence is **finish core (Phases 5–12) → massive UX/UI redesign → "Dark Mirrors" expansion** (see `EXPANSION_BRIEF.md`, deferred). Phases 5–7 are deliberately kept lean since the redesign will own final visual polish; the expansion brief targets the pre-migration architecture and needs a retarget pass before it's built.
 **Current branch:** `phase-1-foundation` → **PR #1** (all pushed; 98 unit + 12 E2E green)
 **Baseline tag:** `v0-prototype` (the verified pre-migration prototype)
@@ -23,7 +23,8 @@
 - [x] Phase 7 — Art Expansion — **complete (lean)** (broadened procedural avatar variety; full art direction deferred to the redesign)
 - [x] Phase 8 — Meta-Progression & Persistence — **complete** (save slots, autosave, run history/stats, achievements, unlockables, New Game+; designed + adversarially reviewed via workflows)
 - [x] Phase 9 — Performance — **complete** (lazy-loaded event-bank chunk, CI bundle budget, Lighthouse perf+a11y gated ≥90)
-- [ ] Phases 10–12 — not started
+- [x] Phase 10 — Testing & QA Hardening — **complete** (engine coverage gated ≥80% in CI; sweep 120/path + no-soft-lock; flagged error reporting)
+- [ ] Phases 11–12 — not started (Phase 11 partly **decision-gated**)
 
 ### Phase 1 checklist
 
@@ -130,7 +131,8 @@
 - **Closed Phase 5** with five increments (`aadbd3d` settings · `169fcea` tutorial · `853ef1a` run-summary · `ab858e6` axe+contrast+responsive). Added `@axe-core/playwright`. New E2E: settings, tutorial, axe, responsive (24 E2E total, all green; 98 unit; typecheck/build/lint green). Real WCAG 1.4.3 contrast bugs fixed at token level (kept reversible for the redesign).
 - **Closed Phases 6 (lean audio) & 7 (lean art)** (`b6a7ddb`, `ff39265`); pushed Phases 1–7 to PR #1 (CI green). Set ultracode mode.
 - **Closed Phase 8 (Meta-Progression & Persistence)** under ultracode: ran a design workflow (Map→Design→Synthesize blueprint) and an adversarial review workflow; implemented in 4 commits (`e72ff1a` meta+history+achievements+Records · `89ccc70` save slots · `503241e` New Game+ · `ac8ca7d` review hardening). 111 unit + 33 E2E green. (Review note: a transient API rate-limit killed 16/18 verifier subagents; those candidate findings were re-verified by hand — all false positives or lean-acceptable; the one confirmed gap was fixed.)
-- **Closed Phase 9 (Performance)** under ultracode: ran a measure→plan workflow, then implemented the code-split + CI budget gate + Lighthouse gate (`854cb7f` + lighthouse commit). Initial JS parse 99.8kB→32.6kB gzip; offline intact; 111 unit + 33 E2E green.
+- **Closed Phase 9 (Performance)** under ultracode: ran a measure→plan workflow, then implemented the code-split + CI budget gate + Lighthouse gate (`854cb7f` + lighthouse commit). Initial JS parse 99.8kB→32.6kB gzip; offline intact; 111 unit + 33 E2E green. CI verified green (Lighthouse `NO_FCP` flake from `numberOfRuns:3` fixed by reverting to 1; perf+a11y gate clears ≥0.9).
+- **Closed Phase 10 (Testing & QA Hardening)** (`33c9872`): engine coverage gated ≥80% in CI (per-glob thresholds), +12 branch tests, sweep enlarged to 120/path with a no-soft-lock bound, flagged on-device error reporting. 125 unit + 34 E2E green. Phase 11 is partly decision-gated (monetization/store/analytics) — flagged to the user.
 
 ## Phase 4 — Systems Depth (complete)
 
@@ -195,9 +197,25 @@ Measured first (a measure→plan workflow): the build was one monolithic JS chun
 
 - **AD-13 — Content is lazy data, engine is eager:** the engine already took the event pool as a parameter (`chooseNext(S, EVENTS, …)`), so the bank splits cleanly at the data boundary with no engine refactor. One dynamic-import seam at `content/all-events` (not per-pack) keeps it simple; both paths and the headless sim still share one pool (sim keeps a static import for the deterministic sweep). The SW precaches the lazy chunk, so code-splitting never costs offline capability.
 
+## Phase 10 — Testing & QA Hardening (complete)
+
+The engine was already past the bar (95.4% stmts / 82.3% branch / 98.3% lines) — Phase 10 **locks it in** and hardens the sweep.
+
+- **Coverage gate** (`33c9872`): `vitest.config.ts` now sets per-glob thresholds — `src/engine/**` must hold **statements 90 · branches 80 · functions 90 · lines 90** (content is data, not gated). CI's verify job runs `npm run test:cov` (replacing `npm test`) so the threshold is enforced. Added `tests/unit/engine-branches.test.ts` (+12) covering the weakest fallback branches in `factions`/`cabinet`; engine branch 82.3→**84.4%**.
+- **Enlarged + hardened sweep** (`33c9872`): `sweep.test.ts` now runs **120 seeds/path** (was 50) and adds a **no-soft-lock** assertion (max draws < 300, well under the sim's 600-draw safety guard) on top of the existing every-run-reaches-an-ending / repeat-rate / variety / ending-spread gates.
+- **Flagged error reporting** (`33c9872`): an opt-in (`SETTINGS.errorReports`, default **off**) on-device collector — `window`/`unhandledrejection` listeners record sanitized messages to a capped ring buffer (no network; there is no backend — this is the scaffold a future endpoint would drain). Settings toggle + `error-reporting.spec.ts` (off-by-default, records-when-on, persists).
+- **Skipped (deliberate):** visual-regression baselines — a full UX/UI redesign after Phase 12 would immediately invalidate them; revisit post-redesign.
+- **Acceptance — MET:** engine coverage ≥80% enforced in CI; large seeded sweep green incl. no-soft-lock; **125 unit + 34 E2E** green. **Phase 10 closed.**
+
+## Architecture decisions (Phase 10)
+
+- **AD-14 — Gate logic, not data:** coverage thresholds target `src/engine/**` only. Event packs are data whose meaningful coverage comes from the seed sweep + E2E, so per-line unit thresholds on `content/**` would be noise. The sweep (now 120/path) is the real behavioral safety net; the no-soft-lock bound turns "every run ends" into an enforced invariant.
+
 ## Next steps (concrete)
 
-1. **Phase 10 — Testing & QA Hardening:** engine unit coverage ≥80%, a large seeded E2E sweep, optional visual-regression, opt-in error reporting (flagged). Gate: CI green incl. the sweep; coverage threshold enforced.
-2. **Phases 11–12** per roadmap (business/legal behind flags; launch readiness). Phase 11 monetization + analytics + store packaging remain decision-gated (product call + credentials).
+1. **Phase 11 — Business, Distribution & Legal (partly decision-gated):**
+   - **Needs user decisions:** the monetization model (the EXPANSION_BRIEF assumes a one-time `flags.expansion_unlocked` gate, base game free); the analytics provider/consent approach; store-packaging targets + credentials (TWA / MS Store / itch).
+   - **Can proceed without decisions (lean):** SEO + Open Graph meta + social card, a privacy-policy/terms draft, monetization **flag scaffolding** (no real pricing wired), and an opt-in analytics **scaffold** (default off, no backend). i18n externalization is deferred to post-redesign (the redesign reworks UI strings).
+2. **Phase 12 — Launch Readiness:** full regression, Lighthouse all ≥90 on prod, changelog + semver, release build, deploy Vercel + Traefik, launch checklist.
 3. At a checkpoint: keep `phase-1-foundation` pushed so **PR #1** CI runs (verify · e2e · lighthouse). (Optional, low priority: retire the `src/main.js` lint/typecheck ignores by extracting the UI layer → `ui/`.)
 4. **After Phase 12:** the massive UX/UI redesign, then retarget + build the `EXPANSION_BRIEF.md` expansion.
