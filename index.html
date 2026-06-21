@@ -30,9 +30,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="theme-neutral">
-<a href="#screen-game" class="skip-link">Skip to game</a>
+<a href="#main" class="skip-link">Skip to content</a>
 <div id="a11y-live" class="sr-only" aria-live="polite" role="status"></div>
-<div class="wrap" id="main" role="main">
+<div class="wrap" id="main" role="main" tabindex="-1">
 
   <!-- ===================== TITLE ===================== -->
   <section id="screen-title" class="screen active">
@@ -220,10 +220,10 @@
 
 </div>
 
-<!-- codex drawer -->
-<div class="drawer" id="drawer">
+<!-- career log / how-to drawer -->
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
   <div class="drawer-inner">
-    <h3>Career Log</h3>
+    <h3 id="drawer-title">Career Log</h3>
     <div id="log-mount"></div>
     <button class="btn ghost block" id="drawer-close" style="margin-top:8px">Close</button>
   </div>

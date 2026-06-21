@@ -33,8 +33,8 @@ export const PATHS: Record<PathKey, PathConfig> = {
      {n:1,title:"District Cadre",kicker:"The Local Cell",goalTurns:7,emoji:"⭐",
       promo:{type:"powerplay",label:"The Patronage Test",emoji:"🤝",baseOpp:46,oppTitle:"a rival cadre"}},
      {n:2,title:"Regional Secretary",kicker:"The Provincial Bureau",goalTurns:7,emoji:"🏭",
-      promo:{type:"powerplay",label:"The Succession Struggle",emoji:"♟️",baseOpp:52,oppTitle:"a Politburo rival"}},
-     {n:3,title:"General Secretary",kicker:"The Standing Committee",goalTurns:8,emoji:"☭",
+      promo:{type:"powerplay",label:"The Succession Struggle",emoji:"♟️",baseOpp:52,oppTitle:"a Council rival"}},
+     {n:3,title:"General Secretary",kicker:"The Standing Committee",goalTurns:8,emoji:"🎖️",
       promo:{type:"finale",label:"The Final Reckoning",emoji:"⚖️"}}
    ],
    oppNames:["Kron","Vasiliev","Marek","Dubrov","Stahl","Petrova","Oblast","Renko","Greb","Yusuf"]

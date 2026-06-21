@@ -18,6 +18,28 @@ import type { GameEvent, ArcDef } from '../engine/types';
 import { EventSchema, STAT_KEYS, VALID_PHASES, PATH_KEYS, ENDING_CAUSES } from './schema';
 import { KNOWN_NPC_IDS } from './npcs';
 import { ENGINE_INJECTED_EVENT_IDS } from './scandals';
+import { PATHS } from './paths';
+import { TRAITS } from './traits';
+import { ADVISORS } from '../engine/cabinet';
+
+/**
+ * Content-safety denylist (the fictional / non-partisan invariant). Player-visible
+ * strings must NOT name real ideologies, regimes, institutions, leaders, religions,
+ * or their emblems — the game models the *mechanism* of power in the abstract.
+ * (The expansion brief requires this gate; it also caught a real ☭ + "Politburo" leak.)
+ */
+const FORBIDDEN: { re: RegExp; label: string }[] = [
+  { re: /[☭卐卍]/, label: 'real ideological symbol (hammer-and-sickle / swastika)' },
+  {
+    re: /\b(fascis[mt]|communis[mt]|nazism|nazis?|marxis[mt]|leninis[mt]|stalinis[mt]|maois[mt]|bolshevik|politburo|gestapo|kgb|stasi|soviet|ussr|reich|swastika)\b/i,
+    label: 'real ideology / regime / institution name',
+  },
+  { re: /\b(hitler|stalin|lenin|mussolini)\b/i, label: 'real public figure name' },
+  {
+    re: /\b(islam|muslim|christian(?:ity)?|catholic|protestant|judaism|jewish|hindu(?:ism)?|buddhis[mt])\b/i,
+    label: 'real religion name',
+  },
+];
 
 export interface LintResult {
   errors: string[];
@@ -65,6 +87,46 @@ export function validateContent(
   const checkNpc = (fx: { id: string } | undefined, where: string): void => {
     if (fx && !NPC_ID_SET.has(fx.id)) errors.push(`${where}: npcFx -> unknown npc "${fx.id}"`);
   };
+  const scanForbidden = (text: unknown, where: string): void => {
+    if (typeof text !== 'string') return;
+    for (const f of FORBIDDEN) {
+      const m = f.re.exec(text);
+      if (m)
+        errors.push(
+          `${where}: forbidden ${f.label} — "${m[0]}" (content must stay fictional/non-partisan)`,
+        );
+    }
+  };
+
+  // Static content data (paths, traits, advisors) — player-visible strings.
+  for (const p of Object.values(PATHS)) {
+    const pw = `path "${p.key}"`;
+    scanForbidden(p.land, `${pw} land`);
+    for (const v of Object.values(p.statNames)) scanForbidden(v, `${pw} statName`);
+    for (const fac of p.factions) {
+      scanForbidden(fac.name, `${pw} faction "${fac.id}" name`);
+      scanForbidden(fac.desc, `${pw} faction "${fac.id}" desc`);
+    }
+    for (const ph of p.phases) {
+      scanForbidden(ph.title, `${pw} phase ${ph.n} title`);
+      scanForbidden(ph.kicker, `${pw} phase ${ph.n} kicker`);
+      scanForbidden(ph.emoji, `${pw} phase ${ph.n} emoji`);
+      scanForbidden(ph.promo?.label, `${pw} phase ${ph.n} promo label`);
+      scanForbidden(ph.promo?.oppTitle, `${pw} phase ${ph.n} promo oppTitle`);
+    }
+    for (const n of p.oppNames) scanForbidden(n, `${pw} oppName`);
+  }
+  for (const t of TRAITS) {
+    scanForbidden(t.name, `trait "${t.id}" name`);
+    scanForbidden(t.desc, `trait "${t.id}" desc`);
+  }
+  for (const list of Object.values(ADVISORS)) {
+    for (const a of list) {
+      scanForbidden(a.name, `advisor "${a.id}" name`);
+      scanForbidden(a.title, `advisor "${a.id}" title`);
+      scanForbidden(a.desc, `advisor "${a.id}" desc`);
+    }
+  }
 
   for (const ev of events) {
     const where = `event "${ev.id ?? '(missing id)'}"`;
@@ -94,11 +156,17 @@ export function validateContent(
     }
 
     if (typeof ev.body === 'string') checkText(ev.body, `${where} body`);
+    scanForbidden(ev.title, `${where} title`);
+    scanForbidden(ev.kicker, `${where} kicker`);
+    scanForbidden(ev.body, `${where} body`);
 
     for (const [ci, ch] of (ev.choices ?? []).entries()) {
       const cw = `${where} choice[${ci}]`;
       checkFx(ch.fx, cw);
       checkText(ch.result, `${cw} result`);
+      scanForbidden(ch.label, `${cw} label`);
+      scanForbidden(ch.hint, `${cw} hint`);
+      scanForbidden(ch.result, `${cw} result`);
       if (ch.ending && !CAUSE_SET.has(ch.ending))
         errors.push(`${cw}: unknown ending cause "${ch.ending}"`);
       checkArcId(ch.arcSet?.id, `${cw} arcSet`);
@@ -112,6 +180,7 @@ export function validateContent(
           const br = ch.roll[side];
           checkFx(br.fx, `${cw}.roll.${side}`);
           checkText(br.text, `${cw}.roll.${side} text`);
+          scanForbidden(br.text, `${cw}.roll.${side} text`);
           if (br.ending && !CAUSE_SET.has(br.ending)) {
             errors.push(`${cw}.roll.${side}: unknown ending cause "${br.ending}"`);
           }

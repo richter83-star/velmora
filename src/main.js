@@ -496,6 +496,15 @@ function pushLog(ev,choice,result){
    ================================================================ */
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function fmt(s){return esc(s);}
+/* Avatars are trusted SVG from buildAvatar(), but they ride inside the saved
+   game state — so on the render path treat a save-sourced avatar as untrusted:
+   only emit it if it looks like a clean generated <svg> (no scripts/handlers). */
+function safeAvatar(s){
+  if(typeof s!=="string") return "";
+  if(!/^\s*<svg[\s>]/i.test(s)) return "";
+  if(/<script|\son\w+\s*=|javascript:/i.test(s)) return "";
+  return s;
+}
 function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); try{window.scrollTo(0,0);}catch(e){} }
 /* ---- accessibility: live announcements + focus management (Phase 5) ---- */
 function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
@@ -631,7 +640,7 @@ function renderEvent(ev){
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
   let sp="";
-  if(ev.speaker){ const s=ev.speaker(S); sp=`<div class="ev-speaker"><div class="sp-ava">${s.avatar||""}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  if(ev.speaker){ const s=ev.speaker(S); sp=`<div class="ev-speaker"><div class="sp-ava">${safeAvatar(s.avatar)}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
   $("#stage").innerHTML=`<div class="ev ${art}">
     ${head}
@@ -661,6 +670,7 @@ function renderResult(){
     <button class="btn primary block lg" id="btn-continue-turn">Continue →</button>
   </div>`;
   $("#btn-continue-turn").addEventListener("click",afterResult);
+  focusHeading(".result h4");
 }
 
 /* ---- promotions ---- */
@@ -679,6 +689,7 @@ function renderPromotion(){
         <button class="btn gold block lg" id="btn-finale">Face the Verdict ⚖️</button>
       </div></div>`;
     $("#btn-finale").addEventListener("click",afterPromotion);
+    focusHeading(".promo-head h3"); announce("The final reckoning. Face the verdict of history.");
     return;
   }
   const wc=promoWinChance(S.promo.player,S.promo.opp.strength);
@@ -701,6 +712,7 @@ function renderPromotion(){
     </div></div>`;
   $$("#stage .choice").forEach(el=>{ el.addEventListener("click",()=>{ if(el.classList.contains("locked"))return; applyBoost(el.dataset.b); }); });
   $("#btn-run").addEventListener("click",resolvePromotion);
+  focusHeading(".promo-head h3"); announce("Contest: "+ph.promo.label+" against "+pr.opp.name+". "+wc+" percent odds. Spend resources, then commit.");
 }
 function animateNum(el,target){
   if(!el)return; const t0=performance.now(), dur=1100;
@@ -712,11 +724,11 @@ function renderPromotionResult(){
   const pAva=buildAvatar(S.player.avatar,res.win?"smug":"worried",!res.win);
   const winTitle=res.win?(S.path==="ballot"?"Projected Winner":"You Prevail"):(S.path==="ballot"?"Projected Defeat":"You Are Outmaneuvered");
   $("#stage").innerHTML=`<div class="promo">
-    <div class="promo-head" style="background:${res.win?'var(--pop)':'var(--danger)'};color:#fff"><div class="pe">${res.win?'🎉':'💔'}</div><h3>${winTitle}</h3><div class="ps">${S.path==="ballot"?'the results are in':'the committee has decided'}</div></div>
+    <div class="promo-head" style="background:${res.win?'var(--pop)':'var(--danger)'};color:#fff"><div class="pe">${res.win?'🎉':'💔'}</div><h3 id="promo-result-title">${winTitle}</h3><div class="ps">${S.path==="ballot"?'the results are in':'the committee has decided'}</div></div>
     <div class="promo-body">
       <div class="tally">
         <div class="cand"><div class="cava">${pAva}</div><div class="cbarwrap"><div class="cname"><span>${esc(S.player.name)} (You)</span><span class="pp">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.pShare}" style="background:${res.win?'var(--pop)':'var(--accent)'}"></div></div></div></div>
-        <div class="cand"><div class="cava">${opp.avatar}</div><div class="cbarwrap"><div class="cname"><span>${esc(opp.name)}</span><span class="oo">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.oShare}" style="background:#9c93b0"></div></div></div></div>
+        <div class="cand"><div class="cava">${safeAvatar(opp.avatar)}</div><div class="cbarwrap"><div class="cname"><span>${esc(opp.name)}</span><span class="oo">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.oShare}" style="background:#9c93b0"></div></div></div></div>
       </div>
       <button class="btn ${res.win?'gold':'primary'} block lg" id="btn-promo-next" style="margin-top:18px">${res.win?'Take Power →':'See Your Fate →'}</button>
     </div></div>`;
@@ -725,6 +737,8 @@ function renderPromotionResult(){
   sfx(res.win?"promote":"fail");
   if(res.win) setTimeout(confetti,500);
   $("#btn-promo-next").addEventListener("click",afterPromotion);
+  focusHeading("#promo-result-title");
+  announce((res.win?"You won. ":"You lost. ")+winTitle+". "+esc(S.player.name)+" "+res.pShare+" percent, "+esc(opp.name)+" "+res.oShare+" percent.");
 }
 
 /* ---- ending ---- */
@@ -888,9 +902,17 @@ async function startCareer(d){
 /* ================================================================
    DRAWER (career log + how-to)
    ================================================================ */
+let drawerReturnFocus=null;
 function openDrawer(title,html){
   const dr=$("#drawer"); dr.querySelector("h3").textContent=title;
   $("#log-mount").innerHTML=html; dr.classList.add("open");
+  drawerReturnFocus=document.activeElement;
+  focusHeading("#drawer-title"); announce(title+" opened. Press Escape to close.");
+}
+function closeDrawer(){
+  const dr=$("#drawer"); if(!dr.classList.contains("open")) return;
+  dr.classList.remove("open");
+  try{ if(drawerReturnFocus && drawerReturnFocus.focus) drawerReturnFocus.focus(); }catch(e){}
 }
 function showLog(){
   if(!S || !S.log.length){ openDrawer("Career Log",`<p style="color:rgba(255,255,255,.7);font-family:var(--font-m);font-size:.8rem;line-height:1.6">No decisions yet. Your story begins with your first choice.</p>`); return; }
@@ -1107,11 +1129,13 @@ function renderTut(){
 function openTutorial(){
   tutIx=0; tutReturnFocus=document.activeElement; renderTut();
   $("#tutorial").hidden=false;
+  const main=$("#main"); if(main) main.inert=true; // background is inert under the aria-modal dialog
   focusHeading("#tut-title"); announce("Tutorial, "+TUTORIAL.length+" steps. Press Escape to skip.");
 }
 function closeTutorial(){
   SETTINGS.tutorialSeen=true; saveSettings();
   $("#tutorial").hidden=true;
+  const main=$("#main"); if(main) main.inert=false;
   try{ if(tutReturnFocus && tutReturnFocus.focus) tutReturnFocus.focus(); }catch(e){}
 }
 function tutNext(){
@@ -1284,7 +1308,14 @@ function boot(){
   $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);
   $("#tut-skip").addEventListener("click",closeTutorial);
-  $("#tutorial").addEventListener("keydown",e=>{ if(e.key==="Escape") closeTutorial(); });
+  $("#tutorial").addEventListener("keydown",e=>{
+    if(e.key==="Escape"){ closeTutorial(); return; }
+    if(e.key==="Tab"){ // trap focus between the two dialog buttons (belt-and-braces alongside inert)
+      e.preventDefault();
+      const skip=$("#tut-skip"), next=$("#tut-next");
+      (document.activeElement===next ? skip : next).focus();
+    }
+  });
   $("#btn-daily").addEventListener("click",()=>quickStart({seed:dailySeed(),daily:true}));
   $("#btn-path-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("title"); });
 
@@ -1305,8 +1336,9 @@ function boot(){
 
   $("#btn-again").addEventListener("click",()=>{ DRAFT.seed=null; DRAFT.daily=false; setTheme("theme-neutral"); go("path"); });
 
-  $("#drawer-close").addEventListener("click",()=>$("#drawer").classList.remove("open"));
-  $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") $("#drawer").classList.remove("open"); });
+  $("#drawer-close").addEventListener("click",closeDrawer);
+  $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") closeDrawer(); });
+  $("#drawer").addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
 
   refreshContinueBtn();
 

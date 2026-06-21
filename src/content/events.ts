@@ -269,7 +269,7 @@ EVENTS.push(
 {id:"v_succession_whisper",paths:["vanguard"],phases:[3],weight:9,art:"rival",emoji:"♟️",
  kicker:"The old leader fades",
  title:"The Succession",
- speaker:(S)=>({name:S.opp,role:"Politburo rival",avatar:S.oppAvatar}),
+ speaker:(S)=>({name:S.opp,role:"Council rival",avatar:S.oppAvatar}),
  body:(S)=>`The General Secretary is dying. Behind the curtains, the Standing Committee is choosing. ${S.opp} is ahead of you. The next move decides everything.`,
  choices:[
   {label:"Build a bloc; promise everyone everything",fx:{influence:14,base:10,heat:6},set:{has_network:true},tone:"slick",

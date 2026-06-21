@@ -19,7 +19,7 @@ export const ARCS: ArcDef[] = [
     paths: ['vanguard'],
     entryStage: 0,
     terminalStages: [99],
-    desc: 'A Politburo patron lifts you up — and the debt follows you to the top, where you must betray him or fall with him.',
+    desc: 'A Council patron lifts you up — and the debt follows you to the top, where you must betray him or fall with him.',
   },
 ];
 
@@ -150,7 +150,7 @@ export const ARC_EVENTS: GameEvent[] = [
     emoji: '🤵',
     kicker: 'A powerful friend',
     title: 'The Patron Extends His Hand',
-    body: `Secretary Volkov, a Politburo heavyweight, takes an interest in you. "Talent rises faster," he says, "when someone above is pulling. I can be that someone — you would only need to remember who lifted you."`,
+    body: `Secretary Volkov, a Council heavyweight, takes an interest in you. "Talent rises faster," he says, "when someone above is pulling. I can be that someone — you would only need to remember who lifted you."`,
     choices: [
       {
         label: 'Accept his patronage',
