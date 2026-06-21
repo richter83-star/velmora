@@ -9,6 +9,7 @@ import {
   runRecord,
   unlockAchievements,
   refreshUnlockables,
+  isExpansionUnlocked,
   HISTORY_CAP,
   WIN_ENDING_IDS,
 } from '../../src/engine/meta';
@@ -188,6 +189,18 @@ describe('meta — achievements', () => {
       ts++;
     }
     expect(m.achievements.complete_almanac).toBeTruthy();
+  });
+});
+
+describe('meta — entitlements (Phase 11)', () => {
+  it('defaults the expansion to unlocked (no purchase flow yet)', () => {
+    expect(isExpansionUnlocked(defaultMeta())).toBe(true);
+  });
+  it('respects a locked entitlement and survives mergeMeta', () => {
+    const locked = mergeMeta({ entitlements: { expansion: false } });
+    expect(isExpansionUnlocked(locked)).toBe(false);
+    const unlocked = mergeMeta({ entitlements: { expansion: true } });
+    expect(isExpansionUnlocked(unlocked)).toBe(true);
   });
 });
 

@@ -65,6 +65,11 @@ export interface MetaState {
   achievements: Record<string, { ts: number }>;
   unlockables: Record<string, boolean>;
   ngPlus: { maxCleared: number; lastSeed: number | string | null };
+  /** Paid-content entitlements (Phase 11, no pay-to-win). The base game (ballot
+   * + vanguard) is always free; the future "Dark Mirrors" expansion gates its
+   * extra paths on `expansion`. Default true while the purchase flow + expansion
+   * content do not exist yet, so development/testing always has access. */
+  entitlements: { expansion: boolean };
 }
 
 export function defaultStats(): MetaStats {
@@ -91,7 +96,14 @@ export function defaultMeta(): MetaState {
     achievements: {},
     unlockables: {},
     ngPlus: { maxCleared: 0, lastSeed: null },
+    entitlements: { expansion: true },
   };
+}
+
+/** Whether the paid expansion's extra paths are unlocked (Phase 11 gate seam).
+ * Defaults to true until a real purchase flow ships. */
+export function isExpansionUnlocked(meta: MetaState): boolean {
+  return meta.entitlements?.expansion !== false;
 }
 
 /**
@@ -141,6 +153,10 @@ export function mergeMeta(stored: unknown): MetaState {
       maxCleared: num(ng.maxCleared),
       lastSeed: (ng.lastSeed as number | string | null) ?? null,
     };
+  }
+  if (s.entitlements && typeof s.entitlements === 'object') {
+    const ent = s.entitlements as unknown as Record<string, unknown>;
+    m.entitlements = { expansion: ent.expansion !== false };
   }
   return m;
 }
