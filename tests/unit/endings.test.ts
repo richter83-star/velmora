@@ -53,6 +53,13 @@ const REMOVAL = [
   'lost_election',
   'lost_powerplay',
   'resign',
+  // Dark Mirrors expansion failure causes (Iron / Gilded / Anointed).
+  'arrested',
+  'dissolved',
+  'indicted',
+  'hostile_takeover',
+  'excommunicated',
+  'schism',
 ] as const;
 
 describe('evaluateEnding', () => {
@@ -112,7 +119,7 @@ describe('evaluateEnding', () => {
     expect(e.legacy).toHaveLength(4);
   });
 
-  it('every ending branch is reachable (all 14 endingIds producible)', () => {
+  it('every ending branch is reachable (all 20 endingIds producible)', () => {
     const produced = new Set<string>();
     for (const c of REMOVAL) produced.add(evaluateEnding(makeState(), c).endingId);
     produced.add(
@@ -143,9 +150,14 @@ describe('evaluateEnding', () => {
 
     expect([...produced].sort()).toEqual(
       [
+        'arrested',
         'beloved',
         'collapse',
+        'dissolved',
+        'excommunicated',
         'great_leader',
+        'hostile_takeover',
+        'indicted',
         'kleptocrat',
         'lost_election',
         'lost_powerplay',
@@ -156,6 +168,7 @@ describe('evaluateEnding', () => {
         'resign',
         'revolution',
         'scandal',
+        'schism',
         'tyrant',
       ].sort(),
     );

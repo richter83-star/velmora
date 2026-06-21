@@ -237,6 +237,19 @@ Per product decisions: monetization = **free base + paid expansion**; distributi
 - **Lighthouse note:** all-≥90 is to be confirmed against the **production URL** at deploy (CI's static LHCI run is advisory due to the `NO_FCP` flake; the bundle budget enforces the perf cost deterministically). Captured in `docs/LAUNCH.md`.
 - **Deploy:** `vercel.json` + the Traefik/nginx recipe (README) verified; actual `--prod` deploy + custom domain are the human launch step.
 
+## Dark Mirrors Expansion — Phase 1 (Foundation) — complete
+
+Retargeted the `EXPANSION_BRIEF.md` to the live TS architecture via a design workflow (map → blueprint, gap-fixes resolved against real code), then shipped the foundation phase: **all five paths are now selectable and playable.**
+
+- **Types widened (forcing function):** `PathKey` += `iron|gilded|anointed` (`engine/types.ts`); `PromoConfig.type` += `purge|acquisition|council`; `EndingCause` += 6 (`arrested|dissolved|indicted|hostile_takeover|excommunicated|schism`). Kept the Zod source-of-truth in lockstep: `schema.ts` `PATH_KEYS` + `ENDING_CAUSES` widened identically.
+- **Registry:** 3 `PATHS` entries (`content/paths.ts`) with the brief's stat-remaps / start stats / factions / phase arcs / opponent pools. The `Record<PathKey,…>` shapes compile-forced completeness across `factions.ts` (3 BLOCS — gap-fix #1, statWeights/warm chosen so the ending-trigger blocs *industrialists/old_money/reformists* can provably cross 70), `cabinet.ts` (12 advisors), `npcs.ts` (`ANTAGONIST_ROLE`).
+- **Contest + death + endings:** `promoPlayerStrength` branches for purge/acquisition/council (`contest.ts`); `deathCause` → per-path heat/support cause maps (`turn.ts`); 6 new failure-ending branches with the brief's NEUTRALIZED/COLLAPSED/INDICTED/OUTBID/EXCOMMUNICATED/FLOCK-DIVIDED text (`endings.ts`) — gap-fix #2. `sim.ts` loss-cause map kept in lockstep with `main.js promoLossCause` (gap-fix #4 prerequisite). Flag reconciliation (gap-fix #3): **reuse** existing `own_cult`/`cult_building` — no new flags, no rename.
+- **UI layer (`main.js`):** `promoBoosts` 3 new branches; per-promo-type run-button + result-copy maps; `openCreate` → 5-way `CREATE_COPY` lookup; loss routing via `promoLossCause()`; imported `isExpansionUnlocked` and wired the path-card lock seam (default unlocked → no behavior change).
+- **Shell:** 3 riso path-card handbills + "The Dark Mirrors" separator in `#screen-path` (`index.html`, with non-denominational inline SVG icons); `.path-card.iron/.gilded/.anointed` `--rp-*` token blocks + separator styling reusing the AA-checked theme inks (`styles.css`).
+- **Tests:** endings reachability now 20 ids (6 new failure causes); new contest-coefficient + per-path death-cause assertions; factions reachability proof per new path; new `expansion.spec.ts` E2E (5 cards + separator visible; all 3 new paths start → resolve to a tagged ending, zero console errors).
+- **Gate (all green):** lint · typecheck · content:validate (incl. denylist over the new names/statNames/factions/advisors) · coverage-unit **134** (engine aggregate ≥ thresholds) · build · size (CSS 7.7 kB, entry 37.5 kB) · **38 E2E** · sweep (still 2-path this phase). With no seed events yet, a new-path run resolves through its promotions (empty draw pool → `chooseNext` returns `promotion`) — no soft-lock.
+- **Next (Phase 2):** per-path seed event banks (`events-iron/gilded/anointed.ts`, 12 each + shared crises), wired into `ALL_EVENTS`; widen sweep to 5 paths in Phase 3 once each path reaches ≥4 ending ranks.
+
 ## 🎉 Core game complete
 
 Phases 0–12 are done. **Next stage:** the massive UX/UI redesign (which will own final visual polish — Phases 5–7 were intentionally kept lean for this reason), then retarget the `EXPANSION_BRIEF.md` to the current TS architecture and build the "Dark Mirrors" expansion.

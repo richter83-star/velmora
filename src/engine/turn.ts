@@ -3,7 +3,7 @@
  * engine (main.js) and the headless simulator (sim.ts). Callers own the
  * surrounding control flow (ending vs promotion vs next draw).
  */
-import type { GameState, StatKey } from './types';
+import type { GameState, PathKey, StatKey } from './types';
 import { clampStat } from './mutate';
 import { traitHeatDecayBonus } from './perks';
 import { cabinetPerk, processResignations } from './cabinet';
@@ -13,10 +13,27 @@ const HEAT_DECAY_PER_TURN = 2;
 /** Above this approval level, the cost of incumbency starts to erode support. */
 const APPROVAL_COMFORT = 55;
 
+/** Per-path heat-death cause (Exposure/Scrutiny/Heresy crossing the lethal line). */
+const HEAT_DEATH_CAUSE: Record<PathKey, string> = {
+  ballot: 'scandal',
+  vanguard: 'purge',
+  iron: 'arrested',
+  gilded: 'indicted',
+  anointed: 'excommunicated',
+};
+/** Per-path support-death cause (the base / faithful / public abandoning you). */
+const SUPPORT_DEATH_CAUSE: Record<PathKey, string> = {
+  ballot: 'collapse',
+  vanguard: 'revolution',
+  iron: 'dissolved',
+  gilded: 'hostile_takeover',
+  anointed: 'schism',
+};
+
 /** Removal cause if a vital stat has crossed a lethal threshold this turn, else null. */
 export function deathCause(S: GameState): string | null {
-  if (S.stats.heat >= 100) return S.path === 'ballot' ? 'scandal' : 'purge';
-  if (S.stats.support <= 0) return S.path === 'ballot' ? 'collapse' : 'revolution';
+  if (S.stats.heat >= 100) return HEAT_DEATH_CAUSE[S.path];
+  if (S.stats.support <= 0) return SUPPORT_DEATH_CAUSE[S.path];
   return null;
 }
 

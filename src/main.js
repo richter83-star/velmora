@@ -31,7 +31,7 @@ import { applyChoice } from './engine/resolve';
 import { deathCause, advanceTurnState } from './engine/turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './engine/contest';
 import { blankRun } from './engine/state';
-import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, ACHIEVEMENTS, UNLOCKABLES, SLOT_COUNT } from './engine/meta';
+import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as metaRecordStart, unlockAchievements, refreshUnlockables, isExpansionUnlocked, ACHIEVEMENTS, UNLOCKABLES, SLOT_COUNT } from './engine/meta';
 
 /* The 251-event draw pool (content/all-events.ts) is the bulk of the bundle but
    isn't needed for the title/menu. It's code-split into its own chunk and loaded
@@ -356,11 +356,33 @@ function advanceTurn(){
    PROMOTIONS — election / powerplay / finale
    ================================================================ */
 function promoBoosts(ph){
-  if(ph.promo.type==="election"){
+  const t=ph.promo.type;
+  if(t==="election"){
     return [
       {id:"war",label:"💸 Empty the War Chest",cost:{funds:16},gain:9,need:"funds",reqText:"War Chest 16+"},
       {id:"air",label:"📺 Flood the Airwaves",cost:{media:0,funds:10},gain:7,need:"funds",reqText:"War Chest 10+"},
       {id:"gotv",label:"🚪 Massive Turnout Push",cost:{base:14},gain:8,need:"base",reqText:"Base 14+"}
+    ];
+  }
+  if(t==="purge"){
+    return [
+      {id:"vanguard",label:"🪖 Deploy the Vanguard",cost:{base:16},gain:9,need:"base",reqText:"Vanguard 16+"},
+      {id:"air",label:"📢 Blanket the Airwaves",cost:{media:12},gain:7,need:"media",reqText:"Propaganda 12+"},
+      {id:"dirt",label:"🗡️ Find the Dirt",cost:{influence:10},gain:6,need:"influence",reqText:"Cohesion 10+",heat:8}
+    ];
+  }
+  if(t==="acquisition"){
+    return [
+      {id:"outbid",label:"💰 Outbid Everyone",cost:{funds:20},gain:10,need:"funds",reqText:"Capital 20+"},
+      {id:"favors",label:"🤝 Call In the Favors",cost:{influence:16},gain:8,need:"influence",reqText:"Leverage 16+"},
+      {id:"coverage",label:"📰 Buy the Coverage",cost:{media:12},gain:6,need:"media",reqText:"Narrative 12+",heat:5}
+    ];
+  }
+  if(t==="council"){
+    return [
+      {id:"prayer",label:"🙏 Call for Prayer",cost:{base:14},gain:8,need:"base",reqText:"Congregation 14+"},
+      {id:"doctrine",label:"📜 Issue a Doctrine",cost:{media:12},gain:7,need:"media",reqText:"Doctrine 12+"},
+      {id:"silence",label:"🤐 Silence a Rival",cost:{influence:10},gain:6,need:"influence",reqText:"Authority 10+",heat:6}
     ];
   }
   return [
@@ -369,6 +391,24 @@ function promoBoosts(ph){
     {id:"smear",label:"🗞️ Smear the Rival",cost:{media:12},gain:7,need:"media",reqText:"Propaganda 12+",heat:5}
   ];
 }
+/* Per-promo-type loss cause — keep in lockstep with sim.ts runContest. */
+function promoLossCause(){
+  const t=S.promo.type;
+  if(t==="election") return "lost_election";
+  if(t==="acquisition") return "hostile_takeover";
+  if(t==="council") return "schism";
+  if(t==="purge") return S.stats.heat>=S.stats.support?"arrested":"dissolved";
+  return "lost_powerplay";
+}
+/* Run-button label + result copy per promo type (path-flavored). */
+const PROMO_RUN_LABEL={election:"🗳️ Hold the Vote",purge:"🗡️ Execute the Purge",acquisition:"💰 Close the Deal",council:"🙏 Receive the Blessing",powerplay:"♟️ Make Your Move",finale:"⚖️ Face the Verdict"};
+const PROMO_RESULT_COPY={
+  election:{w:"Projected Winner",l:"Projected Defeat",ps:"the results are in"},
+  purge:{w:"The Rival Is Removed",l:"You Are Exposed",ps:"the loyalty test is settled"},
+  acquisition:{w:"The Deal Closes",l:"You Are Outbid",ps:"the offer is final"},
+  council:{w:"You Are Anointed",l:"Another Is Chosen",ps:"the Council has decided"},
+  powerplay:{w:"You Prevail",l:"You Are Outmaneuvered",ps:"the committee has decided"}
+};
 function startPromotion(){
   const ph=curPhase();
   S.mode="promo";
@@ -413,7 +453,7 @@ function resolvePromotion(){
 function afterPromotion(){
   if(S.promo.type==="finale"){ endGame("finale"); return; }
   if(S.promo.result && S.promo.result.win){ advancePhase(); }
-  else { endGame(S.promo.type==="election"?"lost_election":"lost_powerplay"); }
+  else { endGame(promoLossCause()); }
 }
 function advancePhase(){
   S.phase++;
@@ -720,7 +760,7 @@ function renderPromotion(){
       <div class="odds"><div class="meter"><div class="me" style="width:${wc}%"></div></div><div class="pct">${wc}%</div></div>
       <p style="font-family:var(--font-m);font-size:.7rem;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">Spend resources to swing the odds — each move works once. Then commit to the contest.</p>
       <div class="choices" style="padding:0 0 12px">${boosts}</div>
-      <button class="btn primary block lg" id="btn-run">${S.path==="ballot"?"🗳️ Hold the Vote":"♟️ Make Your Move"}</button>
+      <button class="btn primary block lg" id="btn-run">${PROMO_RUN_LABEL[pr.type]||PROMO_RUN_LABEL.powerplay}</button>
     </div></div>`;
   $$("#stage .choice").forEach(el=>{ el.addEventListener("click",()=>{ if(el.classList.contains("locked"))return; applyBoost(el.dataset.b); }); });
   $("#btn-run").addEventListener("click",resolvePromotion);
@@ -734,9 +774,10 @@ function animateNum(el,target){
 function renderPromotionResult(){
   const res=S.promo.result, opp=S.promo.opp;
   const pAva=buildAvatar(S.player.avatar,res.win?"smug":"worried",!res.win);
-  const winTitle=res.win?(S.path==="ballot"?"Projected Winner":"You Prevail"):(S.path==="ballot"?"Projected Defeat":"You Are Outmaneuvered");
+  const rc=PROMO_RESULT_COPY[S.promo.type]||PROMO_RESULT_COPY.powerplay;
+  const winTitle=res.win?rc.w:rc.l;
   $("#stage").innerHTML=`<div class="promo">
-    <div class="promo-head ${res.win?'win':'lose'}"><div class="pe">${res.win?'🎉':'💔'}</div><h3 id="promo-result-title">${winTitle}</h3><div class="ps">${S.path==="ballot"?'the results are in':'the committee has decided'}</div></div>
+    <div class="promo-head ${res.win?'win':'lose'}"><div class="pe">${res.win?'🎉':'💔'}</div><h3 id="promo-result-title">${winTitle}</h3><div class="ps">${rc.ps}</div></div>
     <div class="promo-body">
       <div class="tally">
         <div class="cand"><div class="cava">${pAva}</div><div class="cbarwrap"><div class="cname"><span>${esc(S.player.name)} (You)</span><span class="pp">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.pShare}" style="background:${res.win?'var(--pop)':'var(--accent)'}"></div></div></div></div>
@@ -814,16 +855,24 @@ function renderEnding(){
    ================================================================ */
 function pickName(){ return pick(FIRST)+" "+pick(SUR); }
 
+const CREATE_COPY={
+  ballot:{eyebrow:"The Ballot Path · Democracy",title:"Build Your Politician",nameLabel:"Candidate name",factionLabel:"Party allegiance",placeholder:"e.g. Dana Marlowe"},
+  vanguard:{eyebrow:"The Vanguard Path · One-Party State",title:"Build Your Cadre",nameLabel:"Comrade name",factionLabel:"Party faction",placeholder:"e.g. Comrade Sokol"},
+  iron:{eyebrow:"The Iron Order · Strongman",title:"Build Your Commander",nameLabel:"Leader's name",factionLabel:"Faction of the Order",placeholder:"e.g. Marshal Kord"},
+  gilded:{eyebrow:"The Gilded Republic · Plutocracy",title:"Build Your Magnate",nameLabel:"Magnate's name",factionLabel:"Elite bloc",placeholder:"e.g. Adrienne Vale"},
+  anointed:{eyebrow:"The Anointed Path · Theocracy",title:"Build Your Cleric",nameLabel:"Cleric's name",factionLabel:"Theological bloc",placeholder:"e.g. Brother Ansel"}
+};
 function openCreate(path){
   const P=PATHS[path];
+  const CC=CREATE_COPY[path]||CREATE_COPY.ballot;
   DRAFT.path=path; DRAFT.faction=null; DRAFT.trait=null; DRAFT.name="";
   setTheme(P.theme);
-  $("#create-eyebrow").textContent = path==="ballot"?"The Ballot Path · Democracy":"The Vanguard Path · One-Party State";
-  $("#create-title").textContent = path==="ballot"?"Build Your Politician":"Build Your Cadre";
-  $("#lbl-name").textContent = path==="ballot"?"Candidate name":"Comrade name";
-  $("#lbl-faction").textContent = path==="ballot"?"Party allegiance":"Party faction";
+  $("#create-eyebrow").textContent = CC.eyebrow;
+  $("#create-title").textContent = CC.title;
+  $("#lbl-name").textContent = CC.nameLabel;
+  $("#lbl-faction").textContent = CC.factionLabel;
   $("#lbl-trait").textContent = "Signature strength";
-  $("#inp-name").value=""; $("#inp-name").placeholder = path==="ballot"?"e.g. Dana Marlowe":"e.g. Comrade Sokol";
+  $("#inp-name").value=""; $("#inp-name").placeholder = CC.placeholder;
 
   $("#faction-chips").innerHTML = P.factions.map((f,i)=>`<button class="chip" data-f="${f.id}" aria-pressed="${i===0}">${esc(f.name)}</button>`).join("");
   DRAFT.faction=P.factions[0].id;
@@ -1340,8 +1389,10 @@ function boot(){
 
   $$(".path-card").forEach(c=>{
     const p=c.dataset.path;
-    c.addEventListener("click",()=>openCreate(p));
-    c.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openCreate(p); } });
+    const locked=(p==="iron"||p==="gilded"||p==="anointed") && !isExpansionUnlocked(META);
+    const open=()=>{ if(locked){ toast("The Dark Mirrors expansion is locked."); return; } openCreate(p); };
+    c.addEventListener("click",open);
+    c.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
   });
 
   $("#btn-create-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });

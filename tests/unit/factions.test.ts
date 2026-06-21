@@ -94,4 +94,43 @@ describe('factions / bloc standings', () => {
     const hostile = makeState('ballot', { federalist: 30, populist: 30, reform: 30 });
     expect(coalitionContestMod(hostile)).toBeCloseTo(-4, 5);
   });
+
+  // --- Dark Mirrors expansion: each path's three blocs exist and the
+  // ending-trigger bloc is provably reachable past the >=70 threshold. ---
+  it('initializes the three blocs for each expansion path', () => {
+    expect(blocList(makeState('iron')).map((b) => b.id)).toEqual([
+      'ultras',
+      'officers',
+      'industrialists',
+    ]);
+    expect(blocList(makeState('gilded')).map((b) => b.id)).toEqual([
+      'old_money',
+      'tech_barons',
+      'finance_bloc',
+    ]);
+    expect(blocList(makeState('anointed')).map((b) => b.id)).toEqual([
+      'orthodox',
+      'reformists',
+      'mystics',
+    ]);
+  });
+
+  it('lets each expansion ending-trigger bloc cross 70 from emergent shifts', () => {
+    // Iron — THE PUPPET reads industrialists>=70 (funds + dealmaker/donor warmth).
+    const iron = makeState('iron');
+    for (let i = 0; i < 8; i++) applyBlocShift(iron, { funds: 10 }, ['dealmaker', 'owes_donor']);
+    expect(get(iron, 'industrialists')).toBeGreaterThanOrEqual(70);
+
+    // Gilded — THE FIGUREHEAD reads old_money>=70 (capital/leverage + dealmaker/clean).
+    const gilded = makeState('gilded');
+    for (let i = 0; i < 8; i++)
+      applyBlocShift(gilded, { funds: 8, influence: 8 }, ['dealmaker', 'clean_streak']);
+    expect(get(gilded, 'old_money')).toBeGreaterThanOrEqual(70);
+
+    // Anointed — THE REFORMER reads reformists>=70 (devotion/doctrine + reform warmth).
+    const anointed = makeState('anointed');
+    for (let i = 0; i < 8; i++)
+      applyBlocShift(anointed, { support: 10, media: 8 }, ['secret_reformer', 'honest_rep']);
+    expect(get(anointed, 'reformists')).toBeGreaterThanOrEqual(70);
+  });
 });

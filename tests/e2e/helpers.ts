@@ -28,7 +28,9 @@ export async function dismissTutorial(page: Page): Promise<void> {
 }
 
 /** Start a new career on the given path (defaults for name/faction/trait). */
-export async function startCareer(page: Page, path: 'ballot' | 'vanguard'): Promise<void> {
+export type PathName = 'ballot' | 'vanguard' | 'iron' | 'gilded' | 'anointed';
+
+export async function startCareer(page: Page, path: PathName): Promise<void> {
   await page.locator('#btn-new').click();
   await page.locator(`.path-card[data-path="${path}"]`).click();
   await page.locator('#btn-begin-career').click();
@@ -102,7 +104,7 @@ export async function playToPhaseOrEnding(page: Page, minPhase: number, maxSteps
 }
 
 /** Play a full seeded run (via the ?seed= URL hook) and return the final game state. */
-export async function playRun(page: Page, seed: string, path: 'ballot' | 'vanguard') {
+export async function playRun(page: Page, seed: string, path: PathName) {
   await page.goto(`/?seed=${encodeURIComponent(seed)}`);
   await startCareer(page, path);
   await playToEnding(page);

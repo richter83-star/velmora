@@ -21,7 +21,27 @@ export function promoPlayerStrength(S: GameState, promoType: string): number {
   if (promoType === 'election') {
     return clamp(s.support * 0.5 + s.media * 0.24 + s.funds * 0.14 + s.base * 0.12 + edge, 0, 100);
   }
-  // power-play
+  if (promoType === 'purge') {
+    // Iron Order: cohesion(influence) + vanguard(base) carry; exposure(heat) bleeds.
+    return clamp(
+      s.influence * 0.4 + s.base * 0.32 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.2 + edge,
+      0,
+      100,
+    );
+  }
+  if (promoType === 'acquisition') {
+    // Gilded Republic: capital(funds) dominates, leverage(influence) seconds it.
+    return clamp(s.funds * 0.55 + s.influence * 0.25 + s.media * 0.12 + s.base * 0.08 + edge, 0, 100);
+  }
+  if (promoType === 'council') {
+    // Anointed Path: devotion(support) + authority(influence); heresy(heat) bleeds.
+    return clamp(
+      s.support * 0.35 + s.influence * 0.3 + s.base * 0.2 + s.media * 0.15 - s.heat * 0.18 + edge,
+      0,
+      100,
+    );
+  }
+  // power-play / finale
   return clamp(
     s.influence * 0.42 + s.base * 0.3 + s.media * 0.14 + s.support * 0.14 - s.heat * 0.22 + edge,
     0,

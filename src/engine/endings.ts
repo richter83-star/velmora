@@ -121,6 +121,66 @@ export function evaluateEnding(S: GameState, cause: string): Ending {
       title: 'You Chose the Door',
       text: `Not every story ends in a fall or a crown. You looked at the road ahead — the compromises, the knives, the cameras — and you simply stopped climbing. ${ballot ? 'You return to private life with your reputation intact and your ambitions unanswered.' : 'In the Union, the ones who walk away quietly are the lucky ones. You were lucky.'} The game goes on without you.`,
     };
+  } else if (cause === 'arrested') {
+    e = {
+      endingId: 'arrested',
+      emoji: '🚓',
+      rank: 'NEUTRALIZED',
+      win: false,
+      verdict: 'Neutralized',
+      title: 'Removed in the Night',
+      text: `The courts, the generals, or a foreign coalition moved first, and they moved in the dark. ${flag(S, 'foreign_ties') ? 'The foreign ledger was the thread they pulled. ' : ''}The trial is theatrical and the verdict predetermined. You become the thing you always accused others of being: a warning.`,
+    };
+  } else if (cause === 'dissolved') {
+    e = {
+      endingId: 'dissolved',
+      emoji: '💢',
+      rank: 'DISSOLVED',
+      win: false,
+      verdict: 'Dissolved',
+      title: 'The Movement Collapsed',
+      text: `You gave them a cause and they gave you everything — until the day the cause ran dry and they gave you nothing at all. ${flag(S, 'bloody_hands') ? 'The ones who did the work remembered who pointed them at it. ' : ''}The Order splinters into factions, each claiming your name while ignoring your fate.`,
+    };
+  } else if (cause === 'indicted') {
+    e = {
+      endingId: 'indicted',
+      emoji: '⚖️',
+      rank: 'INDICTED',
+      win: false,
+      verdict: 'Indicted',
+      title: 'The Prosecutors Got There',
+      text: `The prosecutor had nothing to lose, which is exactly the kind you never anticipated. ${flag(S, 'corrupt_streak') ? 'The offshore structures unravel on a live feed. ' : ''}You spend more on legal fees in one month than most people earn in a lifetime. It doesn't help.`,
+    };
+  } else if (cause === 'hostile_takeover') {
+    e = {
+      endingId: 'hostile_takeover',
+      emoji: '📉',
+      rank: 'OUTBID',
+      win: false,
+      verdict: 'Outbid',
+      title: 'The Acquired',
+      text: `A rival faction of the elite moved while you were overextended and the public was looking. There is a poetry to it: you built your whole career on the acquisition, and then you became the acquired.`,
+    };
+  } else if (cause === 'excommunicated') {
+    e = {
+      endingId: 'excommunicated',
+      emoji: '🔔',
+      rank: 'EXCOMMUNICATED',
+      win: false,
+      verdict: 'Excommunicated',
+      title: 'Stripped of All Standing',
+      text: `The Council convened in extraordinary session and the verdict was unanimous. ${flag(S, 'bloody_hands') ? 'The discipline you once dispensed is now aimed at you. ' : ''}You are stripped of every title and barred from the sacred halls you spent your life climbing. The proclamation is read from every pulpit. You have never felt so alone, or so precisely located.`,
+    };
+  } else if (cause === 'schism') {
+    e = {
+      endingId: 'schism',
+      emoji: '➗',
+      rank: 'SCHISM',
+      win: false,
+      verdict: 'Schism',
+      title: 'The Flock Divided',
+      text: `Devotion is not a resource you can manufacture — it must be earned, and you spent yours. A rival claimed the mandate and the congregation followed, because the congregation always follows whoever speaks to the thing they need most. Tonight that is not you.`,
+    };
   } else {
     /* ---------- FINALE — you reached the top; what kind of ruler? ---------- */
     const f = S.flags;

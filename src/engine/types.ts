@@ -9,7 +9,7 @@
  */
 
 export type StatKey = 'support' | 'funds' | 'influence' | 'media' | 'base' | 'heat';
-export type PathKey = 'ballot' | 'vanguard';
+export type PathKey = 'ballot' | 'vanguard' | 'iron' | 'gilded' | 'anointed';
 
 export type Stats = Record<StatKey, number>;
 /** Hidden booleans + integer counters set by choices. */
@@ -114,7 +114,7 @@ export interface Faction {
 }
 
 export interface PromoConfig {
-  type: 'election' | 'powerplay' | 'finale';
+  type: 'election' | 'powerplay' | 'finale' | 'purge' | 'acquisition' | 'council';
   label: string;
   emoji: string;
   baseOpp?: number;
@@ -232,7 +232,13 @@ export type EndingCause =
   | 'lost_election'
   | 'lost_powerplay'
   | 'resign'
-  | 'finale';
+  | 'finale'
+  | 'arrested'
+  | 'dissolved'
+  | 'indicted'
+  | 'hostile_takeover'
+  | 'excommunicated'
+  | 'schism';
 
 export interface Ending {
   /** Stable identifier for the ending branch (used by the reachability sweep). */

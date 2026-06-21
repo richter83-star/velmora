@@ -54,6 +54,14 @@ describe('deathCause', () => {
     expect(deathCause(makeState({ path: 'vanguard', stats: { heat: 100 } }))).toBe('purge');
     expect(deathCause(makeState({ path: 'vanguard', stats: { support: 0 } }))).toBe('revolution');
   });
+  it('expansion paths: per-path heat-death and support-death causes', () => {
+    expect(deathCause(makeState({ path: 'iron', stats: { heat: 100 } }))).toBe('arrested');
+    expect(deathCause(makeState({ path: 'iron', stats: { support: 0 } }))).toBe('dissolved');
+    expect(deathCause(makeState({ path: 'gilded', stats: { heat: 100 } }))).toBe('indicted');
+    expect(deathCause(makeState({ path: 'gilded', stats: { support: 0 } }))).toBe('hostile_takeover');
+    expect(deathCause(makeState({ path: 'anointed', stats: { heat: 100 } }))).toBe('excommunicated');
+    expect(deathCause(makeState({ path: 'anointed', stats: { support: 0 } }))).toBe('schism');
+  });
   it('returns null while vitals are in range', () => {
     expect(deathCause(makeState({ stats: { heat: 99, support: 1 } }))).toBeNull();
   });
@@ -99,6 +107,24 @@ describe('promoPlayerStrength', () => {
     expect(promoPlayerStrength(hi, 'powerplay')).toBe(100);
     const lo = makeState({ stats: { influence: 0, base: 0, media: 0, support: 0, heat: 100 } });
     expect(promoPlayerStrength(lo, 'powerplay')).toBe(0);
+  });
+  it('weights the expansion promo types by their documented coefficients', () => {
+    const full = makeState({
+      stats: { support: 100, funds: 100, influence: 100, media: 100, base: 100, heat: 0 },
+    });
+    expect(promoPlayerStrength(full, 'purge')).toBeCloseTo(100, 6); // .40+.32+.14+.14
+    expect(promoPlayerStrength(full, 'acquisition')).toBeCloseTo(100, 6); // .55+.25+.12+.08
+    expect(promoPlayerStrength(full, 'council')).toBeCloseTo(100, 6); // .35+.30+.20+.15
+  });
+  it('exposure/heresy penalties drag purge and council strength down', () => {
+    const calm = makeState({ stats: { influence: 60, base: 60, support: 60, media: 40, heat: 0 } });
+    const exposed = makeState({
+      stats: { influence: 60, base: 60, support: 60, media: 40, heat: 100 },
+    });
+    expect(promoPlayerStrength(exposed, 'purge')).toBeLessThan(promoPlayerStrength(calm, 'purge'));
+    expect(promoPlayerStrength(exposed, 'council')).toBeLessThan(
+      promoPlayerStrength(calm, 'council'),
+    );
   });
 });
 

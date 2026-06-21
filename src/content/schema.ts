@@ -7,7 +7,7 @@
 import { z } from 'zod';
 
 export const STAT_KEYS = ['support', 'funds', 'influence', 'media', 'base', 'heat'] as const;
-export const PATH_KEYS = ['ballot', 'vanguard'] as const;
+export const PATH_KEYS = ['ballot', 'vanguard', 'iron', 'gilded', 'anointed'] as const;
 export const VALID_PHASES = [1, 2, 3] as const;
 export const ENDING_CAUSES = [
   'scandal',
@@ -18,6 +18,12 @@ export const ENDING_CAUSES = [
   'lost_powerplay',
   'resign',
   'finale',
+  'arrested',
+  'dissolved',
+  'indicted',
+  'hostile_takeover',
+  'excommunicated',
+  'schism',
 ] as const;
 
 // Functions can't be deeply validated; just assert they're callable.

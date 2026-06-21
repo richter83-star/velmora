@@ -72,6 +72,75 @@ export const BLOCS: Record<PathKey, BlocDef[]> = {
       cool: ['clean_streak', 'honest_rep'],
     },
   ],
+  iron: [
+    {
+      id: 'ultras',
+      short: 'Ult',
+      statWeights: { base: 0.4, support: 0.25, heat: 0.1, influence: -0.2 },
+      warm: ['bloody_hands', 'zealot_rep', 'grassroots'],
+      cool: ['dealmaker', 'secret_reformer'],
+    },
+    {
+      id: 'officers',
+      short: 'Off',
+      statWeights: { influence: 0.4, base: 0.2, heat: -0.2 },
+      warm: ['has_network', 'clean_streak', 'pledged'],
+      cool: ['corrupt_streak', 'went_negative'],
+    },
+    {
+      id: 'industrialists',
+      short: 'Ind',
+      statWeights: { funds: 0.4, influence: 0.2, base: -0.2 },
+      warm: ['dealmaker', 'owes_donor', 'dark_money'],
+      cool: ['grassroots', 'went_negative'],
+    },
+  ],
+  gilded: [
+    {
+      id: 'old_money',
+      short: 'Old',
+      statWeights: { funds: 0.3, influence: 0.3, support: 0.1 },
+      warm: ['dealmaker', 'clean_streak', 'has_biographer'],
+      cool: ['went_negative', 'grassroots'],
+    },
+    {
+      id: 'tech_barons',
+      short: 'Tech',
+      statWeights: { media: 0.3, funds: 0.25, influence: 0.2 },
+      warm: ['press_friendly', 'has_network', 'dark_money'],
+      cool: ['stonewaller'],
+    },
+    {
+      id: 'finance_bloc',
+      short: 'Fin',
+      statWeights: { funds: 0.4, influence: 0.2, heat: -0.2 },
+      warm: ['dealmaker', 'owes_donor', 'bailed_banks'],
+      cool: ['clean_streak'],
+    },
+  ],
+  anointed: [
+    {
+      id: 'orthodox',
+      short: 'Orth',
+      statWeights: { media: 0.3, base: 0.2, influence: 0.2, support: -0.1 },
+      warm: ['zealot_rep', 'hardliner_cred', 'clean_streak'],
+      cool: ['secret_reformer', 'went_negative'],
+    },
+    {
+      id: 'reformists',
+      short: 'Ref',
+      statWeights: { support: 0.3, media: 0.2, heat: -0.3 },
+      warm: ['secret_reformer', 'honest_rep', 'peacemaker'],
+      cool: ['bloody_hands', 'corrupt_streak'],
+    },
+    {
+      id: 'mystics',
+      short: 'Myst',
+      statWeights: { support: 0.3, base: 0.3, influence: -0.15 },
+      warm: ['own_cult', 'cult_building', 'grassroots'],
+      cool: ['stonewaller', 'dealmaker'],
+    },
+  ],
 };
 
 /** Fresh standings (all blocs neutral). */

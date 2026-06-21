@@ -38,5 +38,62 @@ export const PATHS: Record<PathKey, PathConfig> = {
       promo:{type:"finale",label:"The Final Reckoning",emoji:"⚖️"}}
    ],
    oppNames:["Kron","Vasiliev","Marek","Dubrov","Stahl","Petrova","Oblast","Renko","Greb","Yusuf"]
+ },
+ iron:{
+   key:"iron", land:"The Iron State of Velmora", theme:"theme-iron",
+   statNames:{support:"Fervor",funds:"War Chest",influence:"Cohesion",media:"Propaganda",base:"Vanguard",heat:"Exposure"},
+   start:{support:44,funds:28,influence:36,media:32,base:50,heat:18},
+   factions:[
+     {id:"ultras",name:"The Ultras",desc:"True believers. Total commitment, zero compromise. They want the whole thing, now."},
+     {id:"officers",name:"The Officer Corps",desc:"Disciplined pragmatists. They want order, not ideology. Will follow a winner."},
+     {id:"industrialists",name:"The Industrialists",desc:"Money and manufacturing. Backed you because the unions frightened them. Expect returns."}
+   ],
+   phases:[
+     {n:1,title:"Movement Leader",kicker:"The Streets",goalTurns:7,emoji:"🪧",
+      promo:{type:"purge",label:"The Loyalty Test",emoji:"🗡️",baseOpp:44,oppTitle:"a rival faction leader"}},
+     {n:2,title:"Chief of State",kicker:"The Ministries",goalTurns:7,emoji:"🏛️",
+      promo:{type:"purge",label:"The Night of Reckoning",emoji:"🗡️",baseOpp:52,oppTitle:"the last rival"}},
+     {n:3,title:"Supreme Leader",kicker:"The Iron Palace",goalTurns:8,emoji:"🎖️",
+      promo:{type:"finale",label:"The Final Reckoning",emoji:"⚖️"}}
+   ],
+   oppNames:["Dresner","Halvik","Motte","Cern","Ault","Braun","Veck","Ostler","Faul","Sieg"]
+ },
+ gilded:{
+   key:"gilded", land:"The Free Territories of Velmora", theme:"theme-gilded",
+   statNames:{support:"Approval",funds:"Capital",influence:"Leverage",media:"Narrative",base:"Network",heat:"Scrutiny"},
+   start:{support:38,funds:70,influence:40,media:35,base:30,heat:12},
+   factions:[
+     {id:"old_money",name:"The Old Families",desc:"Dynasties who have owned Velmora for generations. Suspicious of new entrants; invaluable once won."},
+     {id:"tech_barons",name:"The Tech Barons",desc:"New money, global reach, asymmetric influence. Impatient, data-driven, amoral."},
+     {id:"finance_bloc",name:"The Finance Bloc",desc:"Banks, funds, and instruments you don't need to understand to use. They understand you perfectly."}
+   ],
+   phases:[
+     {n:1,title:"Board Member",kicker:"The Boardroom",goalTurns:7,emoji:"💼",
+      promo:{type:"acquisition",label:"The Hostile Bid",emoji:"💰",baseOpp:44,oppTitle:"a rival bidder"}},
+     {n:2,title:"Chairman",kicker:"The Tower",goalTurns:7,emoji:"🏙️",
+      promo:{type:"acquisition",label:"The Consolidation",emoji:"💰",baseOpp:53,oppTitle:"the last holdout"}},
+     {n:3,title:"The Architect",kicker:"The Summit",goalTurns:8,emoji:"💎",
+      promo:{type:"finale",label:"The Final Reckoning",emoji:"⚖️"}}
+   ],
+   oppNames:["Voss","Hartley","Maren","Strix","Calloway","Dunne","Feld","Quint","Ashmore","Lorne"]
+ },
+ anointed:{
+   key:"anointed", land:"The Sacred Covenant of Velmora", theme:"theme-anointed",
+   statNames:{support:"Devotion",funds:"Treasury",influence:"Authority",media:"Doctrine",base:"Congregation",heat:"Heresy"},
+   start:{support:52,funds:32,influence:30,media:38,base:48,heat:8},
+   factions:[
+     {id:"orthodox",name:"The Orthodox",desc:"Guardians of tradition. Ancient texts, unchanged doctrine, zero tolerance for innovation."},
+     {id:"reformists",name:"The Reformists",desc:"Believers in a living faith. Accessible, modern in form if not in content, politically useful."},
+     {id:"mystics",name:"The Mystics",desc:"Charismatic, visionary, unpredictable. The people love them. The Council fears them. So do you."}
+   ],
+   phases:[
+     {n:1,title:"Parish Elder",kicker:"The Temple",goalTurns:7,emoji:"🕯️",
+      promo:{type:"council",label:"The Elevation",emoji:"🙏",baseOpp:43,oppTitle:"a rival cleric"}},
+     {n:2,title:"High Prelate",kicker:"The Council Chamber",goalTurns:7,emoji:"📜",
+      promo:{type:"council",label:"The Convocation",emoji:"🙏",baseOpp:51,oppTitle:"a rival prelate"}},
+     {n:3,title:"Supreme Shepherd",kicker:"The Sacred Seat",goalTurns:8,emoji:"👁️",
+      promo:{type:"finale",label:"The Final Reckoning",emoji:"⚖️"}}
+   ],
+   oppNames:["Brother Cael","Sister Maro","Elder Voss","Father Dren","Prior Ishe","Deacon Alm","Canon Rett","Abbess Sura","Prelate Nim","Brother Fael"]
  }
 };

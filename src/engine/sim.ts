@@ -86,7 +86,12 @@ function runContest(S: GameState, rng: Rng): string | null {
   const oppStrength = contestOppStrength(S, rng, ph.promo.baseOpp ?? 50, hostility, diff.oppBonus);
   const wc = promoWinChance(promoPlayerStrength(S, ph.promo.type), oppStrength);
   if (rng.next() * 100 >= wc) {
-    return ph.promo.type === 'election' ? 'lost_election' : 'lost_powerplay';
+    const t = ph.promo.type;
+    if (t === 'election') return 'lost_election';
+    if (t === 'acquisition') return 'hostile_takeover';
+    if (t === 'council') return 'schism';
+    if (t === 'purge') return S.stats.heat >= S.stats.support ? 'arrested' : 'dissolved';
+    return 'lost_powerplay';
   }
   // advance phase
   S.phase++;
