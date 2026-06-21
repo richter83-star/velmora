@@ -137,6 +137,11 @@
 - **User decisions:** monetization = free base + paid expansion; distribution = web only.
 - **Closed Phase 11** (`c51b244` CI-advisory-Lighthouse, `6f971cb` business): SEO/OG + robots, entitlement scaffold, privacy/terms drafts. Made the flaky Lighthouse job advisory (deterministic `npm run size` is the hard perf gate). Fixed a Vite EISDIR build break (relative `<link rel=canonical href="/">`). 127 unit + 34 E2E green; CI green.
 - **Closed Phase 12** (this session): semver 1.0.0, CHANGELOG.md, docs/LAUNCH.md, full regression green. **🎉 Core game (Phases 0–12) complete.** Next: UX/UI redesign, then the expansion.
+- **Final launch-readiness review** (workflow, 13 agents): 9 confirmed findings (0 refuted), 2 launch-blockers — all fixed in `55e3ba6`. Notable real catch: a literal **☭ hammer-and-sickle** in the vanguard phase-3 HUD emoji + "Politburo" ×4 (fictional/non-partisan **invariant violation** that no gate caught). Now fixed AND guarded by a new **content-safety denylist linter** (real ideology/regime/religion/symbol terms) over events + paths/traits/advisors, with regression tests. Also fixed: promotion-result + contest screens now announce/focus for screen readers; tutorial focus-trap + `inert` background; Career Log/How drawer made a real dialog (role/aria/Escape/focus); skip-link → main landmark; `safeAvatar()` guard against self-XSS from a tampered save. 129 unit/content + 34 E2E green.
+
+## AD-15 — Content-safety is now a hard gate
+
+`content/lint.ts` gained a denylist scan (symbols ☭/卐/卍 + real ideology/regime/institution/leader/religion terms) across event plain strings and the static `PATHS`/`TRAITS`/`ADVISORS` data; runs in `content:validate` (CI) with regression tests. This is the foundation the EXPANSION_BRIEF requires and closes the gap that let ☭/Politburo ship.
 
 ## Phase 4 — Systems Depth (complete)
 
