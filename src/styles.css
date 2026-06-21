@@ -300,39 +300,41 @@ button{font-family:var(--font-b);cursor:pointer}
 .roll-line.win{background:#e6f7ee;color:#1a7a4f}.roll-line.lose{background:#fdeaea;color:#b0241c}
 
 /* ===== PROMOTION ===== */
-.promo{background:var(--paper);border:4px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.promo-head{padding:16px;text-align:center;background:var(--gold);border-bottom:4px solid var(--ink)}
+.promo{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden}
+.promo-head{padding:16px;text-align:center;background:var(--gold);border-bottom:var(--bw-base) solid var(--rp-ink-key);color:var(--rp-ink-key)}
+.promo-head.win{background:#1A7A50;color:#fff}   /* white on this green = 4.9:1 AA */
+.promo-head.lose{background:#C42A1F;color:#fff}  /* white on this red = 5.7:1 AA */
 .promo-head .pe{font-size:2.2rem}
-.promo-head h3{font-family:var(--font-d);font-size:1.4rem;margin:6px 0 2px}
+.promo-head h3{font-family:var(--font-d);font-size:1.5rem;margin:6px 0 2px;text-transform:uppercase;letter-spacing:.4px}
 .promo-head .ps{font-family:var(--font-m);font-size:.72rem;text-transform:uppercase;letter-spacing:2px}
 .promo-body{padding:16px 18px}
 .odds{display:flex;align-items:center;gap:12px;margin:6px 0 16px}
-.odds .meter{flex:1;height:30px;border:3px solid var(--ink);border-radius:16px;overflow:hidden;background:#d8c79f;position:relative}
-.odds .meter .me{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width 1s var(--ease)}
-.odds .pct{font-family:var(--font-d);font-size:1.4rem;min-width:74px;text-align:right}
+.odds .meter{flex:1;height:28px;border:var(--bw-base) solid var(--rp-ink-key);border-radius:16px;overflow:hidden;background:var(--rp-paper-2);position:relative}
+.odds .meter .me{height:100%;background:var(--rp-ink-spot);transition:width 1s var(--ease)}
+.odds .pct{font-family:var(--font-d);font-size:1.4rem;min-width:74px;text-align:right;color:var(--rp-ink-key)}
 .boosts{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
 
 /* tally (results night) */
 .tally{display:flex;flex-direction:column;gap:14px;padding:6px 2px 2px}
 .tally .cand{display:flex;align-items:center;gap:10px}
-.tally .cava{width:48px;height:48px;border:3px solid var(--ink);border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--paper-2)}
+.tally .cava{width:46px;height:46px;border:var(--bw-base) solid var(--rp-ink-key);border-radius:50%;overflow:hidden;flex:0 0 auto;background:var(--rp-paper-2)}
 .tally .cbarwrap{flex:1}
-.tally .cname{font-weight:700;display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:4px}
-.tally .cbar{height:20px;border:3px solid var(--ink);border-radius:12px;overflow:hidden;background:#e8d9b6}
+.tally .cname{font-weight:700;display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:4px;color:var(--rp-ink-key)}
+.tally .cbar{height:20px;border:var(--bw-base) solid var(--rp-ink-key);border-radius:12px;overflow:hidden;background:var(--rp-paper-2)}
 .tally .cbar .cf{height:100%;width:0;transition:width 1.6s var(--ease)}
 
 /* ===== GAME OVER ===== */
-.over-card{background:var(--paper);border:4px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;text-align:center}
-.over-banner{padding:22px 16px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--bg2))}
+.over-card{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden;text-align:center}
+.over-banner{padding:22px 16px;color:var(--rp-spot-ink);background:var(--rp-ink-spot);border-bottom:var(--bw-base) solid var(--rp-ink-key)}
 .over-banner .oe{font-size:3.4rem;line-height:1}
-.over-banner h2{font-family:var(--font-d);font-size:1.7rem;margin:8px 0 2px;text-shadow:3px 3px 0 rgba(0,0,0,.4)}
-.over-banner .orank{font-family:var(--font-m);letter-spacing:3px;text-transform:uppercase;font-size:.74rem;opacity:.9}
+.over-banner h2{font-family:var(--font-d);font-size:1.9rem;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.5px}
+.over-banner .orank{font-family:var(--rp-font-stencil);letter-spacing:3px;text-transform:uppercase;font-size:.74rem}
 .over-body{padding:18px}
-.over-body p{font-size:1.05rem;line-height:1.55;margin:0 0 16px}
+.over-body p{font-size:1.05rem;line-height:1.55;margin:0 0 16px;color:var(--rp-ink-key)}
 .legacy{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}
-.legacy .lc{background:var(--paper-2);border:3px solid var(--ink);border-radius:10px;padding:9px}
+.legacy .lc{background:var(--rp-paper-2);border:var(--bw-base) solid var(--rp-ink-key);border-radius:10px;padding:9px}
 .legacy .lc .ll{font-family:var(--font-m);font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
-.legacy .lc .lv{font-family:var(--font-d);font-size:1.05rem}
+.legacy .lc .lv{font-family:var(--font-d);font-size:1.05rem;color:var(--rp-ink-key)}
 
 /* ===== codex / log drawer ===== */
 .drawer{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:80;animation:fadeUp .2s}

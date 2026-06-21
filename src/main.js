@@ -736,7 +736,7 @@ function renderPromotionResult(){
   const pAva=buildAvatar(S.player.avatar,res.win?"smug":"worried",!res.win);
   const winTitle=res.win?(S.path==="ballot"?"Projected Winner":"You Prevail"):(S.path==="ballot"?"Projected Defeat":"You Are Outmaneuvered");
   $("#stage").innerHTML=`<div class="promo">
-    <div class="promo-head" style="background:${res.win?'var(--pop)':'var(--danger)'};color:#fff"><div class="pe">${res.win?'🎉':'💔'}</div><h3 id="promo-result-title">${winTitle}</h3><div class="ps">${S.path==="ballot"?'the results are in':'the committee has decided'}</div></div>
+    <div class="promo-head ${res.win?'win':'lose'}"><div class="pe">${res.win?'🎉':'💔'}</div><h3 id="promo-result-title">${winTitle}</h3><div class="ps">${S.path==="ballot"?'the results are in':'the committee has decided'}</div></div>
     <div class="promo-body">
       <div class="tally">
         <div class="cand"><div class="cava">${pAva}</div><div class="cbarwrap"><div class="cname"><span>${esc(S.player.name)} (You)</span><span class="pp">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.pShare}" style="background:${res.win?'var(--pop)':'var(--accent)'}"></div></div></div></div>
