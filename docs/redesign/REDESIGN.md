@@ -53,5 +53,6 @@ Themes (AA-checked): **neutral** paper `#FBF1DC` / key `#161320` / spot `#C8324A
 
 - [x] Design-direction exploration (5 directions, scored, synthesized) — workflow
 - [x] Direction chosen: **Overprint** · prototype built + render-verified (zero console errors, all 3 current themes)
-- [ ] Step 1 — token foundation (next)
-- [ ] Steps 2–10
+- [x] **Step 1 — token foundation** — `--rp-*` riso tokens added to `:root` + all 5 theme blocks (ballot/vanguard + future iron/gilded/anointed) + high-contrast flatten; additive/unconsumed so rendering is unchanged. CSS 6.3→6.8 kB gzip; build + 34 E2E (incl. axe) green. Defaults locked: per-phase 3-tier fidelity · static serif · keep v1 avatars · flat gold foil · steps 1–9 = v1.
+- [ ] Step 2 — self-host + subset fonts (drop Google Fonts CDN; fixes the offline violation)
+- [ ] Steps 3–10
