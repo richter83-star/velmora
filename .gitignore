@@ -25,3 +25,6 @@ Thumbs.db
 
 # stray system-prompt doc that lives in this folder but is not part of the game
 CLAUDE-FABLE-5.md
+
+# redesign prototype screenshots (local verification artifacts)
+docs/redesign/shot-*.png

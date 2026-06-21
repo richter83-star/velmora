@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VELMORA — Overprint redesign prototype</title>
+<!-- Prototype only: fonts via CDN for fidelity. The shipped reskin self-hosts/subsets these (offline PWA). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&family=Stardos+Stencil:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ============ OVERPRINT — Riso-Propaganda token system (prototype) ============ */
+:root{
+  /* NEUTRAL inks */
+  --paper:#FBF1DC; --paper-2:#F2E2BE;
+  --ink-key:#161320;          /* all text + borders (15:1 on paper) */
+  --ink-spot:#C8324A;         /* loud accent ink */
+  --ink-b:#2E5A86;            /* second ink (overprint partner) */
+  --spot-ink:#FFFFFF;         /* text reversed out of --ink-spot */
+  --foil:#B8860B;             /* decorative / large / stroke only — NEVER body text */
+  --halftone:rgba(200,50,74,.12);
+
+  --font-d:'Anton',system-ui,sans-serif;
+  --font-s:'Stardos Stencil','Anton',sans-serif;
+  --font-b:'Hanken Grotesk',system-ui,sans-serif;
+  --font-m:'Space Mono',ui-monospace,monospace;
+
+  --bw-hero:5px; --bw-base:3px; --bw-hair:1.5px;
+  --r-hero:16px; --r-sm:10px;
+
+  /* PRESS-TIER (the progress meter): driven by rank. tier 1 = cheap handbill, tier 4 = apex. */
+  --misreg:3px;          /* off-register offset; snaps toward 0 near apex */
+  --dot:7px;             /* halftone coarseness; finer near apex */
+  --foil-on:0;           /* 0/1 — gold foil unlocks at the top */
+
+  --shadow:7px 7px 0 var(--ink-key);
+  --shadow-sm:4px 4px 0 var(--ink-key);
+}
+body.theme-ballot{ --paper:#F4F6FB; --paper-2:#E6ECF7; --ink-key:#11203F; --ink-spot:#1F407F; --ink-b:#B2241B; --foil:#A8801E; --halftone:rgba(31,64,127,.12); }
+body.theme-vanguard{ --paper:#F3E7D8; --paper-2:#E7D6BE; --ink-key:#1A0907; --ink-spot:#B22118; --ink-b:#1A1714; --foil:#C8951F; --halftone:rgba(178,33,24,.14); }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:var(--font-b); color:var(--ink-key);
+  background:var(--paper);
+  /* paper grain + halftone screen */
+  background-image:
+    radial-gradient(var(--halftone) 22%, transparent 23%),
+    radial-gradient(rgba(0,0,0,.04) 18%, transparent 19%);
+  background-size: var(--dot) var(--dot), calc(var(--dot) * 1.6) calc(var(--dot) * 1.6);
+  background-position: 0 0, 2px 3px;
+  transition: background-color .5s ease;
+  -webkit-font-smoothing:antialiased;
+  padding:18px 14px 60px;
+}
+.wrap{max-width:760px;margin:0 auto}
+
+/* ---- control bar (prototype chrome, not part of the game) ---- */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:0 0 22px;font-family:var(--font-m);font-size:.7rem}
+.controls b{font-family:var(--font-m);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-key);opacity:.7}
+.controls button{font-family:var(--font-m);font-size:.7rem;border:2px solid var(--ink-key);background:var(--paper);color:var(--ink-key);padding:6px 10px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+.controls button[aria-pressed="true"]{background:var(--ink-spot);color:var(--spot-ink)}
+
+/* ---- the pulled sheet ---- */
+.sheet{position:relative;padding:6px}
+.crop{position:absolute;width:14px;height:14px;border:var(--bw-hair) solid var(--ink-key);opacity:.55}
+.crop.tl{top:-4px;left:-4px;border-right:0;border-bottom:0}
+.crop.tr{top:-4px;right:-4px;border-left:0;border-bottom:0}
+.crop.bl{bottom:-4px;left:-4px;border-right:0;border-top:0}
+.crop.br{bottom:-4px;right:-4px;border-left:0;border-top:0}
+.reg{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;border:var(--bw-hair) solid var(--ink-key);background:
+  linear-gradient(var(--ink-key),var(--ink-key)) center/1.5px 16px no-repeat,
+  linear-gradient(var(--ink-key),var(--ink-key)) center/16px 1.5px no-repeat,var(--paper)}
+
+/* ---- PRESS-STRIP HUD ---- */
+.hud{border:var(--bw-base) solid var(--ink-key);border-radius:var(--r-sm);background:var(--paper-2);box-shadow:var(--shadow-sm);padding:10px 12px;margin-bottom:14px}
+.hud-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.portrait{width:46px;height:46px;border-radius:6px;border:var(--bw-base) solid var(--ink-key);flex:0 0 auto;
+  background:
+    radial-gradient(var(--ink-spot) 30%, transparent 31%) 0 0/4px 4px,
+    var(--ink-b);
+  background-blend-mode:multiply}
+.masthead{flex:1;min-width:0}
+.masthead .nm{font-family:var(--font-d);font-size:1.15rem;letter-spacing:.5px;line-height:1;color:var(--ink-key)}
+.masthead .bd{display:inline-block;margin-top:4px;font-family:var(--font-s);font-size:.62rem;letter-spacing:.12em;background:var(--ink-spot);color:var(--spot-ink);padding:2px 8px;border:var(--bw-hair) solid var(--ink-key)}
+.dateline{font-family:var(--font-m);font-size:.6rem;letter-spacing:.06em;color:var(--ink-key);opacity:.75;text-align:right}
+.reg-cluster{font-family:var(--font-m);font-size:.55rem;opacity:.6;text-align:right}
+
+.inks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.ink{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ink .cap{font-size:.9rem;line-height:1}
+.ink .col{width:18px;height:40px;border:var(--bw-hair) solid var(--ink-key);border-radius:3px;background:var(--paper);position:relative;overflow:hidden}
+.ink .fill{position:absolute;left:0;right:0;bottom:0;background:var(--stat);background-image:radial-gradient(rgba(255,255,255,.35) 30%,transparent 31%);background-size:4px 4px}
+.ink .n{font-family:var(--font-m);font-weight:700;font-size:.62rem;color:var(--ink-key)}
+.ink .lab{font-family:var(--font-m);font-size:.46rem;letter-spacing:.04em;opacity:.7;text-transform:uppercase}
+
+/* press wire */
+.wire{border:var(--bw-hair) solid var(--ink-key);border-top:0;background:var(--ink-key);color:var(--paper);font-family:var(--font-m);font-size:.62rem;letter-spacing:.04em;padding:4px 10px;margin:-14px 0 14px;border-radius:0 0 var(--r-sm) var(--r-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wire b{color:var(--foil)}
+
+/* ---- EVENT BROADSHEET CARD ---- */
+.card{position:relative;border:var(--bw-hero) solid var(--ink-key);border-radius:var(--r-hero);background:var(--paper);box-shadow:var(--shadow);padding:0 0 16px;overflow:hidden}
+/* misregistration ghost: a spot-ink edge nudged off the black plate */
+.card::before{content:"";position:absolute;inset:0;border:var(--bw-hero) solid var(--ink-spot);border-radius:var(--r-hero);opacity:.5;transform:translate(var(--misreg),var(--misreg));pointer-events:none}
+.cardhead{background:var(--ink-key);color:var(--paper);padding:8px 16px;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-m);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase}
+.cardhead .ed{color:var(--foil)}
+.rule{height:0;border-top:var(--bw-hair) solid var(--ink-key);margin:0 16px}
+.kicker{display:inline-block;margin:14px 16px 0;font-family:var(--font-s);font-size:.66rem;letter-spacing:.14em;background:var(--ink-spot);color:var(--spot-ink);padding:3px 9px}
+.headline{font-family:var(--font-d);font-size:clamp(1.6rem,7vw,2.5rem);line-height:.98;letter-spacing:.5px;color:var(--ink-key);margin:10px 16px 6px;text-transform:uppercase}
+.byline{display:flex;align-items:center;gap:8px;margin:0 16px 10px}
+.byline .pic{width:30px;height:30px;border-radius:50%;border:var(--bw-base) solid var(--ink-key);background:radial-gradient(var(--ink-b) 30%,transparent 31%) 0 0/3px 3px,var(--ink-spot);background-blend-mode:multiply}
+.byline .who{font-family:var(--font-m);font-size:.66rem;letter-spacing:.04em}
+.byline .who b{font-weight:700}
+.body{font-size:1.06rem;line-height:1.55;color:var(--ink-key);margin:0 16px 16px}
+.body mark{background:linear-gradient(transparent 55%,var(--halftone) 55%);background-color:transparent;color:inherit;padding:0 2px;font-weight:600}
+
+/* choices = stamp buttons */
+.choices{display:flex;flex-direction:column;gap:10px;margin:0 16px}
+.choice{position:relative;text-align:left;border:var(--bw-base) solid var(--ink-key);border-radius:var(--r-sm);background:var(--paper-2);box-shadow:var(--shadow-sm);padding:12px 14px;cursor:pointer;font:inherit;transition:transform .06s,box-shadow .06s}
+.choice:hover{filter:brightness(1.02)}
+.choice:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink-key)}
+.choice .lab{display:block;font-family:var(--font-d);font-size:1.02rem;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-key)}
+.choice .fx{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-family:var(--font-m);font-size:.6rem;font-weight:700;letter-spacing:.04em;border:var(--bw-hair) solid var(--ink-key);border-radius:5px;padding:2px 7px;text-transform:uppercase}
+.chip.up{background:#1C7A55;color:#fff}
+.chip.down{background:#C24E12;color:#fff}
+.chip.gamble{background:var(--ink-key);color:var(--paper)}
+.choice .stamp{position:absolute;top:8px;right:10px;font-family:var(--font-s);font-size:.6rem;letter-spacing:.1em;color:var(--ink-spot);border:var(--bw-hair) solid var(--ink-spot);padding:1px 6px;transform:rotate(-6deg);opacity:.8}
+
+.colophon{text-align:center;font-family:var(--font-m);font-size:.62rem;letter-spacing:.08em;color:var(--ink-key);opacity:.7;margin-top:22px}
+.note{max-width:760px;margin:26px auto 0;font-family:var(--font-m);font-size:.68rem;line-height:1.6;color:var(--ink-key);opacity:.8;border-top:var(--bw-hair) solid var(--ink-key);padding-top:12px}
+
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body class="theme-neutral">
+<div class="wrap">
+
+  <div class="controls">
+    <b>Theme</b>
+    <button data-theme="theme-neutral" aria-pressed="true">Neutral</button>
+    <button data-theme="theme-ballot" aria-pressed="false">Ballot</button>
+    <button data-theme="theme-vanguard" aria-pressed="false">Vanguard</button>
+    <span style="width:14px"></span>
+    <b>Press&nbsp;tier</b>
+    <button data-tier="1" aria-pressed="true">1 · Handbill</button>
+    <button data-tier="2" aria-pressed="false">2</button>
+    <button data-tier="3" aria-pressed="false">3</button>
+    <button data-tier="4" aria-pressed="false">4 · Apex</button>
+  </div>
+
+  <div class="sheet">
+    <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+
+    <!-- PRESS-STRIP HUD -->
+    <div class="hud">
+      <span class="reg" aria-hidden="true"></span>
+      <div class="hud-top">
+        <div class="portrait" aria-hidden="true"></div>
+        <div class="masthead">
+          <div class="nm">DANA MARLOWE</div>
+          <span class="bd" id="badge">GOVERNOR</span>
+        </div>
+        <div>
+          <div class="dateline">YEAR 7 · CAPITAL</div>
+          <div class="reg-cluster">RUN 4 · ED. 12 ⊕</div>
+        </div>
+      </div>
+      <div class="inks" id="inks"></div>
+    </div>
+    <div class="wire">PRESS WIRE: donors uneasy over harbor deal · opposition flyer seized at the docks · <b>approval holds at 61</b> · the committee watches ·</div>
+
+    <!-- EVENT BROADSHEET -->
+    <div class="card">
+      <div class="cardhead"><span>THE VELMORA HERALD</span><span class="ed">BROADSHEET · STATE PRESS</span></div>
+      <span class="kicker">FRONT PAGE</span>
+      <h1 class="headline">The Factory Vote</h1>
+      <div class="byline"><span class="pic" aria-hidden="true"></span><span class="who"><b>Col. Dresner</b> · the opposition</span></div>
+      <p class="body">The dockworkers want a raise and the donors want it quiet. By morning the square will know which way you leaned — and <mark>the press will print it either way.</mark></p>
+      <div class="choices">
+        <button class="choice">
+          <span class="stamp">STAMP</span>
+          <span class="lab">Stand with labor</span>
+          <span class="fx"><span class="chip up">▲ Support +8</span><span class="chip down">▼ Funds 5</span></span>
+        </button>
+        <button class="choice">
+          <span class="stamp">STAMP</span>
+          <span class="lab">Quiet the press</span>
+          <span class="fx"><span class="chip up">▲ Media +6</span><span class="chip down">▲ Heat +4</span><span class="chip gamble">🎲 Gamble</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="colophon">VELMORA STATE PRESS · PRINTED IN THE CAPITAL · ALL DILEMMAS FICTIONAL</div>
+  </div>
+
+  <p class="note">Prototype of the <b>Overprint</b> direction (in-game event screen). Toggle the <b>theme</b> to see the token-only reskin across paths, and the <b>press tier</b> to see the signature move — <b>print fidelity rises with your rank</b>: tier&nbsp;1 is a cheap, loosely-registered handbill; tier&nbsp;4 snaps into tight registration with fine dots and gold foil. Fonts load from a CDN here; the shipped reskin self-hosts + subsets them (offline PWA). All text is near-black on paper (AA-safe); gold/foil is decorative only.</p>
+</div>
+
+<script>
+  const STATS=[['support','♥','SUP',61,'#C2273F'],['funds','◆','FND',29,'#9A6B0E'],['influence','✦','INF',48,'#2E5FBF'],['media','◉','MED',70,'#1C7A55'],['base','✶','BAS',44,'#7A3FB0'],['heat','▲','HEAT',78,'#C24E12']];
+  document.getElementById('inks').innerHTML = STATS.map(([k,g,l,v,c])=>
+    `<div class="ink"><span class="cap" aria-hidden="true">${g}</span><div class="col"><div class="fill" style="height:${v}%;--stat:${c}"></div></div><span class="n">${v}</span><span class="lab">${l}</span></div>`).join('');
+
+  const TIERS={1:{misreg:'3px',dot:'7px',foil:0},2:{misreg:'2px',dot:'6px',foil:0},3:{misreg:'1px',dot:'5px',foil:0},4:{misreg:'0px',dot:'4px',foil:1}};
+  function setPressed(attr,val){document.querySelectorAll('button['+attr+']').forEach(b=>b.setAttribute('aria-pressed', b.getAttribute(attr)===val?'true':'false'));}
+  document.querySelectorAll('button[data-theme]').forEach(b=>b.addEventListener('click',()=>{
+    document.body.className=b.dataset.theme; setPressed('data-theme',b.dataset.theme);
+  }));
+  document.querySelectorAll('button[data-tier]').forEach(b=>b.addEventListener('click',()=>{
+    const t=TIERS[b.dataset.tier]; const r=document.documentElement.style;
+    r.setProperty('--misreg',t.misreg); r.setProperty('--dot',t.dot); r.setProperty('--foil-on',t.foil);
+    setPressed('data-tier',b.dataset.tier);
+  }));
+</script>
+</body>
+</html>
