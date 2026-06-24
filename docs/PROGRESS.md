@@ -273,6 +273,25 @@ Designed + adversarially reachability-verified the per-path finale endings via a
 - **Gate (all green):** typecheck · lint · content:validate (Zod + lint + denylist; the new ending prose is fictional/non-partisan by construction) · **coverage-unit 154** (engine aggregate ≥ thresholds; +2 expansion-finale reachability tests, sweep now 5-path) · build · size (entry within budget, total JS 123.6 kB ≪ 300; CSS 7.7 kB) · **E2E** expansion (4) + smoke (5) green — all 3 new paths start→ending with zero console errors and the base paths' endings are unaffected.
 - **Next (Phase 4 — Polish + Pack Framing):** `EXPANSION_README.md` (the three paths, mechanical differences, content-safety statement), the path-select expansion separator polish, bump the SW shell version, and a full regression (Lighthouse/axe/seeded E2E) across all paths.
 
+## Dark Mirrors Expansion — Phase 4 (Polish + Pack Framing) — complete
+
+The expansion's framing + final regression pass. **The Dark Mirrors is feature-complete** — all five paths play start-to-finish to their own bespoke endings, content-safe and AA-clean.
+
+- **`EXPANSION_README.md`** (repo root, alongside `EXPANSION_BRIEF.md`): the pack overview — what the three paths are, a how-they-differ breakdown (stat remaps, start stats, factions, promotion mechanic, the six finale ranks + two failures per path), the **content & safety statement** (the non-negotiable fiction/non-partisan contract + the enforced denylist), the free-base/paid-expansion distribution note, and a developer map of where the expansion lives in the code.
+- **Path-select separator polished** (`index.html` + `styles.css`): the plain left-aligned dashed line became a centered, **rule-flanked "printed intermission"** — the title moved to the bright `--paper` ink with gold used only for the decorative ≥3px flanking bars (per the foil token's own "decorative/large only" rule), which also tightened the contrast posture. Sub-label title-cased to "Expansion Pack · Three Darker Roads"; aria-label expanded. Markup change is content-only (the `.path-sep` hook the E2E asserts is preserved). Verified visually + axe-clean.
+- **Obsolete brief items, deliberately skipped:** the SW `SHELL_VERSION` bump (the service worker is intentionally **unversioned** — `vite-plugin-pwa` content-hashes assets; manual versioning was retired in Phase 1, AD-2) and the `COMMERCIAL_BRIEF.md` update (that file doesn't exist in this repo; the eight-paths framing lives in `EXPANSION_README.md`).
+- **Full regression — all green:** typecheck · lint · content:validate (Zod + lint + denylist) · **154 unit** (coverage thresholds; endings reachability + 5-path sweep) · build · size (entry within the 70 kB budget, total JS within 300) · **38 E2E** — smoke (both base paths), expansion (5 roads + all 3 new paths to a tagged ending, zero console errors), **axe** (path screen incl. the restyled separator — zero serious/critical), **responsive** (320–1440, no overflow), plus arcs/npc/scandals/slots/records/ngplus/migration/sandbox/audio/settings/tutorial. Lighthouse stays the advisory/production-URL step (the deterministic `npm run size` is the hard perf gate; a11y is hard-gated by axe) per `docs/LAUNCH.md`.
+
+### Dark Mirrors invariants (re-verified)
+
+1. All **five** paths play start-to-finish with zero E2E errors. ✓
+2. Content-safety **denylist** passes with zero hits over the full pool + path/faction/advisor/ending data. ✓
+3. PWA stays **installable + offline-capable** (offline E2E green; SW unchanged). ✓
+4. The cartoon/riso visual identity is preserved + extended — the three themes reuse the same token system, fonts, and card/gauge/avatar components. ✓
+5. No real ideology / religion / nation / party / living-person name or banned symbol appears in any player-visible string. ✓
+
+**The "Dark Mirrors" expansion (Phases 1–4) is complete.** Remaining are the human launch steps (merge PR #1, tag, deploy, production-URL Lighthouse) and the deferred real purchase flow against the `entitlements.expansion` seam.
+
 ## 🎉 Core game complete
 
 Phases 0–12 are done. **Next stage:** the massive UX/UI redesign (which will own final visual polish — Phases 5–7 were intentionally kept lean for this reason), then retarget the `EXPANSION_BRIEF.md` to the current TS architecture and build the "Dark Mirrors" expansion.
