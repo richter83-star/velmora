@@ -18,6 +18,7 @@ import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { makeDirector, nemesisContestEdge } from './engine/director';
+import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
@@ -39,9 +40,9 @@ import { defaultMeta, mergeMeta, recordRun as metaRecordRun, recordStart as meta
    lazily at career start via loadBank(); the chunk is precached by the service
    worker (injectManifest globs include js) so offline start still works. The
    pool is prefetched once the title is idle so "Begin Your Ascent" is instant. */
-let EVENTS = null;
+let EVENTS = null, TEMPLATES = null;
 async function loadBank(){
-  if(!EVENTS){ const m = await import('./content/all-events'); EVENTS = m.ALL_EVENTS; }
+  if(!EVENTS){ const m = await import('./content/all-events'); EVENTS = m.ALL_EVENTS; TEMPLATES = m.TEMPLATES; }
   return EVENTS;
 }
 function prefetchBank(){
@@ -76,7 +77,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low" };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -295,9 +296,24 @@ function nextEvent(){
   // The AI Director (on-device, pure, seeded) reads your playstyle this turn and
   // re-weights/paces the existing bank; off => pre-director behavior.
   const dir=SETTINGS.aiDirector?makeDirector(S):undefined;
-  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult*ngm, scandalMult: curDifficulty().scandalMult*ngm, director: dir });
+  // Loom: the generative grammar weaves state-bound events (off/low/high).
+  const wd=SETTINGS.weaveDensity||"low";
+  const d=chooseNext(S, EVENTS, _rng, {
+    crisisMult: curDifficulty().crisisMult*ngm, scandalMult: curDifficulty().scandalMult*ngm,
+    director: dir,
+    templates: (wd!=="off"&&TEMPLATES)?TEMPLATES:undefined, weaveChance: WEAVE_CHANCE[wd]||0,
+  });
   if(d.type==="promotion"){ startPromotion(); return; }
+  if(isWovenId(d.event.id)) registerWoven(d.event);
   showEvent(d.event);
+}
+/* A woven event isn't in the static bank — register it so resolveChoice/resume's
+   EVENTS.find resolve it, and persist it in S.wovenCache so a mid-event reload
+   rehydrates the exact event (closes the woven-event soft-lock). */
+function registerWoven(ev){
+  if(!EVENTS.some(e=>e.id===ev.id)) EVENTS.push(ev);
+  if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
+  if(!S.wovenCache.some(e=>e.id===ev.id)){ S.wovenCache.push(ev); if(S.wovenCache.length>40) S.wovenCache.shift(); }
 }
 function showEvent(ev){
   S.current=ev.id; S.mode="event"; S.lastResult=null;
@@ -1165,6 +1181,7 @@ function renderSettings(){
   const s=$("#set-sound"); if(s) s.setAttribute("aria-checked",SETTINGS.sound?"true":"false");
   const er=$("#set-errors"); if(er) er.setAttribute("aria-checked",SETTINGS.errorReports?"true":"false");
   const ad=$("#set-director"); if(ad) ad.setAttribute("aria-checked",SETTINGS.aiDirector?"true":"false");
+  const wv=$("#set-weave"); if(wv) wv.setAttribute("aria-checked",(SETTINGS.weaveDensity&&SETTINGS.weaveDensity!=="off")?"true":"false");
 }
 function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
 function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
@@ -1331,6 +1348,9 @@ async function resumeGame(){
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
+  // Loom: re-add any in-flight woven events so EVENTS.find resolves them post-reload.
+  if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
+  else for(const w of S.wovenCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
@@ -1378,6 +1398,11 @@ function boot(){
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
   $("#set-errors").addEventListener("click",()=>toggleSetting("errorReports","Error reporting"));
   $("#set-director").addEventListener("click",()=>toggleSetting("aiDirector","AI Director"));
+  $("#set-weave").addEventListener("click",()=>{
+    SETTINGS.weaveDensity = (SETTINGS.weaveDensity&&SETTINGS.weaveDensity!=="off") ? "off" : "low";
+    saveSettings(); renderSettings();
+    announce("Story Weaver "+(SETTINGS.weaveDensity!=="off"?"on":"off"));
+  });
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);

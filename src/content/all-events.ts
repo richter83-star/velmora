@@ -44,3 +44,7 @@ export const ALL_EVENTS: GameEvent[] = [
   ...ANOINTED_EVENTS,
   ...SHARED_CRISES,
 ];
+
+// Loom generative-grammar templates ride the same lazy chunk, so loadBank()
+// gets the bank + templates in ONE dynamic import (no extra round-trip).
+export { TEMPLATES } from './templates';

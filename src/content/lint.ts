@@ -21,25 +21,16 @@ import { ENGINE_INJECTED_EVENT_IDS } from './scandals';
 import { PATHS } from './paths';
 import { TRAITS } from './traits';
 import { ADVISORS } from '../engine/cabinet';
+import { FORBIDDEN_CORE } from './denylist';
 
 /**
  * Content-safety denylist (the fictional / non-partisan invariant). Player-visible
  * strings must NOT name real ideologies, regimes, institutions, leaders, religions,
  * or their emblems — the game models the *mechanism* of power in the abstract.
- * (The expansion brief requires this gate; it also caught a real ☭ + "Politburo" leak.)
+ * The CORE list is sourced from ./denylist so the build gate (here) and the
+ * runtime gates (Loom weave, Live Storyteller safety) use one identical list.
  */
-const FORBIDDEN: { re: RegExp; label: string }[] = [
-  { re: /[☭卐卍]/, label: 'real ideological symbol (hammer-and-sickle / swastika)' },
-  {
-    re: /\b(fascis[mt]|communis[mt]|nazism|nazis?|marxis[mt]|leninis[mt]|stalinis[mt]|maois[mt]|bolshevik|politburo|gestapo|kgb|stasi|soviet|ussr|reich|swastika)\b/i,
-    label: 'real ideology / regime / institution name',
-  },
-  { re: /\b(hitler|stalin|lenin|mussolini)\b/i, label: 'real public figure name' },
-  {
-    re: /\b(islam|muslim|christian(?:ity)?|catholic|protestant|judaism|jewish|hindu(?:ism)?|buddhis[mt])\b/i,
-    label: 'real religion name',
-  },
-];
+const FORBIDDEN = FORBIDDEN_CORE;
 
 export interface LintResult {
   errors: string[];

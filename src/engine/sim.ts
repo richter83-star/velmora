@@ -26,6 +26,8 @@ import { promoPlayerStrength, contestOppStrength, promoWinChance } from './conte
 import { blankRun } from './state';
 import { advisorSlate, appointAdvisor } from './cabinet';
 import { makeDirector, nemesisContestEdge } from './director';
+import { WEAVE_CHANCE } from './grammar/weave';
+import { TEMPLATES } from '../content/templates';
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
 
@@ -140,11 +142,15 @@ export function simulateRun(opts: {
   difficulty?: string;
   /** Exercise the AI Director path (default off = pre-director behavior). */
   aiDirector?: boolean;
+  /** Exercise the Loom generative grammar (default off). */
+  weave?: boolean;
 }): RunTrace {
   const rng = createRng(opts.seed);
   const S = createRun(opts.path, opts.difficulty ?? DEFAULT_DIFFICULTY, rng);
   const diff = difficultyById(DIFFICULTIES, S.difficulty);
   const ai = !!opts.aiDirector;
+  const weaveChance = opts.weave ? WEAVE_CHANCE.low : undefined;
+  const templates = opts.weave ? TEMPLATES : undefined;
   const drawOpts = { crisisMult: diff.crisisMult, scandalMult: diff.scandalMult };
   const drawn: string[] = [];
   let cause: string | null = null;
@@ -161,7 +167,12 @@ export function simulateRun(opts: {
       ev = sub;
     } else {
       const dir = ai ? makeDirector(S) : undefined;
-      const d = chooseNext(S, ALL_EVENTS, rng, { ...drawOpts, director: dir });
+      const d = chooseNext(S, ALL_EVENTS, rng, {
+        ...drawOpts,
+        director: dir,
+        templates,
+        weaveChance,
+      });
       if (d.type === 'promotion') {
         cause = runContest(S, rng, ai);
         continue;

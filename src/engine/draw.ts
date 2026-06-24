@@ -8,6 +8,7 @@ import type { Rng } from './rng';
 import { arcEventEligible } from './arcs';
 import { scandalResurfaceChance, pickResurfacing } from './scandals';
 import type { Director } from './director';
+import { weaveTemplate, eligibleTemplates, type Template } from './grammar/weave';
 
 /** Per-turn chance the next step of an already-started arc is injected. */
 const ARC_CONTINUE_CHANCE = 0.35;
@@ -83,6 +84,10 @@ export interface DrawOpts {
   /** Optional AI Director (built once per turn). When absent, chooseNext is
    *  byte-identical to its pre-director behavior. */
   director?: Director;
+  /** Loom templates + per-turn weave chance (the generative grammar). When
+   *  weaveChance is falsy, no rng is drawn for it (byte-identical when off). */
+  templates?: readonly Template[];
+  weaveChance?: number;
 }
 
 /**
@@ -139,6 +144,16 @@ export function chooseNext(
     rng.chance(crisisChance(S, opts.crisisMult) * (dir?.injection.crisis ?? 1))
   ) {
     return { type: 'event', event: weightedPickScored(rng, crises, dir) };
+  }
+  // 2.5) Loom: weave a state-bound event from a template (ordinary pool only;
+  // authored crises above keep priority). A failed/duplicate weave falls through.
+  if (opts.weaveChance && opts.templates?.length && rng.chance(opts.weaveChance)) {
+    const elig = eligibleTemplates(S, opts.templates);
+    if (elig.length) {
+      const tpl = elig[rng.int(0, elig.length - 1)]!;
+      const wove = weaveTemplate(tpl, S, rng);
+      if (wove && !S.seen.includes(wove.id)) return { type: 'event', event: wove };
+    }
   }
   // 3) ordinary weighted draw (director re-weights toward the player's playstyle)
   const pool = eligible(S, events, false);

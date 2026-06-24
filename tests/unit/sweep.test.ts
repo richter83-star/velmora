@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { simulateRun, type RunTrace } from '../../src/engine/sim';
+import { baseEventId } from '../../src/engine/grammar/weave';
 import type { PathKey } from '../../src/engine/types';
 
 const RUNS = 120;
@@ -22,23 +23,26 @@ const PATH_CONFIG: Record<PathKey, { minDistinctEvents: number; minEndings: numb
   anointed: { minDistinctEvents: 10, minEndings: 4 },
 };
 
-function sweep(path: PathKey, aiDirector: boolean): RunTrace[] {
+function sweep(path: PathKey, ai: boolean): RunTrace[] {
+  // The "AI" variant runs the full shipped default: Director + Loom grammar on.
   const runs: RunTrace[] = [];
-  for (let i = 0; i < RUNS; i++) runs.push(simulateRun({ seed: `${path}-${i}`, path, aiDirector }));
+  for (let i = 0; i < RUNS; i++)
+    runs.push(simulateRun({ seed: `${path}-${i}`, path, aiDirector: ai, weave: ai }));
   return runs;
 }
 
-/** Average within-run repeat rate: fraction of event draws that repeat an event
- * already drawn in the same run (lower = more variety). */
+/** Average within-run repeat rate, measured by BASE event/template id so woven
+ * fills (distinct composite ids) can't dishonestly deflate the rate. */
 function repeatRate(runs: RunTrace[]): number {
   let totalDraws = 0;
   let repeats = 0;
   for (const r of runs) {
     const seen = new Set<string>();
     for (const id of r.drawn) {
+      const base = baseEventId(id);
       totalDraws++;
-      if (seen.has(id)) repeats++;
-      else seen.add(id);
+      if (seen.has(base)) repeats++;
+      else seen.add(base);
     }
   }
   return totalDraws === 0 ? 0 : repeats / totalDraws;
@@ -54,7 +58,7 @@ for (const aiDirector of [false, true] as const) {
     describe(`seed sweep — ${path} · ${mode} (${RUNS} runs)`, () => {
       const cfg = PATH_CONFIG[path];
       const runs = sweep(path, aiDirector);
-      const distinct = new Set(runs.flatMap((r) => r.drawn));
+      const distinct = new Set(runs.flatMap((r) => r.drawn.map(baseEventId)));
       const endings = new Set(runs.map((r) => r.endingId));
       const rate = repeatRate(runs);
       const avgDraws = runs.reduce((a, r) => a + r.drawn.length, 0) / runs.length;
