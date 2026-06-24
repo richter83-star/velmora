@@ -17,6 +17,7 @@ import { WORLD } from './content/world';
 import { FIRST, SUR } from './content/names';
 import { evaluateEnding } from './engine/endings';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
+import { makeDirector, nemesisContestEdge } from './engine/director';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
@@ -75,7 +76,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -291,7 +292,10 @@ function curDifficulty(){ return difficultyById(DIFFICULTIES, (S&&S.difficulty)|
 /* ---- the core turn driver (selection logic lives in engine/draw.ts) ---- */
 function nextEvent(){
   const ngm=1+0.1*ngP();
-  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult*ngm, scandalMult: curDifficulty().scandalMult*ngm });
+  // The AI Director (on-device, pure, seeded) reads your playstyle this turn and
+  // re-weights/paces the existing bank; off => pre-director behavior.
+  const dir=SETTINGS.aiDirector?makeDirector(S):undefined;
+  const d=chooseNext(S, EVENTS, _rng, { crisisMult: curDifficulty().crisisMult*ngm, scandalMult: curDifficulty().scandalMult*ngm, director: dir });
   if(d.type==="promotion"){ startPromotion(); return; }
   showEvent(d.event);
 }
@@ -417,7 +421,7 @@ function startPromotion(){
     renderHUD(); renderPromotion(); save(); return;
   }
   const _antag=antagonist(S);
-  const _hostility=_antag?antagonistContestModifier(_antag.relationship):0;
+  const _hostility=SETTINGS.aiDirector?nemesisContestEdge(S):(_antag?antagonistContestModifier(_antag.relationship):0);
   const oppStrength=contestOppStrength(S,_rng,ph.promo.baseOpp,_hostility,curDifficulty().oppBonus+4*ngP());
   S.promo={
     type:ph.promo.type, ph,
@@ -1160,6 +1164,7 @@ function renderSettings(){
   const h=$("#set-high"); if(h) h.setAttribute("aria-checked",SETTINGS.highContrast?"true":"false");
   const s=$("#set-sound"); if(s) s.setAttribute("aria-checked",SETTINGS.sound?"true":"false");
   const er=$("#set-errors"); if(er) er.setAttribute("aria-checked",SETTINGS.errorReports?"true":"false");
+  const ad=$("#set-director"); if(ad) ad.setAttribute("aria-checked",SETTINGS.aiDirector?"true":"false");
 }
 function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
 function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
@@ -1372,6 +1377,7 @@ function boot(){
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
   $("#set-errors").addEventListener("click",()=>toggleSetting("errorReports","Error reporting"));
+  $("#set-director").addEventListener("click",()=>toggleSetting("aiDirector","AI Director"));
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);

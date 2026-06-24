@@ -4,6 +4,8 @@ A cartoon political-strategy game that runs entirely in the browser as an instal
 
 Built with **Vite + TypeScript**; ships as a self-contained, offline-capable, installable PWA. No backend.
 
+An on-device **AI Director** (opt-in, default on, in Settings) reads how you play each turn and reshapes the run from the existing event bank — pacing tension, surfacing dilemmas that pressure your style, and letting your rival fight where you're weak. It's a pure, seeded, fully-offline system (no network, no key, nothing leaves your device) so every run stays reproducible and shareable by seed; turn it off for the classic shuffle.
+
 ---
 
 ## Quick start (local)

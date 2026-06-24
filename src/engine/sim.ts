@@ -25,6 +25,7 @@ import { deathCause, advanceTurnState } from './turn';
 import { promoPlayerStrength, contestOppStrength, promoWinChance } from './contest';
 import { blankRun } from './state';
 import { advisorSlate, appointAdvisor } from './cabinet';
+import { makeDirector, nemesisContestEdge } from './director';
 
 const curPhase = (S: GameState) => PATHS[S.path].phases[S.phase - 1]!;
 
@@ -77,12 +78,16 @@ function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
 }
 
 /** Resolve the contest (faithful port). Returns an ending cause if the run ends, else null (phase advanced). */
-function runContest(S: GameState, rng: Rng): string | null {
+function runContest(S: GameState, rng: Rng, aiDirector: boolean): string | null {
   const ph = curPhase(S);
   if (ph.promo.type === 'finale') return 'finale';
   const diff = difficultyById(DIFFICULTIES, S.difficulty);
   const a = antagonist(S);
-  const hostility = a ? antagonistContestModifier(a.relationship) : 0;
+  const hostility = aiDirector
+    ? nemesisContestEdge(S)
+    : a
+      ? antagonistContestModifier(a.relationship)
+      : 0;
   const oppStrength = contestOppStrength(S, rng, ph.promo.baseOpp ?? 50, hostility, diff.oppBonus);
   const wc = promoWinChance(promoPlayerStrength(S, ph.promo.type), oppStrength);
   if (rng.next() * 100 >= wc) {
@@ -133,10 +138,13 @@ export function simulateRun(opts: {
   seed: string | number;
   path: PathKey;
   difficulty?: string;
+  /** Exercise the AI Director path (default off = pre-director behavior). */
+  aiDirector?: boolean;
 }): RunTrace {
   const rng = createRng(opts.seed);
   const S = createRun(opts.path, opts.difficulty ?? DEFAULT_DIFFICULTY, rng);
   const diff = difficultyById(DIFFICULTIES, S.difficulty);
+  const ai = !!opts.aiDirector;
   const drawOpts = { crisisMult: diff.crisisMult, scandalMult: diff.scandalMult };
   const drawn: string[] = [];
   let cause: string | null = null;
@@ -152,9 +160,10 @@ export function simulateRun(opts: {
       if (!sub) continue;
       ev = sub;
     } else {
-      const d = chooseNext(S, ALL_EVENTS, rng, drawOpts);
+      const dir = ai ? makeDirector(S) : undefined;
+      const d = chooseNext(S, ALL_EVENTS, rng, { ...drawOpts, director: dir });
       if (d.type === 'promotion') {
-        cause = runContest(S, rng);
+        cause = runContest(S, rng, ai);
         continue;
       }
       ev = d.event;
@@ -172,7 +181,7 @@ export function simulateRun(opts: {
     advanceTurnState(S);
     cause = deathCause(S);
     if (cause) break;
-    if (S.phaseTurn >= curPhase(S).goalTurns) cause = runContest(S, rng);
+    if (S.phaseTurn >= curPhase(S).goalTurns) cause = runContest(S, rng, ai);
   }
 
   const finalCause = cause ?? 'resign';
