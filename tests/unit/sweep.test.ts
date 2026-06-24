@@ -7,6 +7,21 @@ const RUNS = 120;
  * any run approaching it would signal a soft-lock / runaway loop. */
 const SOFT_LOCK_BOUND = 300;
 
+/**
+ * Per-path sweep gates. The two base paths draw from the full 251-event bank
+ * (≥18 distinct events expected); the three Dark Mirrors expansion paths draw
+ * from their own ~12-event seed bank + 3 shared crises (~15 events), so their
+ * distinct-event floor is lower. Every path must still reach ≥4 distinct ending
+ * ranks across the sweep (EXPANSION_BRIEF.md Step 3).
+ */
+const PATH_CONFIG: Record<PathKey, { minDistinctEvents: number; minEndings: number }> = {
+  ballot: { minDistinctEvents: 18, minEndings: 4 },
+  vanguard: { minDistinctEvents: 18, minEndings: 4 },
+  iron: { minDistinctEvents: 10, minEndings: 4 },
+  gilded: { minDistinctEvents: 10, minEndings: 4 },
+  anointed: { minDistinctEvents: 10, minEndings: 4 },
+};
+
 function sweep(path: PathKey): RunTrace[] {
   const runs: RunTrace[] = [];
   for (let i = 0; i < RUNS; i++) runs.push(simulateRun({ seed: `${path}-${i}`, path }));
@@ -29,8 +44,9 @@ function repeatRate(runs: RunTrace[]): number {
   return totalDraws === 0 ? 0 : repeats / totalDraws;
 }
 
-for (const path of ['ballot', 'vanguard'] as const) {
+for (const path of ['ballot', 'vanguard', 'iron', 'gilded', 'anointed'] as const) {
   describe(`seed sweep — ${path} (${RUNS} runs)`, () => {
+    const cfg = PATH_CONFIG[path];
     const runs = sweep(path);
     const distinct = new Set(runs.flatMap((r) => r.drawn));
     const endings = new Set(runs.map((r) => r.endingId));
@@ -60,11 +76,15 @@ for (const path of ['ballot', 'vanguard'] as const) {
     });
 
     it('the bank shows variety across runs', () => {
-      expect(distinct.size, `distinct events drawn = ${distinct.size}`).toBeGreaterThanOrEqual(18);
+      expect(distinct.size, `distinct events drawn = ${distinct.size}`).toBeGreaterThanOrEqual(
+        cfg.minDistinctEvents,
+      );
     });
 
-    it('runs reach a variety of endings', () => {
-      expect(endings.size, `distinct endings = ${endings.size}`).toBeGreaterThanOrEqual(3);
+    it('runs reach at least 4 distinct ending ranks', () => {
+      expect(endings.size, `distinct endings = ${endings.size}`).toBeGreaterThanOrEqual(
+        cfg.minEndings,
+      );
     });
   });
 }
