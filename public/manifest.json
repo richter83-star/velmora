@@ -1,11 +1,12 @@
 {
+  "id": "/",
   "name": "Velmora — Rise to Power",
   "short_name": "Velmora",
-  "description": "A cartoon political-strategy game. Climb from nobody to head of state down two very different roads — the ballot box or the one-party machine. Every choice writes your legacy.",
+  "description": "A satirical political-strategy game. Climb from nobody to head of state down five rival roads to power — the ballot box, the one-party machine, or the three Dark Mirrors — and an on-device AI reshapes every run, so no two careers are alike.",
   "lang": "en-US",
   "dir": "ltr",
   "categories": ["games", "entertainment"],
-  "start_url": ".",
+  "start_url": "./?source=pwa",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
@@ -28,7 +29,39 @@
       "src": "icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Career",
+      "short_name": "New",
+      "description": "Start a fresh climb to power",
+      "url": "./?source=pwa",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Scenario of the Day",
+      "short_name": "Daily",
+      "description": "Play today's shared seeded scenario",
+      "url": "./?source=pwa",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/title-narrow.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "The VELMORA title screen"
+    },
+    {
+      "src": "screenshots/title-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The VELMORA title screen"
     }
   ]
 }

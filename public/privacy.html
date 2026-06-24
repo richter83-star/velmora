@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELMORA — Privacy Policy</title>
+<meta name="theme-color" content="#1A1726">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="/icons/favicon-64.png" sizes="64x64">
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #15121f; color: #efeaf6; font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
+  a { color: #f2b705; }
+  h1 { font-size: 1.9rem; letter-spacing: .5px; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 32px 0 8px; color: #f2b705; }
+  .meta { color: #b8b2c8; font-size: .85rem; margin-bottom: 24px; }
+  ul { padding-left: 22px; }
+  code { background: #241f33; padding: 1px 6px; border-radius: 5px; font-size: .9em; }
+  .back { display: inline-block; margin-bottom: 26px; color: #efeaf6; text-decoration: none; border: 2px solid #4a4360; border-radius: 8px; padding: 7px 14px; }
+  .back:hover { border-color: #f2b705; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">⮌ Back to VELMORA</a>
+  <h1>VELMORA — Privacy Policy</h1>
+  <p class="meta">Last updated: 2026-06-24</p>
+  <p>VELMORA is a browser game that runs entirely on your device. It is <strong>privacy-first by design</strong>.</p>
+
+  <h2>What we collect</h2>
+  <p><strong>Nothing leaves your device by default.</strong> VELMORA has no backend server and no account system. We do not collect, transmit, sell, or share any personal data.</p>
+  <p>The game stores data <strong>locally in your browser</strong> (via <code>localStorage</code>, with an in-memory fallback) so your progress survives between sessions:</p>
+  <ul>
+    <li><strong>Saved careers</strong> (<code>velmora_save_v1__*</code>) — your in-progress runs.</li>
+    <li><strong>Settings</strong> (<code>velmora_settings_v1</code>) — your accessibility, sound, AI, and reporting preferences.</li>
+    <li><strong>Profile</strong> (<code>velmora_meta_v1</code>) — run history, lifetime stats, achievements, unlockables, and entitlements.</li>
+  </ul>
+  <p>This data is readable only by your browser on your device. Clearing your browser storage (or using the in-game “Clear saved career” / deleting a slot) removes it.</p>
+
+  <h2>Third-party services</h2>
+  <ul>
+    <li><strong>No analytics, trackers, or advertising.</strong> VELMORA ships with no third-party analytics or ad SDKs.</li>
+    <li><strong>Fonts are self-hosted</strong> (subset and served from the game’s own origin) — no font CDN, no third-party request to load type.</li>
+    <li><strong>Hosting</strong> (e.g. Vercel) may keep standard server access logs, as any website does.</li>
+  </ul>
+
+  <h2>Optional error reporting</h2>
+  <p>The Settings screen has an <strong>off-by-default</strong> “Error reporting” toggle. When enabled, runtime error messages are recorded <strong>only in memory on your device</strong> to aid debugging. Nothing is transmitted — there is no backend to receive it.</p>
+
+  <h2>Optional “Live Storyteller” (bring-your-own-key)</h2>
+  <p>The default game — including the on-device <strong>AI Director</strong> and <strong>Story Weaver</strong> — runs <strong>entirely on your device</strong> and sends nothing.</p>
+  <p>If you turn the off-by-default <strong>Live Storyteller</strong> toggle <strong>on</strong> and supply <strong>your own</strong> Anthropic API key, then on some turns the game sends a <strong>compact, non-identifying snapshot of your current run</strong> (your path, office, stat levels, faction standings, and rival disposition — no personal data) directly from your browser to <strong>Anthropic’s API</strong>, using your key, to generate a fresh dilemma. In that case:</p>
+  <ul>
+    <li>The request goes <strong>to Anthropic</strong>, governed by Anthropic’s own terms, and <strong>the API usage is billed to you</strong>.</li>
+    <li>Your API key is stored <strong>only on your device</strong> (a local <code>velmora_live_key</code> entry), is never sent anywhere except your own API requests, and is never included in saves, exports, or error reports.</li>
+    <li>It falls back to on-device content whenever you are offline, keyless, or over the per-run limit. Turning the toggle off stops all such requests.</li>
+  </ul>
+
+  <h2>Children</h2>
+  <p>VELMORA is fictional political satire rated for Teen / PEGI 12. It collects no data from anyone, including children.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy can be directed to the project maintainer via the project repository. See also the <a href="/terms.html">Terms of Use</a>.</p>
+</main>
+</body>
+</html>

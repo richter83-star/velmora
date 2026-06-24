@@ -16,7 +16,11 @@ Targeted at Teen / PEGI 12: political and consequence-based themes, no graphic c
 
 ## Monetization
 
-The base game (the ballot and vanguard paths) is **free**. A future optional expansion may be offered as a one-time purchase that unlocks additional content. There is **no pay-to-win**: paid content adds new paths/stories, never advantages within shared play.
+The base game (the ballot and vanguard paths) is **free**, as are the on-device AI features (the adaptive **AI Director** and the **Story Weaver** generative grammar). The "Dark Mirrors" expansion (the Iron, Gilded, and Anointed paths) is offered behind an optional unlock. There is **no pay-to-win**: paid content adds new paths and stories, never advantages within shared play.
+
+## Optional "Live Storyteller" and your API key
+
+The optional, off-by-default **Live Storyteller** feature lets you supply **your own** Anthropic API key so a model writes brand-new dilemmas at runtime. If you enable it, **you are responsible for your own API key and any usage charges** billed by your provider, and a non-identifying snapshot of your run is sent to that provider (see the Privacy Policy). Every generated line is still safety-checked before it is shown, and the game falls back to its on-device content whenever the feature is off, offline, or unavailable.
 
 ## Acceptable use
 

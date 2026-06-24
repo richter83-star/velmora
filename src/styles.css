@@ -165,6 +165,11 @@ button{font-family:var(--font-b);cursor:pointer}
 /* credits move onto paper (colophon) — fixes the prior white-on-dark AA failure */
 .title-foot{color:var(--ink-soft);font-family:var(--font-m);font-size:.7rem;margin-top:26px;line-height:1.6;
   border-top:var(--bw-hair) solid var(--rp-ink-key);padding-top:14px}
+.title-foot-priv{display:inline-block;margin-top:6px;color:var(--rp-ink-key)}
+.title-legal{margin-top:12px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;font-family:var(--font-m);font-size:.74rem}
+.title-legal a{color:var(--rp-ink-key);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.title-legal a:hover,.title-legal a:focus-visible{color:var(--rp-ink-spot)}
+.title-legal span{color:var(--ink-soft)}
 
 /* ===== panel (paper) ===== */
 .panel{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);padding:20px;position:relative;overflow:hidden}

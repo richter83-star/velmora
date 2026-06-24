@@ -60,4 +60,40 @@ of Velmora**). Fictional nation, fictional parties, real dilemmas.
 - CI: lint · typecheck · content-validate · coverage-gated unit · build · bundle
   budget · Playwright E2E (smoke + offline + a11y) · Lighthouse (advisory).
 
+### The Dark Mirrors expansion (five paths total)
+
+- Three new playable roads to power layered onto the same engine — **The Iron
+  Order** (strongman), **The Gilded Republic** (plutocracy), and **The Anointed
+  Path** (theocracy) — each with its own stat vocabulary, factions, promotion
+  mechanic (purge / acquisition / council), advisors, and 12+ seed events.
+- **18 bespoke finale endings** (6 per new path) plus per-path failure causes,
+  all reachability-proven; the seeded sweep covers all five paths (≥4 ending
+  ranks each). Fictional and non-partisan by construction, enforced by a
+  content-safety denylist in CI.
+
+### AI replayability stack
+
+- **AI Director** (on-device, default on): a pure, seeded director that reads
+  your playstyle each turn and reshapes the run from the existing bank —
+  playstyle-targeted selection, tension pacing, and an adaptive nemesis that
+  presses where you're weak. Zero generated text; fully offline; reproducible.
+- **Story Weaver** (on-device generative grammar, default on): weaves
+  state-bound dilemmas from authored skeletons, every realization schema- and
+  denylist-validated; an exhaustive build-time gate proves the generated surface
+  is safe.
+- **Live Storyteller** (opt-in, default off): bring your own Anthropic key and a
+  model writes brand-new dilemmas at runtime — every line schema- and
+  STRICT-denylist-checked before display, quarantined from the deterministic
+  core, with full on-device fallback. Your key stays on your device.
+
+### Launch polish
+
+- Production security headers (CSP, HSTS, X-Content-Type-Options,
+  Referrer-Policy, Permissions-Policy, X-Frame-Options) via `vercel.json`.
+- Absolute canonical / Open Graph / Twitter metadata with a dedicated 1200×630
+  social card, accurate five-path copy, JSON-LD `VideoGame` schema, and a
+  sitemap. Reachable in-app Privacy / Terms / Source links.
+- Installable PWA manifest hardened (`id`, shortcuts, install screenshots,
+  maskable icon).
+
 [1.0.0]: https://github.com/richter83-star/velmora/releases/tag/v1.0.0

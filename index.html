@@ -4,21 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>VELMORA — A Game of Power</title>
-<meta name="description" content="Rise to power in the fictional nation of Velmora. Climb the one-party state or win the ballot. A cartoon political strategy game.">
+<meta name="description" content="Rise from nobody to head of state down five very different roads to power — the ballot box, the one-party machine, the strongman, the magnate, or the cleric. A cartoon political-strategy PWA where every choice writes your legacy and an on-device AI Director reshapes every run.">
 <meta name="theme-color" content="#1A1726">
 <meta name="author" content="Velmora">
-<meta name="keywords" content="political strategy game, cartoon game, PWA game, browser game, Velmora, choices game">
-<!-- Open Graph / social cards. Image paths are root-absolute public assets; the
-     canonical + og:url absolute URLs are added at launch once the domain is set. -->
+<meta name="keywords" content="political strategy game, cartoon game, PWA game, browser game, Velmora, choices game, AI game, roguelike, offline game">
+<link rel="canonical" href="https://velmora-phi.vercel.app/">
+<!-- Open Graph / social cards (absolute URLs for social scrapers). -->
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://velmora-phi.vercel.app/">
 <meta property="og:site_name" content="VELMORA">
 <meta property="og:title" content="VELMORA — A Game of Power">
-<meta property="og:description" content="Climb from a nobody to head of state down two very different roads — win the ballot or seize the one-party machine. Every choice writes your legacy.">
-<meta property="og:image" content="/icons/icon-512.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="Climb from a nobody to head of state down five very different roads — the ballot, the one-party machine, the strongman, the magnate, the cleric. Every choice writes your legacy, and an on-device AI Director makes no two careers alike.">
+<meta property="og:image" content="https://velmora-phi.vercel.app/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="VELMORA — a satirical political-strategy game. Five roads to rule.">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="VELMORA — A Game of Power">
-<meta name="twitter:description" content="A cartoon political-strategy PWA. Two roads to power, a dozen endings, no two careers alike.">
-<meta name="twitter:image" content="/icons/icon-512.png">
+<meta name="twitter:description" content="A cartoon political-strategy PWA. Five roads to power, branching endings, an adaptive AI Director — no two careers alike. Plays free and offline in your browser.">
+<meta name="twitter:image" content="https://velmora-phi.vercel.app/social-card.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"VELMORA — A Game of Power","url":"https://velmora-phi.vercel.app/","image":"https://velmora-phi.vercel.app/social-card.png","applicationCategory":"Game","genre":["Strategy","Political simulation"],"gamePlatform":"Web browser","operatingSystem":"Any (PWA)","inLanguage":"en","description":"A cartoon political-strategy game: rise from nobody to head of state down five fictional roads to power, with branching endings and an on-device AI Director that reshapes every run. Plays free and offline in the browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"Velmora"},"contentRating":"Teen"}</script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/favicon-64.png" sizes="64x64">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -59,7 +64,10 @@
       <button class="btn ghost block" id="btn-settings">⚙️ Settings</button>
       <button class="btn gold block" id="btn-daily">🗓️ Scenario of the Day</button>
     </div>
-    <p class="title-foot">A fictional nation. Fictional parties. Real dilemmas.<br>Every choice writes your legacy — and no two careers are alike.</p>
+    <p class="title-foot">A fictional nation. Fictional parties. Real dilemmas.<br>Every choice writes your legacy — and no two careers are alike.<br><span class="title-foot-priv">Free to play. No accounts, no trackers — everything stays on your device.</span></p>
+    <nav class="title-legal" aria-label="About and legal">
+      <a href="/privacy.html">Privacy</a><span aria-hidden="true">·</span><a href="/terms.html">Terms</a><span aria-hidden="true">·</span><a href="https://github.com/richter83-star/velmora" rel="noopener">Source</a>
+    </nav>
   </section>
 
   <!-- ===================== CODEX / ALMANAC ===================== -->
