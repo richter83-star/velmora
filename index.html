@@ -106,6 +106,21 @@
         <button class="toggle" id="set-weave" role="switch" aria-checked="true" aria-label="Story Weaver"><span class="knob" aria-hidden="true"></span></button>
       </div>
       <div class="set-row">
+        <div class="set-label"><b>Live Storyteller <span class="chip" style="font-size:.6rem;padding:1px 6px">Advanced · brings your own key</span></b><span>Use your <b>own</b> Anthropic API key to have a Claude model write brand-new dilemmas at runtime. ⚠️ This sends your game situation to Anthropic and uses your key — <b>you pay per call</b>. Off by default. Every generated line is still schema- and safety-checked before you see it, and the game falls back to on-device content whenever you're offline, keyless, or over budget. Your key is stored only on this device and never leaves it except to call your own endpoint.</span></div>
+        <button class="toggle" id="set-live" role="switch" aria-checked="false" aria-label="Live Storyteller"><span class="knob" aria-hidden="true"></span></button>
+      </div>
+      <div class="set-row" id="live-config" hidden>
+        <div class="set-label" style="width:100%">
+          <label for="live-key" style="display:block;font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:.66rem;margin-bottom:4px">Your Anthropic API key (this device only)</label>
+          <input id="live-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;padding:8px 10px;border:var(--bw-base,3px) solid var(--ink,#1A1726);border-radius:8px;font-family:var(--font-m,monospace);margin-bottom:10px" />
+          <label for="live-model" style="display:block;font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:.66rem;margin-bottom:4px">Model</label>
+          <select id="live-model" style="width:100%;box-sizing:border-box;padding:8px 10px;border:var(--bw-base,3px) solid var(--ink,#1A1726);border-radius:8px;font-family:var(--font-m,monospace)">
+            <option value="claude-haiku-4-5">Haiku 4.5 — fastest, cheapest</option>
+            <option value="claude-opus-4-8">Opus 4.8 — richest writing</option>
+          </select>
+        </div>
+      </div>
+      <div class="set-row">
         <div class="set-label"><b>Reduce motion</b><span>Turn off confetti, screen transitions, and the scrolling news ticker.</span></div>
         <button class="toggle" id="set-reduce" role="switch" aria-checked="false" aria-label="Reduce motion"><span class="knob" aria-hidden="true"></span></button>
       </div>

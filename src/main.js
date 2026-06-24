@@ -45,6 +45,11 @@ async function loadBank(){
   if(!EVENTS){ const m = await import('./content/all-events'); EVENTS = m.ALL_EVENTS; TEMPLATES = m.TEMPLATES; }
   return EVENTS;
 }
+/* Live Storyteller is an opt-in online layer kept in its own chunk (src/live);
+   it is loaded ONLY when the user has turned it on, so the default offline game
+   never ships it on the hot path. */
+let _live = null;
+function loadLive(){ return _live || (_live = import('./live')); }
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -77,7 +82,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low" };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5" };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -291,7 +296,9 @@ function generateRivals(){
 /* ---- crisis probability scales with instability ---- */
 function curDifficulty(){ return difficultyById(DIFFICULTIES, (S&&S.difficulty)||DEFAULT_DIFFICULTY); }
 /* ---- the core turn driver (selection logic lives in engine/draw.ts) ---- */
-function nextEvent(){
+/* The on-device draw (Director + Loom). This is the DEFAULT path and is
+   byte-identical to before when both features are off. */
+function nextEventLocal(){
   const ngm=1+0.1*ngP();
   // The AI Director (on-device, pure, seeded) reads your playstyle this turn and
   // re-weights/paces the existing bank; off => pre-director behavior.
@@ -307,6 +314,28 @@ function nextEvent(){
   if(isWovenId(d.event.id)) registerWoven(d.event);
   showEvent(d.event);
 }
+/* The turn driver. When Live Storyteller is OFF (default) this is a synchronous
+   on-device draw — identical to before. When the user has opted in, lazy-load the
+   quarantined src/live module and try one validated live event, falling back to
+   the on-device draw on ANY miss (offline / no key / over budget / rejected). */
+function nextEvent(){
+  if(!SETTINGS.liveStoryteller){ nextEventLocal(); return; }
+  // Show a non-interactive placeholder synchronously so the just-resolved screen's
+  // buttons can't be re-clicked while the async live attempt is in flight.
+  showLiveLoading();
+  loadLive().then(L=>{
+    if(!L.liveEnabled(SETTINGS)){ nextEventLocal(); save(); return; }
+    return L.maybeLiveEvent(S, SETTINGS, _rng).then(ev=>{
+      if(ev){ registerLive(ev); showEvent(ev); } else { nextEventLocal(); }
+      save();
+    });
+  }).catch(()=>{ nextEventLocal(); save(); });
+}
+function showLiveLoading(){
+  const st=$("#stage");
+  if(st) st.innerHTML=`<div class="ev scene"><div class="ev-body"><span class="eyebrow">The Storyteller</span><h3 class="ev-title">Composing…</h3><p class="ev-text">A fresh dilemma is being written for your situation.</p></div></div>`;
+  announce("The Storyteller is composing a dilemma.");
+}
 /* A woven event isn't in the static bank — register it so resolveChoice/resume's
    EVENTS.find resolve it, and persist it in S.wovenCache so a mid-event reload
    rehydrates the exact event (closes the woven-event soft-lock). */
@@ -314,6 +343,12 @@ function registerWoven(ev){
   if(!EVENTS.some(e=>e.id===ev.id)) EVENTS.push(ev);
   if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
   if(!S.wovenCache.some(e=>e.id===ev.id)){ S.wovenCache.push(ev); if(S.wovenCache.length>40) S.wovenCache.shift(); }
+}
+/* Same rehydration contract for a validated live event. */
+function registerLive(ev){
+  if(!EVENTS.some(e=>e.id===ev.id)) EVENTS.push(ev);
+  if(!Array.isArray(S.liveCache)) S.liveCache=[];
+  if(!S.liveCache.some(e=>e.id===ev.id)){ S.liveCache.push(ev); if(S.liveCache.length>40) S.liveCache.shift(); }
 }
 function showEvent(ev){
   S.current=ev.id; S.mode="event"; S.lastResult=null;
@@ -1182,6 +1217,10 @@ function renderSettings(){
   const er=$("#set-errors"); if(er) er.setAttribute("aria-checked",SETTINGS.errorReports?"true":"false");
   const ad=$("#set-director"); if(ad) ad.setAttribute("aria-checked",SETTINGS.aiDirector?"true":"false");
   const wv=$("#set-weave"); if(wv) wv.setAttribute("aria-checked",(SETTINGS.weaveDensity&&SETTINGS.weaveDensity!=="off")?"true":"false");
+  const lv=$("#set-live"); if(lv) lv.setAttribute("aria-checked",SETTINGS.liveStoryteller?"true":"false");
+  const cfg=$("#live-config"); if(cfg) cfg.hidden=!SETTINGS.liveStoryteller;
+  const mdl=$("#live-model"); if(mdl) mdl.value=SETTINGS.liveModel||"claude-haiku-4-5";
+  if(SETTINGS.liveStoryteller){ loadLive().then(L=>{ const kf=$("#live-key"); if(kf && !kf.value) kf.value=L.getLiveKey(); }).catch(()=>{}); }
 }
 function openSettings(){ renderSettings(); go("settings"); focusHeading("#settings-title"); announce("Settings."); }
 function closeSettings(){ go("title"); const b=$("#btn-settings"); if(b) b.focus(); }
@@ -1348,9 +1387,11 @@ async function resumeGame(){
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
-  // Loom: re-add any in-flight woven events so EVENTS.find resolves them post-reload.
+  // Loom + Live: re-add any in-flight generated events so EVENTS.find resolves them post-reload.
   if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
   else for(const w of S.wovenCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }
+  if(!Array.isArray(S.liveCache)) S.liveCache=[];
+  else for(const w of S.liveCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }
   // Restore the generator so post-resume draws continue the same sequence.
   _rng = createRng(S.seed!=null ? S.seed : randomSeed());
   if(typeof S.rngState==="number") _rng.setState(S.rngState);
@@ -1403,6 +1444,9 @@ function boot(){
     saveSettings(); renderSettings();
     announce("Story Weaver "+(SETTINGS.weaveDensity!=="off"?"on":"off"));
   });
+  $("#set-live").addEventListener("click",()=>toggleSetting("liveStoryteller","Live Storyteller"));
+  const lk=$("#live-key"); if(lk) lk.addEventListener("change",e=>{ const v=(e.target.value||"").trim(); loadLive().then(L=>L.setLiveKey(v)).catch(()=>{}); });
+  const lm=$("#live-model"); if(lm) lm.addEventListener("change",e=>{ SETTINGS.liveModel=e.target.value; saveSettings(); });
   $("#set-replay-tut").addEventListener("click",()=>{ closeSettings(); openTutorial(); });
   $("#set-clear").addEventListener("click",()=>{ clearSave(); refreshContinueBtn(); toast("Active career slot cleared"); });
   $("#tut-next").addEventListener("click",tutNext);
