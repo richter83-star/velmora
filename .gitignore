@@ -30,3 +30,4 @@ CLAUDE-FABLE-5.md
 docs/redesign/shot-*.png
 
 .vercel
+.gstack/

@@ -14,6 +14,8 @@ export default tseslint.config(
       'test-results',
       // legacy verbatim port — retired during the module decomposition (Task 5)
       'src/main.js',
+      // vendored Pretext bundle (minified third-party) used by the landing page
+      'src/landing/pretext.js',
     ],
   },
   js.configs.recommended,

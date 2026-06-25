@@ -87,8 +87,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2) Same-origin navigations → cached shell first, refresh in background.
+  // 2) Same-origin navigations.
   if (req.mode === 'navigate') {
+    // 2a) The marketing landing (/herald) is a separate page — network-first so it
+    //     isn't hijacked by the game shell, falling back to its own cached copy offline.
+    if (url.pathname === '/herald' || url.pathname === '/herald.html') {
+      event.respondWith(
+        fetch(req)
+          .then((res) => {
+            caches
+              .open(SHELL_CACHE)
+              .then((c) => c.put('./herald.html', res.clone()).catch(() => {}));
+            return res;
+          })
+          .catch(() => caches.match('./herald.html', { ignoreVary: true })),
+      );
+      return;
+    }
+    // 2b) The game app shell → cached shell first, refresh in background.
     event.respondWith(
       caches.match('./index.html', { ignoreVary: true }).then((cached) => {
         const network = fetch(req)

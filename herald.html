@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" class="fonts-loading no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>The Velmora Herald — A Game of Power</title>
+<meta name="description" content="VELMORA: a satirical political-strategy game. Five rival roads to power, caricatured on the front page of a fictional nation's newspaper. Play free, offline, in your browser." />
+<meta name="theme-color" content="#1C1A2E" />
+<link rel="canonical" href="https://velmora-phi.vercel.app/herald" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231C1A2E'/%3E%3Cpath d='M16 5l2.9 7.7L27 13l-6.5 5.2L23 27l-7-4.6L9 27l2.5-8.8L5 13l8.1-.3z' fill='%23E0A82E'/%3E%3C/svg%3E" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://velmora-phi.vercel.app/herald" />
+<meta property="og:title" content="The Velmora Herald — A Game of Power" />
+<meta property="og:description" content="Five liars, one crown. Pick a road to power and find out what the job makes of you. A free satirical strategy game." />
+<meta property="og:image" content="https://velmora-phi.vercel.app/social-card.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://velmora-phi.vercel.app/social-card.png" />
+<!-- Fonts self-hosted + JS bundled via /src/landing/main.js (CSP-clean: font-src 'self', script-src 'self'). -->
+
+<style>
+  /* ============================================================
+     THE VELMORA HERALD — design tokens
+     Riso-newsprint identity: aged paper, ink, spot red/gold, halftone.
+     Dark mode = "Late Edition" (inverted broadsheet).
+     ============================================================ */
+  :root {
+    color-scheme: light dark;
+    --paper:#15121E;
+    --paper-2: #EADEBF;
+    --paper-3: #DFD0AC;
+    --ink:#F2E8CE;
+    --ink-soft:#B8AECB;
+    --red:#E5604F;
+    --red-deep:#E5604F;
+    --gold:    #9A6B05;   /* darkened for AA text on paper */
+    --gold-br: #E0A82E;   /* decorative only */
+    --blue:    #2E5BC8;
+    --green:   #2E7D52;
+    --violet:  #5B3FA6;
+    --rule:#F2E8CE;
+    --halftone:rgba(242,232,206,.06);
+    --bw: 3px;            /* base ink stroke   */
+    --bw-hair: 1.5px;
+    --shadow: 6px 6px 0 #000;
+    --ease:    cubic-bezier(.16,1,.3,1);
+    --maxw: 1180px;
+    /* per-road accent, overridden by [data-road] */
+    --accent: var(--red);
+  }
+  @media (max-width: 1px) {
+    :root {
+      --paper:#15121E; --paper-2:#1D1A2B; --paper-3:#262236;
+      --ink:#F2E8CE; --ink-soft:#B8AECB; --rule:#F2E8CE;
+      --red:#E5604F; --red-deep:#E5604F; --gold:#E0A82E; --blue:#7AA0F0;
+      --green:#5FBE8C; --violet:#B39CEF; --halftone:rgba(242,232,206,.06);
+      --shadow: 6px 6px 0 #000;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    font-size: 18px;
+    line-height: 1.5;
+    /* halftone newsprint texture */
+    background-image: radial-gradient(var(--halftone) 1.1px, transparent 1.2px);
+    background-size: 7px 7px;
+    overflow-x: hidden;
+  }
+  /* Fonts gate: hide layout-critical display text until the real faces load,
+     so blackletter/Anton don't pop in and reflow. Body copy stays visible. */
+  html.fonts-loading .masthead__title,
+  html.fonts-loading .hero__headline { visibility: hidden; }
+
+  a { color: var(--ink); text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .skip { position: absolute; left: -9999px; top: 0; background: var(--gold-br); color: #1C1A2E; padding: 10px 16px; border: var(--bw) solid var(--ink); font-family: 'Space Mono', monospace; font-weight: 700; z-index: 100; }
+  .skip:focus { left: 8px; top: 8px; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+  .rule { border: 0; border-top: var(--bw) solid var(--rule); margin: 0; }
+  .rule--double { border: 0; border-top: var(--bw) double var(--rule); height: 6px; border-bottom: var(--bw-hair) solid var(--rule); }
+
+  /* ---------- COMPONENT: kicker / label ---------- */
+  .kicker { font-family: 'Space Mono', monospace; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; font-size: .72rem; color: var(--accent); }
+
+  /* ---------- COMPONENT: button ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: .95rem;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 14px 22px; border: var(--bw) solid var(--ink); cursor: pointer;
+    background: var(--paper); color: var(--ink);
+    box-shadow: var(--shadow); transition: transform .12s var(--ease), box-shadow .12s var(--ease);
+  }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--ink); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn--primary { background: var(--red); color: #FFF4E0; border-color: var(--ink); }
+  .btn[aria-busy="true"] { opacity: .7; pointer-events: none; }
+  .btn[aria-busy="true"] .btn__label::after { content: "…"; }
+
+  /* ============================================================ MASTHEAD */
+  .masthead { padding-top: 14px; }
+  .masthead__strip { display: flex; justify-content: space-between; align-items: baseline; font-family: 'Space Mono', monospace; font-size: .68rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-soft); gap: 12px; flex-wrap: wrap; }
+  .masthead__title {
+    font-family: 'UnifrakturCook', 'Times New Roman', serif; font-weight: 700;
+    text-align: center; line-height: .92; margin: 6px 0 8px;
+    font-size: clamp(2.8rem, 11vw, 7rem); letter-spacing: 1px;
+    text-shadow: 3px 3px 0 var(--red);
+  }
+  .masthead__index { display: flex; justify-content: center; gap: 10px 22px; flex-wrap: wrap; font-family: 'Space Mono', monospace; font-size: .66rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-soft); padding: 8px 0; }
+  .masthead__index b { color: var(--accent); }
+
+  /* ============================================================ HERO */
+  .hero { padding: 26px 0 8px; }
+  .hero__grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 34px; align-items: center; }
+  .hero__art { position: relative; }
+  .hero__panel { width: 100%; height: auto; display: block; border: var(--bw) solid var(--ink); background: var(--paper-2); box-shadow: var(--shadow); }
+  .hero__caption { font-family: 'Space Mono', monospace; font-size: .64rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); margin-top: 8px; text-align: center; }
+  .hero__headline { font-family: 'Anton', Impact, sans-serif; font-weight: 400; line-height: .9; letter-spacing: .5px; text-transform: uppercase; font-size: clamp(2.6rem, 7.5vw, 5.4rem); margin: 8px 0 4px; }
+  .hero__headline em { font-style: normal; color: var(--red); -webkit-text-stroke: 0; }
+  .hero__deck { font-size: 1.18rem; line-height: 1.45; margin: 16px 0 22px; max-width: 38ch; }
+  .hero__deck b { font-weight: 700; }
+  .hero__cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .hero__meta { font-family: 'Space Mono', monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); margin-top: 14px; }
+
+  /* ============================================================ TICKER */
+  .ticker { border-top: var(--bw) solid var(--ink); border-bottom: var(--bw) solid var(--ink); background: var(--ink); color: var(--paper); overflow: hidden; margin-top: 18px; }
+  .ticker__inner { display: flex; align-items: center; }
+  .ticker__tag { flex: 0 0 auto; background: var(--red); color: #FFF4E0; font-family: 'Space Mono', monospace; font-weight: 700; font-size: .74rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 16px; border-right: var(--bw) solid var(--paper); }
+  .ticker__track { flex: 1 1 auto; overflow: hidden; white-space: nowrap; }
+  .ticker__run { display: inline-block; padding: 10px 0; font-family: 'Space Mono', monospace; font-size: .82rem; letter-spacing: .5px; white-space: nowrap; animation: marquee 38s linear infinite; }
+  .ticker__run span { padding: 0 26px; }
+  .ticker__run span::before { content: "★"; color: var(--gold-br); padding-right: 10px; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ============================================================ SECTION HEAD */
+  .sec { padding: 46px 0 10px; }
+  .sec__head { display: flex; align-items: baseline; gap: 16px; border-bottom: var(--bw) solid var(--ink); padding-bottom: 8px; margin-bottom: 26px; }
+  .sec__head h2 { font-family: 'Anton', Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(1.6rem, 4vw, 2.6rem); margin: 0; line-height: 1; }
+  .sec__head .sec__num { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--red); font-size: .9rem; }
+  .sec__head .sec__by { margin-left: auto; font-family: 'Space Mono', monospace; font-size: .66rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-soft); }
+
+  /* ============================================================ COMPONENT: .column (op-ed road card) */
+  .roads__grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+  .column { --accent: var(--red); padding: 0 18px; border-left: var(--bw-hair) solid var(--ink); position: relative; display: flex; flex-direction: column; }
+  .column:first-child { border-left: 0; padding-left: 0; }
+  .column:last-child { padding-right: 0; }
+  .column[data-road="ballot"]   { --accent: var(--blue); }
+  .column[data-road="vanguard"] { --accent: var(--red); }
+  .column[data-road="iron"]     { --accent: var(--red-deep); }
+  .column[data-road="gilded"]   { --accent: var(--gold); }
+  .column[data-road="anointed"] { --accent: var(--violet); }
+  .column__portrait { width: 100%; height: auto; aspect-ratio: 5/6; background: var(--paper-2); border: var(--bw) solid var(--ink); display: block; }
+  .column__kicker { margin: 14px 0 2px; }
+  .column__headline { font-family: 'Anton', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.5rem; line-height: .98; letter-spacing: .5px; margin: 0 0 10px; }
+  .column__promise { font-style: italic; border-left: 4px solid var(--accent); padding: 4px 0 4px 12px; margin: 0 0 14px; font-size: 1.02rem; color: var(--ink); }
+  .column__promise:focus-visible { outline-offset: 6px; }
+  .column__attr { font-family: 'Space Mono', monospace; font-size: .64rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); display: block; margin-top: 6px; }
+  .column__rungs { margin-top: auto; padding-top: 14px; font-family: 'Space Mono', monospace; font-size: .72rem; color: var(--ink-soft); line-height: 1.8; }
+  .column__rungs b { color: var(--accent); }
+  .column:hover .column__portrait { box-shadow: var(--shadow); }
+  .column__edit { font-family:'Space Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); opacity:.6; }
+
+  /* ============================================================ AI WIRE */
+  .wire__grid { display: grid; grid-template-columns: 200px 1fr; gap: 30px; align-items: start; }
+  .wire__bot { width: 100%; height: auto; border: var(--bw) solid var(--ink); background: var(--paper-2); box-shadow: var(--shadow); }
+  .wire__bot-cap { font-family:'Space Mono',monospace; font-size:.62rem; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); text-align:center; margin-top:8px; }
+  .dispatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .dispatch { border-top: var(--bw) solid var(--ink); padding-top: 12px; }
+  .dispatch h3 { font-family: 'Anton', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.15rem; letter-spacing: .5px; margin: 0 0 8px; }
+  .dispatch p { margin: 0; font-size: .98rem; }
+  .dispatch .tag { display:inline-block; font-family:'Space Mono',monospace; font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; background:var(--ink); color:var(--paper); padding:2px 8px; margin-bottom:8px; }
+
+  /* ============================================================ EDITORIAL */
+  .editorial { columns: 2; column-gap: 38px; column-rule: var(--bw-hair) solid var(--ink); font-size: 1.04rem; }
+  .editorial p { margin: 0 0 1em; }
+  .editorial .dropcap::first-letter { font-family: 'Anton', Impact, sans-serif; font-size: 3.4em; line-height: .72; float: left; padding: 6px 10px 0 0; color: var(--red); }
+  .editorial .sign { font-style: italic; color: var(--ink-soft); }
+
+  /* ============================================================ CLASSIFIEDS + FOOTER */
+  .classifieds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: var(--bw) solid var(--ink); }
+  .ad { padding: 16px; border-right: var(--bw-hair) solid var(--ink); border-bottom: var(--bw-hair) solid var(--ink); font-size: .9rem; }
+  .ad:nth-child(4n) { border-right: 0; }
+  .ad h4 { font-family: 'Space Mono', monospace; font-size: .66rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--red); margin: 0 0 6px; }
+  .colophon { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 22px 0 50px; font-family: 'Space Mono', monospace; font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); }
+  .colophon nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  .colophon nav a { border-bottom: 2px solid transparent; }
+  .colophon nav a:hover { border-bottom-color: var(--red); color: var(--ink); }
+
+  /* ============================================================ REVEAL (progressive enhancement) */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+  .reveal.in { opacity: 1; transform: none; }
+  html.no-js .reveal, .no-reveal .reveal { opacity: 1; transform: none; }
+
+  /* ============================================================ RESPONSIVE */
+  @media (max-width: 1024px) {
+    .hero__grid { gap: 24px; }
+    .roads__grid { grid-template-columns: repeat(2, 1fr); gap: 24px 22px; }
+    .column { border-left: 0; padding: 0; border-top: var(--bw-hair) solid var(--ink); padding-top: 16px; }
+    .column:first-child { padding-left: 0; }
+    .dispatches { grid-template-columns: 1fr; gap: 18px; }
+    .classifieds { grid-template-columns: repeat(2, 1fr); }
+    .ad:nth-child(4n) { border-right: var(--bw-hair) solid var(--ink); }
+    .ad:nth-child(2n) { border-right: 0; }
+  }
+  @media (max-width: 760px) {
+    body { font-size: 17px; }
+    .hero__grid { grid-template-columns: 1fr; }
+    .hero__art { order: -1; }
+    .roads__grid { grid-template-columns: 1fr; }
+    .wire__grid { grid-template-columns: 1fr; }
+    .wire__bot { max-width: 200px; margin: 0 auto; }
+    .editorial { columns: 1; }
+    .classifieds { grid-template-columns: 1fr; }
+    .ad { border-right: 0; }
+    .masthead__title { text-shadow: 2px 2px 0 var(--red); }
+  }
+
+  /* ============================================================ MOTION / PRINT */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__run { animation: none; }
+    .reveal { transition: none; opacity: 1; transform: none; }
+    .btn { transition: none; }
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to the headlines</a>
+
+<!-- ====================================================================
+     REUSABLE SVG COMPONENT LIBRARY — caricature <symbol>s reused via <use>.
+     Each bust is recolored by its host via currentColor + CSS accent vars.
+     ==================================================================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- shared face base helpers baked per-symbol for clarity -->
+
+    <symbol id="fig-ballot" viewBox="0 0 100 120">
+      <rect x="18" y="86" width="64" height="34" fill="#2E5BC8"/>
+      <path d="M30 120 L36 92 L64 92 L70 120 Z" fill="#1C1A2E"/>
+      <rect x="44" y="86" width="12" height="16" fill="#F3D9B0"/>
+      <circle cx="50" cy="58" r="30" fill="#F3D9B0"/>
+      <path d="M22 50 Q50 18 78 50 Q70 30 50 28 Q30 30 22 50Z" fill="#3a2f24"/>
+      <circle cx="40" cy="56" r="4.5" fill="#1C1A2E"/><circle cx="60" cy="56" r="4.5" fill="#1C1A2E"/>
+      <path d="M36 72 Q50 86 64 72 Q50 80 36 72Z" fill="#fff" stroke="#1C1A2E" stroke-width="2"/>
+      <path d="M38 72 H62" stroke="#1C1A2E" stroke-width="1.5"/>
+      <circle cx="26" cy="92" r="9" fill="#C0392B"/><circle cx="26" cy="92" r="3.5" fill="#F3EAD3"/>
+      <path d="M26 100 l-5 16 M26 100 l5 16" stroke="#C0392B" stroke-width="3"/>
+      <g fill="none" stroke="#1C1A2E" stroke-width="3"><circle cx="50" cy="58" r="30"/></g>
+    </symbol>
+
+    <symbol id="fig-vanguard" viewBox="0 0 100 120">
+      <rect x="16" y="88" width="68" height="32" fill="#7a1f17"/>
+      <rect x="16" y="88" width="68" height="8" fill="#C0392B"/>
+      <circle cx="50" cy="58" r="29" fill="#EAC9A6"/>
+      <rect x="20" y="30" width="60" height="16" rx="3" fill="#1C1A2E"/>
+      <rect x="14" y="44" width="72" height="9" fill="#1C1A2E"/>
+      <path d="M50 34 l4 8 -8 0 Z" fill="#E0A82E"/><circle cx="50" cy="38" r="6" fill="#C0392B"/>
+      <path d="M50 33 l1.8 4 4.2 .4 -3 3 .9 4.2 -3.9-2.2 -3.9 2.2 .9-4.2 -3-3 4.2-.4Z" fill="#E0A82E"/>
+      <rect x="38" y="56" width="9" height="5" fill="#1C1A2E"/><rect x="53" y="56" width="9" height="5" fill="#1C1A2E"/>
+      <path d="M40 74 H60" stroke="#1C1A2E" stroke-width="3"/>
+      <g fill="none" stroke="#1C1A2E" stroke-width="3"><circle cx="50" cy="58" r="29"/></g>
+    </symbol>
+
+    <symbol id="fig-iron" viewBox="0 0 100 120">
+      <rect x="14" y="86" width="72" height="34" fill="#2E2E2E"/>
+      <rect x="20" y="86" width="14" height="20" fill="#8E2A20"/><rect x="66" y="86" width="14" height="20" fill="#8E2A20"/>
+      <circle cx="28" cy="94" r="3" fill="#E0A82E"/><circle cx="72" cy="94" r="3" fill="#E0A82E"/>
+      <circle cx="50" cy="56" r="29" fill="#E8C49E"/>
+      <path d="M22 40 h56 v6 h-56Z" fill="#1C1A2E"/>
+      <path d="M24 30 Q50 14 76 30 L78 44 H22Z" fill="#3a2f24"/>
+      <rect x="37" y="54" width="10" height="4" fill="#1C1A2E"/><rect x="53" y="54" width="10" height="4" fill="#1C1A2E"/>
+      <path d="M34 50 l12 3 M66 50 l-12 3" stroke="#1C1A2E" stroke-width="3"/>
+      <path d="M34 74 q16 6 32 0 q-4 8 -16 8 q-12 0 -16-8Z" fill="#3a2f24"/>
+      <path d="M40 73 H60" stroke="#1C1A2E" stroke-width="2"/>
+      <g fill="none" stroke="#1C1A2E" stroke-width="3"><circle cx="50" cy="56" r="29"/></g>
+    </symbol>
+
+    <symbol id="fig-gilded" viewBox="0 0 100 120">
+      <rect x="16" y="90" width="68" height="30" fill="#13241B"/>
+      <path d="M30 120 L34 96 H66 L70 120Z" fill="#1C1A2E"/>
+      <path d="M40 92 l10 12 10-12Z" fill="#F3EAD3"/>
+      <circle cx="50" cy="58" r="28" fill="#F0D6AE"/>
+      <rect x="26" y="22" width="48" height="22" rx="2" fill="#1C1A2E"/>
+      <rect x="18" y="42" width="64" height="7" fill="#1C1A2E"/>
+      <rect x="26" y="38" width="48" height="5" fill="#9A6B05"/>
+      <circle cx="40" cy="57" r="4" fill="#1C1A2E"/>
+      <circle cx="60" cy="57" r="9" fill="none" stroke="#9A6B05" stroke-width="2.5"/><circle cx="60" cy="57" r="3.5" fill="#1C1A2E"/>
+      <line x1="60" y1="66" x2="58" y2="82" stroke="#9A6B05" stroke-width="2"/>
+      <path d="M42 72 q8 5 16 0" stroke="#1C1A2E" stroke-width="3" fill="none"/>
+      <rect x="58" y="73" width="22" height="6" rx="2" fill="#8E2A20"/><rect x="76" y="71" width="5" height="10" fill="#E0A82E"/>
+      <path d="M80 70 q4 -8 0 -14" stroke="#b7aecb" stroke-width="2" fill="none" opacity=".7"/>
+      <g fill="none" stroke="#1C1A2E" stroke-width="3"><circle cx="50" cy="58" r="28"/></g>
+    </symbol>
+
+    <symbol id="fig-anointed" viewBox="0 0 100 120">
+      <rect x="18" y="92" width="64" height="28" fill="#2C1654"/>
+      <path d="M30 120 Q50 104 70 120Z" fill="#1C1A2E"/>
+      <circle cx="50" cy="60" r="27" fill="#F3D9B0"/>
+      <path d="M30 44 Q50 -2 70 44 Z" fill="#F3EAD3" stroke="#1C1A2E" stroke-width="3"/>
+      <circle cx="50" cy="24" r="6" fill="#fff" stroke="#9A6B05" stroke-width="2"/>
+      <circle cx="50" cy="24" r="2.4" fill="#1C1A2E"/>
+      <g stroke="#9A6B05" stroke-width="2" stroke-linecap="round"><path d="M50 13 v-5"/><path d="M41 17 l-3-4"/><path d="M59 17 l3-4"/></g>
+      <path d="M38 58 q4 -4 8 0" stroke="#1C1A2E" stroke-width="2.5" fill="none"/>
+      <path d="M54 58 q4 -4 8 0" stroke="#1C1A2E" stroke-width="2.5" fill="none"/>
+      <path d="M40 74 q10 6 20 0" stroke="#1C1A2E" stroke-width="2.5" fill="none"/>
+      <ellipse cx="50" cy="49" rx="40" ry="8" fill="#E0A82E" opacity=".18"/>
+      <g fill="none" stroke="#1C1A2E" stroke-width="3"><circle cx="50" cy="60" r="27"/></g>
+    </symbol>
+
+    <symbol id="crown" viewBox="0 0 120 80">
+      <path d="M10 70 L18 24 L40 50 L60 14 L80 50 L102 24 L110 70 Z" fill="#E0A82E" stroke="#1C1A2E" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="10" y="66" width="100" height="12" fill="#9A6B05" stroke="#1C1A2E" stroke-width="4"/>
+      <circle cx="60" cy="14" r="6" fill="#C0392B" stroke="#1C1A2E" stroke-width="3"/>
+      <circle cx="18" cy="24" r="5" fill="#2E5BC8" stroke="#1C1A2E" stroke-width="3"/>
+      <circle cx="102" cy="24" r="5" fill="#2E7D52" stroke="#1C1A2E" stroke-width="3"/>
+      <circle cx="40" cy="72" r="3.5" fill="#C0392B"/><circle cx="60" cy="72" r="3.5" fill="#2E5BC8"/><circle cx="80" cy="72" r="3.5" fill="#2E7D52"/>
+    </symbol>
+
+    <symbol id="robot" viewBox="0 0 100 120">
+      <rect x="22" y="96" width="56" height="24" fill="#4A4763"/>
+      <rect x="24" y="40" width="52" height="50" rx="8" fill="#DFD0AC" stroke="#1C1A2E" stroke-width="3"/>
+      <line x1="50" y1="40" x2="50" y2="24" stroke="#1C1A2E" stroke-width="3"/><circle cx="50" cy="20" r="5" fill="#C0392B" stroke="#1C1A2E" stroke-width="3"/>
+      <rect x="32" y="52" width="36" height="16" rx="3" fill="#1C1A2E"/>
+      <circle cx="42" cy="60" r="4" fill="#E0A82E"/><circle cx="58" cy="60" r="4" fill="#2E5BC8"/>
+      <rect x="36" y="76" width="28" height="5" rx="2" fill="#1C1A2E"/>
+      <rect x="40" y="80" width="3" height="4" fill="#1C1A2E"/><rect x="48" y="80" width="3" height="4" fill="#1C1A2E"/><rect x="56" y="80" width="3" height="4" fill="#1C1A2E"/>
+      <rect x="14" y="58" width="10" height="22" rx="3" fill="#9A6B05" stroke="#1C1A2E" stroke-width="2.5"/>
+      <rect x="76" y="58" width="10" height="22" rx="3" fill="#9A6B05" stroke="#1C1A2E" stroke-width="2.5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+  <!-- ========================= MASTHEAD ========================= -->
+  <header class="masthead">
+    <div class="masthead__strip">
+      <span>EST. MMXXVI &middot; VOL. I &middot; <span id="dateline">A FINE DAY FOR A COUP</span></span>
+      <span>PRICE: YOUR SOUL &middot; 10&cent;</span>
+    </div>
+    <hr class="rule" />
+    <h1 class="masthead__title">The Velmora Herald</h1>
+    <hr class="rule--double" />
+    <p class="masthead__index">
+      <span><b>FRONT</b> The Race</span>
+      <span><b>P.2</b> Five Roads</span>
+      <span><b>P.3</b> The Wire</span>
+      <span><b>OP-ED</b> The Editor</span>
+      <span><b>BACK</b> Classifieds</span>
+    </p>
+  </header>
+
+  <main id="main">
+
+    <!-- ========================= HERO ========================= -->
+    <section class="hero" aria-labelledby="hero-h">
+      <div class="hero__grid">
+        <div class="hero__art reveal">
+          <!-- HERO CARTOON: five would-be rulers lunge for one crown -->
+          <svg class="hero__panel" viewBox="0 0 600 440" role="img" aria-label="Editorial cartoon: five caricatured leaders all lunging for a single floating crown.">
+            <rect width="600" height="440" fill="var(--paper-2)"/>
+            <g opacity=".5"><circle cx="300" cy="120" r="92" fill="none" stroke="var(--gold)" stroke-width="2" stroke-dasharray="3 7"/></g>
+            <!-- rays behind crown -->
+            <g stroke="var(--gold-br)" stroke-width="4" opacity=".55">
+              <line x1="300" y1="120" x2="300" y2="34"/><line x1="300" y1="120" x2="232" y2="60"/><line x1="300" y1="120" x2="368" y2="60"/><line x1="300" y1="120" x2="210" y2="120"/><line x1="300" y1="120" x2="390" y2="120"/>
+            </g>
+            <use href="#crown" x="240" y="78" width="120" height="80"/>
+            <!-- five reaching figures, fanned -->
+            <use href="#fig-ballot"   x="20"  y="190" width="120" height="150"/>
+            <use href="#fig-vanguard" x="135" y="220" width="120" height="150"/>
+            <use href="#fig-iron"     x="245" y="240" width="120" height="160"/>
+            <use href="#fig-gilded"   x="350" y="220" width="120" height="150"/>
+            <use href="#fig-anointed" x="460" y="190" width="120" height="150"/>
+            <!-- grabby hands toward the crown -->
+            <g fill="#F3D9B0" stroke="#1C1A2E" stroke-width="3">
+              <path d="M150 200 q14 -40 40 -56 l8 10 q-22 16 -30 52Z"/>
+              <path d="M450 200 q-14 -40 -40 -56 l-8 10 q22 16 30 52Z"/>
+            </g>
+            <rect x="0" y="0" width="600" height="440" fill="none" stroke="var(--ink)" stroke-width="6"/>
+          </svg>
+          <p class="hero__caption">FIG. 1 — "The Peaceful Transfer of Power," our staff cartoonist.</p>
+        </div>
+
+        <div class="hero__copy">
+          <p class="kicker" style="--accent:var(--red)">Special Election &middot; Coup &middot; Acquisition &middot; Canonization Edition</p>
+          <h2 class="hero__headline" id="hero-h" data-pretext>FIVE LIARS.<br /><em>ONE CROWN.</em></h2>
+          <p class="hero__deck" data-pretext>The throne of Velmora is vacant and, unfortunately, everyone is qualified. Pick a road, climb to the top, and discover precisely the kind of monster the job makes of you. <b>A satirical strategy game — free, in your browser, and never the same twice.</b></p>
+          <div class="hero__cta">
+            <a class="btn btn--primary" id="play" href="/">
+              <span class="btn__label">Begin Your Ascent</span> &rarr;
+            </a>
+            <a class="btn" href="#roads"><span class="btn__label">Read the charges</span></a>
+          </div>
+          <p class="hero__meta">No download &middot; No account &middot; Plays offline &middot; An on-device AI rewrites every run</p>
+        </div>
+      </div>
+    </section>
+  </div><!-- /wrap (ticker is full-bleed) -->
+
+  <!-- ========================= TICKER ========================= -->
+  <aside class="ticker" aria-label="Breaking news ticker (satirical)">
+    <div class="ticker__inner">
+      <span class="ticker__tag" aria-hidden="true">Breaking</span>
+      <div class="ticker__track"><div class="ticker__run" id="ticker-run"></div></div>
+    </div>
+  </aside>
+
+  <div class="wrap">
+
+    <!-- ========================= FIVE ROADS ========================= -->
+    <section class="sec" id="roads" aria-labelledby="roads-h">
+      <div class="sec__head">
+        <span class="sec__num">P.2</span>
+        <h2 id="roads-h">Five Roads to Power</h2>
+        <span class="sec__by">Profiles &middot; by our political desk</span>
+      </div>
+      <div class="roads__grid">
+
+        <article class="column reveal" data-road="ballot">
+          <svg class="column__portrait" viewBox="0 0 100 120" role="img" aria-label="The Candidate, a grinning ballot-box populist."><rect width="100" height="120" fill="var(--paper-3)"/><use href="#fig-ballot" x="0" y="6" width="100" height="120"/></svg>
+          <p class="kicker column__kicker">The Ballot &middot; Democracy</p>
+          <h3 class="column__headline">Win the People</h3>
+          <blockquote class="column__promise" contenteditable="true" spellcheck="false" data-pretext>"I'll cut your taxes, raise your wages, and remember your name at the diner."</blockquote>
+          <p class="column__rungs"><b>The climb:</b><br />Senator &rarr; Governor &rarr; President<br /><span class="column__attr">Lose an election, lose everything.</span></p>
+        </article>
+
+        <article class="column reveal" data-road="vanguard">
+          <svg class="column__portrait" viewBox="0 0 100 120" role="img" aria-label="The Cadre, a stern one-party apparatchik."><rect width="100" height="120" fill="var(--paper-3)"/><use href="#fig-vanguard" x="0" y="6" width="100" height="120"/></svg>
+          <p class="kicker column__kicker">The Party &middot; One-Party State</p>
+          <h3 class="column__headline">Climb the Machine</h3>
+          <blockquote class="column__promise" contenteditable="true" spellcheck="false" data-pretext>"Loyalty is rewarded. Disloyalty is also, in time, addressed."</blockquote>
+          <p class="column__rungs"><b>The climb:</b><br />Cadre &rarr; Secretary &rarr; General Secretary<br /><span class="column__attr">Fall, and you are purged.</span></p>
+        </article>
+
+        <article class="column reveal" data-road="iron">
+          <svg class="column__portrait" viewBox="0 0 100 120" role="img" aria-label="The Strongman, a mustachioed military officer."><rect width="100" height="120" fill="var(--paper-3)"/><use href="#fig-iron" x="0" y="6" width="100" height="120"/></svg>
+          <p class="kicker column__kicker">The Iron Order &middot; Strongman</p>
+          <h3 class="column__headline">Seize the State</h3>
+          <blockquote class="column__promise" contenteditable="true" spellcheck="false" data-pretext>"Order. At last. At a price you are not, strictly, permitted to ask about."</blockquote>
+          <p class="column__rungs"><b>The climb:</b><br />Movement Leader &rarr; Chief of State &rarr; Supreme Leader<br /><span class="column__attr">The courts move in the night.</span></p>
+        </article>
+
+        <article class="column reveal" data-road="gilded">
+          <svg class="column__portrait" viewBox="0 0 100 120" role="img" aria-label="The Magnate, a top-hatted monocled tycoon with a cigar."><rect width="100" height="120" fill="var(--paper-3)"/><use href="#fig-gilded" x="0" y="6" width="100" height="120"/></svg>
+          <p class="kicker column__kicker">The Gilded Republic &middot; Plutocracy</p>
+          <h3 class="column__headline">Buy the Republic</h3>
+          <blockquote class="column__promise" contenteditable="true" spellcheck="false" data-pretext>"Everything is for sale. I am merely the highest bidder for all of it."</blockquote>
+          <p class="column__rungs"><b>The climb:</b><br />Board Member &rarr; Chairman &rarr; The Architect<br /><span class="column__attr">A prosecutor with nothing to lose.</span></p>
+        </article>
+
+        <article class="column reveal" data-road="anointed">
+          <svg class="column__portrait" viewBox="0 0 100 120" role="img" aria-label="The Cleric, a serene figure in a mitre with a radiant eye."><rect width="100" height="120" fill="var(--paper-3)"/><use href="#fig-anointed" x="0" y="6" width="100" height="120"/></svg>
+          <p class="kicker column__kicker">The Anointed Path &middot; Theocracy</p>
+          <h3 class="column__headline">Claim the Mandate</h3>
+          <blockquote class="column__promise" contenteditable="true" spellcheck="false" data-pretext>"I don't make the rules. I merely relay Whom you will be answering to."</blockquote>
+          <p class="column__rungs"><b>The climb:</b><br />Parish Elder &rarr; High Prelate &rarr; Supreme Shepherd<br /><span class="column__attr">Stray, and you are cast out.</span></p>
+        </article>
+      </div>
+      <p class="column__edit" style="margin-top:14px">↻ Tip: these campaign promises are editable. Click one and rewrite it — the column re-typesets instantly.</p>
+    </section>
+
+    <!-- ========================= THE WIRE (AI) ========================= -->
+    <section class="sec" aria-labelledby="wire-h">
+      <div class="sec__head">
+        <span class="sec__num">P.3</span>
+        <h2 id="wire-h">The Wire</h2>
+        <span class="sec__by">Filed by our tireless robot correspondent</span>
+      </div>
+      <div class="wire__grid">
+        <div class="reveal">
+          <svg class="wire__bot" viewBox="0 0 100 120" role="img" aria-label="A cartoon robot newspaper editor."><rect width="100" height="120" fill="var(--paper-2)"/><use href="#robot" x="0" y="0" width="100" height="120"/></svg>
+          <p class="wire__bot-cap">"NEVER SLEEPS, NEVER ASKS FOR A RAISE."</p>
+        </div>
+        <div class="dispatches">
+          <article class="dispatch reveal"><span class="tag">On-device</span><h3>The Director</h3><p>An editor that reads how you govern and rewrites tomorrow's crisis to land exactly where you're soft. No two front pages alike.</p></article>
+          <article class="dispatch reveal"><span class="tag">On-device</span><h3>The Story Weaver</h3><p>Dilemmas spun from your own situation — your rival by name, the faction you snubbed, the lever you're weakest on.</p></article>
+          <article class="dispatch reveal"><span class="tag">Opt-in &middot; BYO key</span><h3>The Live Storyteller</h3><p>Bring your own key and a real model files brand-new dispatches at runtime. Vetted before it prints. The presses run offline without it.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= EDITORIAL ========================= -->
+    <section class="sec" aria-labelledby="ed-h">
+      <div class="sec__head">
+        <span class="sec__num">OP-ED</span>
+        <h2 id="ed-h">From the Editor's Desk</h2>
+        <span class="sec__by">An unsigned confession</span>
+      </div>
+      <div class="editorial reveal">
+        <p class="dropcap">VELMORA is fiction, and we'd like to keep it that way. The nation, its parties, its preening would-be rulers, and every scandal printed on this page are invented whole cloth. We satirize the <em>mechanism</em> of power — how it is won, kept, and lost — never any real movement, faith, place, or living person.</p>
+        <p>It costs nothing. It runs in your browser. It keeps your data on your device, asks for no account, and works on an airplane. There are no trackers in the ink.</p>
+        <p>Every climb ends in a verdict, and the verdict is rarely kind. That is the joke, and also the point: the throne does not reward you, it reveals you. Now go and ruin a fictional country, responsibly.</p>
+        <p class="sign">— The Editor, who has asked, for reasons of self-preservation, to remain anonymous.</p>
+      </div>
+    </section>
+
+    <!-- ========================= CLASSIFIEDS ========================= -->
+    <section class="sec" aria-labelledby="cl-h">
+      <div class="sec__head">
+        <span class="sec__num">BACK</span>
+        <h2 id="cl-h">Classifieds</h2>
+        <span class="sec__by">Notices &amp; sundry</span>
+      </div>
+      <div class="classifieds reveal">
+        <div class="ad"><h4>Wanted</h4>Scapegoat. Must travel. No questions, no answers, no return.</div>
+        <div class="ad"><h4>For Sale</h4>One slightly-used Mandate of Heaven. Divine provenance. Buyer assumes all curses.</div>
+        <div class="ad"><h4>Lost</h4>The moral high ground. Last seen end of Phase 1. Reward (negotiable).</div>
+        <div class="ad"><h4>Seeking</h4>Loyal advisor. Loyalty negotiable; leaks complimentary.</div>
+      </div>
+
+      <hr class="rule" style="margin-top:26px" />
+      <div class="colophon">
+        <span>&copy; MMXXVI The Velmora Herald &middot; A Fictional Nation &middot; Set in Anton, Lora &amp; blackletter</span>
+        <nav aria-label="Footer">
+          <a href="/">Play</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms</a>
+          <a href="https://github.com/richter83-star/velmora" target="_blank" rel="noopener">Source</a>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /wrap -->
+
+<script type="module" src="/src/landing/main.js"></script>
+
+</body>
+</html>

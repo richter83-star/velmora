@@ -6,6 +6,13 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      // Two pages: the game (index.html) and the marketing landing (herald.html).
+      input: {
+        main: 'index.html',
+        herald: 'herald.html',
+      },
+    },
   },
   plugins: [
     VitePWA({
