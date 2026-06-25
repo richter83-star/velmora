@@ -19,6 +19,7 @@ import { evaluateEnding } from './engine/endings';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
+import { avatarHtml, loadArtManifest } from './render/portrait';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
@@ -611,6 +612,14 @@ function safeAvatar(s){
   if(/<script|\son\w+\s*=|javascript:/i.test(s)) return "";
   return s;
 }
+/* The single portrait seam (Overhaul P1). A legacy persisted SVG string renders
+   via safeAvatar (untrusted-guarded); a descriptor goes through the resolver,
+   which returns drawn art when the manifest has it (P2+) or the legacy
+   buildAvatar SVG otherwise. With no art today, output is visually identical. */
+function portrait(av,mood="neutral",sweat=false,alt=""){
+  if(typeof av==="string") return safeAvatar(av);
+  return avatarHtml(av,mood,{sweat,alt,fallback:buildAvatar});
+}
 function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); try{window.scrollTo(0,0);}catch(e){} }
 /* ---- accessibility: live announcements + focus management (Phase 5) ---- */
 function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
@@ -662,7 +671,7 @@ function renderHUD(){
   if(!S) return;
   try{ document.body.dataset.phase = String(S.phase||1); }catch(e){} // print-fidelity ramp (Overprint)
   const P=PATHS[S.path], ph=curPhase(), m=moodExpr();
-  const ava=buildAvatar(S.player.avatar,m.expr,m.sweat);
+  const ava=portrait(S.player.avatar,m.expr,m.sweat,"Your character");
   $("#hud").innerHTML=`
     <div class="hud-top">
       <div class="hud-ava">${ava}</div>
@@ -747,7 +756,7 @@ function renderEvent(ev){
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
   let sp="";
-  if(ev.speaker){ const s=ev.speaker(S); sp=`<div class="ev-speaker"><div class="sp-ava">${safeAvatar(s.avatar)}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  if(ev.speaker){ const s=ev.speaker(S); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,"neutral",false,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
   $("#stage").innerHTML=`<div class="ev ${art}">
     ${head}
@@ -828,7 +837,7 @@ function animateNum(el,target){
 }
 function renderPromotionResult(){
   const res=S.promo.result, opp=S.promo.opp;
-  const pAva=buildAvatar(S.player.avatar,res.win?"smug":"worried",!res.win);
+  const pAva=portrait(S.player.avatar,res.win?"smug":"worried",!res.win,"Your character");
   const rc=PROMO_RESULT_COPY[S.promo.type]||PROMO_RESULT_COPY.powerplay;
   const winTitle=res.win?rc.w:rc.l;
   $("#stage").innerHTML=`<div class="promo">
@@ -836,7 +845,7 @@ function renderPromotionResult(){
     <div class="promo-body">
       <div class="tally">
         <div class="cand"><div class="cava">${pAva}</div><div class="cbarwrap"><div class="cname"><span>${esc(S.player.name)} (You)</span><span class="pp">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.pShare}" style="background:${res.win?'var(--pop)':'var(--accent)'}"></div></div></div></div>
-        <div class="cand"><div class="cava">${safeAvatar(opp.avatar)}</div><div class="cbarwrap"><div class="cname"><span>${esc(opp.name)}</span><span class="oo">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.oShare}" style="background:#9c93b0"></div></div></div></div>
+        <div class="cand"><div class="cava">${portrait(opp.avatar,"neutral",false,opp.name||"")}</div><div class="cbarwrap"><div class="cname"><span>${esc(opp.name)}</span><span class="oo">0%</span></div><div class="cbar"><div class="cf" data-fill="${res.oShare}" style="background:#9c93b0"></div></div></div></div>
       </div>
       <button class="btn ${res.win?'gold':'primary'} block lg" id="btn-promo-next" style="margin-top:18px">${res.win?'Take Power →':'See Your Fate →'}</button>
     </div></div>`;
@@ -862,7 +871,7 @@ function runSummaryRows(){
 }
 function renderEnding(){
   const e=S.ending;
-  const ava=buildAvatar(S.player.avatar,e.win?"smug":"worried",!e.win);
+  const ava=portrait(S.player.avatar,e.win?"smug":"worried",!e.win,"Your character");
   const summary=runSummaryRows().map(r=>`<div class="lc"><div class="ll">${esc(r.l)}</div><div class="lv">${esc(r.v)}</div></div>`).join("");
   const legacy=e.legacy.map(l=>`<div class="lc"><div class="ll">${esc(l.l)}</div><div class="lv">${esc(l.v)}</div></div>`).join("");
   const epilogue=buildEpilogue(S).map(b=>`<div class="epi-beat">${esc(b)}</div>`).join("");
@@ -974,7 +983,7 @@ function openCreate(path){
   }
 
   DRAFT.avatar=randAvatar(path);
-  $("#create-ava").innerHTML=buildAvatar(DRAFT.avatar,"happy");
+  $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character");
   go("create");
 }
 function beginCareer(){
@@ -1471,7 +1480,7 @@ function boot(){
   });
 
   $("#btn-create-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });
-  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=buildAvatar(DRAFT.avatar,"happy"); });
+  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character"); });
   $("#inp-name").addEventListener("input",e=>{ DRAFT.name=e.target.value; });
   $("#btn-begin-career").addEventListener("click",beginCareer);
 
@@ -1492,6 +1501,7 @@ function boot(){
 
   registerSW();
   prefetchBank(); // warm the code-split event-bank chunk so career start is instant
+  loadArtManifest(); // non-blocking: load the art registry so portraits upgrade to drawn art when packs exist (P2+)
 }
 
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
