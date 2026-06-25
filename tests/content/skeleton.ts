@@ -15,13 +15,85 @@
 
 const PROSE_KEYS = new Set(['title', 'kicker', 'body', 'label', 'hint', 'result', 'text']);
 
-function normFn(fn: (...a: unknown[]) => unknown): string {
-  return fn.toString().replace(/\s+/g, ' ').trim();
+/**
+ * For a computed `body` function, the BACKTICK-template TEXT is prose; its `${…}`
+ * interpolations and all surrounding code (ternaries, quoted logic literals like
+ * "ballot", operators, numbers) are logic. This strips only the template text —
+ * keeping `${…}` spans and every non-template character — so a prose rewrite
+ * inside body literals leaves the skeleton identical, while any change to an
+ * interpolation, a branch, a quoted literal, or a number still trips the guard.
+ * Single/double-quoted strings are CODE here and are copied verbatim.
+ */
+export function stripTemplateText(src: string): string {
+  let out = '';
+  let i = 0;
+  const n = src.length;
+  while (i < n) {
+    const c = src[i];
+    if (c === '`') {
+      out += '`';
+      i++;
+      // inside a template literal: drop text, keep ${...} expressions verbatim
+      while (i < n && src[i] !== '`') {
+        if (src[i] === '\\') {
+          i += 2; // escaped char is prose — skip it
+          continue;
+        }
+        if (src[i] === '$' && src[i + 1] === '{') {
+          out += '${';
+          i += 2;
+          let depth = 1;
+          while (i < n && depth > 0) {
+            const d = src[i];
+            if (d === '{') depth++;
+            else if (d === '}') depth--;
+            if (depth > 0) out += d;
+            i++;
+          }
+          out += '}';
+          continue;
+        }
+        i++; // ordinary prose char — drop
+      }
+      if (i < n) {
+        out += '`';
+        i++;
+      }
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      // a quoted string is CODE here (e.g. S.path === "ballot") — copy verbatim
+      const q = c;
+      out += c;
+      i++;
+      while (i < n && src[i] !== q) {
+        if (src[i] === '\\') {
+          out += src[i] + (src[i + 1] ?? '');
+          i += 2;
+          continue;
+        }
+        out += src[i];
+        i++;
+      }
+      if (i < n) {
+        out += q;
+        i++;
+      }
+      continue;
+    }
+    out += c;
+    i++;
+  }
+  return out;
 }
 
 export function skeletonize(value: unknown, key?: string): unknown {
   if (typeof value === 'function') {
-    return `__fn__:${normFn(value as (...a: unknown[]) => unknown)}`;
+    const src = (value as (...a: unknown[]) => unknown).toString();
+    // A computed `body` is display prose → ignore its template text; every other
+    // function (req/speaker) is pure logic → lock its full source.
+    const norm = key === 'body' ? stripTemplateText(src) : src;
+    return `__fn__:${norm.replace(/\s+/g, ' ').trim()}`;
   }
   if (typeof value === 'string') {
     return key && PROSE_KEYS.has(key) ? '' : value;

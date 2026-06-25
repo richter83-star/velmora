@@ -16,28 +16,29 @@ export const CRISIS_SUB_EVENTS: GameEvent[] = [
     crisis: true,
     art: 'crisis',
     emoji: '🔥',
-    title: 'The Square Erupts',
-    body: `A protest has boiled over into a riot, and the order to respond runs through you. What you choose in the next minutes will be replayed for years.`,
+    title: 'The Square Goes Feral',
+    body: `A protest curdled into a full-blown riot, and now ten thousand sweaty maniacs are flipping cars while every camera in Velmora points at you. The order to respond stops at your desk. Whatever you bark in the next sixty seconds gets replayed at your funeral.`,
     choices: [
       {
-        label: 'Send in the riot police',
+        label: 'Sic the riot squad on the bastards',
         fx: { base: 4, heat: 6 },
         sub: 'cs_riot_force',
         tone: 'bold',
-        result: 'You give the order to clear the square. Now comes the only question that matters: how far?',
+        result:
+          'You give the word to crack heads and clear the square. Now comes the only question anyone will remember: how many heads, and how hard?',
       },
       {
-        label: 'Walk out and face the crowd yourself',
+        label: 'Stroll out there and face the screaming horde yourself',
         roll: {
           stat: 'support',
           dc: 52,
           success: {
             fx: { support: 12, base: 6, heat: -4 },
-            text: 'You step into the square unguarded, and the fury gives way to a wary hush. You listen, and it holds.',
+            text: 'You wade in with no guards and no plan, and the rage just... deflates into a nervous hush. You shut up and listen, and the mob — bless its tiny collective brain — listens back.',
           },
           fail: {
             fx: { support: -6, heat: 6 },
-            text: 'You try to reason with a mob and get shouted down. The gesture looks naive on every screen.',
+            text: 'You try to reason with a pack of brick-throwers and get howled off your feet. On every screen you look exactly like the naive jackass you turned out to be.',
           },
         },
         set: { peacemaker: true },
@@ -54,23 +55,25 @@ export const CRISIS_SUB_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🛡️',
     kicker: 'The order is given',
-    title: 'How Far Do You Go?',
-    body: `The police are in the square and looking to you for the limit. There is a line here, and you are drawing it in front of the whole nation.`,
+    title: 'So How Far Do You Take It?',
+    body: `The boots are in the square and the commander is staring at you, waiting to know exactly how nasty he's allowed to get. There's a line here, and you're about to draw it in fresh blood in front of the entire nation.`,
     choices: [
       {
-        label: 'Targeted arrests, minimal force',
+        label: 'Pick off the ringleaders, keep the batons mostly holstered',
         fx: { base: 4, heat: 4, support: -2 },
         tone: 'good',
-        result: 'You hold the line at restraint. The square clears slowly, and the footage, while ugly, is survivable.',
+        result:
+          'You hold the leash at "restraint." The square empties at a crawl, and while the footage is ugly as sin, it is the kind of ugly a man can survive.',
       },
       {
-        label: 'Overwhelming force — end it now',
+        label: 'Overwhelming force — flatten the whole thing right now',
         fx: { base: 8, heat: 16, support: -10 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, tyrant_rep: true },
         scandal: { id: 'square_cleared', label: 'the night you cleared the square', severity: 3 },
         tone: 'bold',
-        result: 'You bring the hammer down. The square is empty by dawn, and the silence that follows has a long memory.',
+        result:
+          'You drop the hammer like it owes you money. The square is spotless and silent by dawn — and that silence has a very, very long memory.',
       },
     ],
   },
@@ -82,28 +85,29 @@ export const CRISIS_SUB_EVENTS: GameEvent[] = [
     crisis: true,
     art: 'crisis',
     emoji: '🦠',
-    title: 'The Contagion',
-    body: `A fast-moving sickness is doubling by the day, and the experts want emergency powers before it is too late. Powers, once taken, are slow to give back.`,
+    title: 'The Plague Express',
+    body: `Some vile little bug is doubling its body count every damn day, and the lab coats are begging you for emergency powers before the whole country starts dropping. Trouble is, powers are like a clingy ex — easy to grab, a nightmare to give back.`,
     choices: [
       {
-        label: 'Impose emergency measures',
+        label: 'Slam down emergency measures',
         fx: { influence: 4, heat: 4 },
         sub: 'cs_outbreak_enforce',
         tone: 'bold',
-        result: 'You declare the emergency. The harder question is how you make a frightened country comply.',
+        result:
+          'You declare the emergency. Now for the genuinely hard part: how the hell you bully a terrified, snot-nosed country into actually doing what it is told.',
       },
       {
-        label: 'Issue voluntary guidance only',
+        label: 'Just suggest people behave and hope for the best',
         roll: {
           stat: 'support',
           dc: 50,
           success: {
             fx: { support: 10, base: 4 },
-            text: 'You trust the public with the truth and a plan, and most of them rise to it. Trust, repaid.',
+            text: 'You hand the public the ugly truth and a real plan, and — miracle of miracles — most of them actually step up. Treat people like adults, occasionally they act like it.',
           },
           fail: {
             fx: { support: -8, heat: 6 },
-            text: 'Voluntary proves too slow against an exponential curve. The wards fill, and so does the criticism.',
+            text: 'Turns out "pretty please" loses a footrace against an exponential curve every single time. The wards fill up, and so does the mountain of people screaming that you fumbled it.',
           },
         },
         set: { honest_rep: true },
@@ -120,22 +124,24 @@ export const CRISIS_SUB_EVENTS: GameEvent[] = [
     art: 'bulletin',
     emoji: '🚧',
     kicker: 'Emergency declared',
-    title: 'How Do You Enforce It?',
-    body: `The emergency is law. Whether it is obeyed depends entirely on the hand behind it — open and persuasive, or closed and absolute.`,
+    title: 'And How Do You Make Them Obey?',
+    body: `The emergency is law now. Whether anyone actually listens comes down entirely to the fist behind it — an open palm offering bread, or a closed knuckle promising worse.`,
     choices: [
       {
-        label: 'By consent — persuade and support people',
+        label: 'By bribery and kindness — coax them, prop them up',
         fx: { support: 8, funds: -6, heat: -2 },
         set: { peacemaker: true },
         tone: 'good',
-        result: 'You pair the rules with real help, and the country mostly comes along willingly. Slower, kinder, sturdier.',
+        result:
+          'You bolt the rules to real help — cash, food, a hand on the shoulder — and the country mostly shuffles along willingly. Slower, softer, and a hell of a lot harder to topple.',
       },
       {
-        label: 'By force — checkpoints and curfews',
+        label: 'By brute force — checkpoints, curfews, and a boot on the throat',
         fx: { base: 8, heat: 12, support: -6 },
         set: { tyrant_rep: true },
         tone: 'bold',
-        result: 'You enforce with cordons and curfews. Compliance is swift, and the resentment is patient.',
+        result:
+          'You enforce it with cordons and curfews and goons on every corner. Compliance is gorgeously instant; the resentment, however, is in absolutely no hurry at all.',
       },
     ],
   },

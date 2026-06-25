@@ -61,13 +61,19 @@ function reactive(S: GameState, name: string): string[] {
   else if (s.heat >= 50) out.push('Ethics watchdogs seen sharpening their pencils');
   if (s.support <= 28) out.push(`${name}’s approval "merely taking a breather," aides insist`);
   else if (s.support >= 70) out.push(`${name} riding a wave of public goodwill, for now`);
-  if ((S.world?.economy?.mood ?? 0) < 0) out.push('Markets described by traders as "a bit emotional" today');
-  if ((S.world?.tension?.d ?? 0) > 4) out.push('Border situation described as "tense but largely theatrical"');
+  if ((S.world?.economy?.mood ?? 0) < 0)
+    out.push('Markets described by traders as "a bit emotional" today');
+  if ((S.world?.tension?.d ?? 0) > 4)
+    out.push('Border situation described as "tense but largely theatrical"');
   if (S.activeScandal) out.push(`Old scandal resurfaces; ${name}’s office "declines to relive it"`);
-  if (f.corrupt_streak) out.push(`Questions mount over ${name}’s mysteriously robust personal finances`);
-  if (f.clean_streak || f.honest_rep) out.push(`${name} praised for candor; veteran pundits deeply suspicious`);
-  if (S.path === 'vanguard' && f.bloody_hands) out.push(`State media lauds ${name}’s "firm and loving hand"`);
-  if (f.own_cult || f.cult_building) out.push(`${name}’s official portrait reported on a further 4,000 walls`);
+  if (f.corrupt_streak)
+    out.push(`Questions mount over ${name}’s mysteriously robust personal finances`);
+  if (f.clean_streak || f.honest_rep)
+    out.push(`${name} praised for candor; veteran pundits deeply suspicious`);
+  if (S.path === 'vanguard' && f.bloody_hands)
+    out.push(`State media lauds ${name}’s "firm and loving hand"`);
+  if (f.own_cult || f.cult_building)
+    out.push(`${name}’s official portrait reported on a further 4,000 walls`);
   if (S.phase >= 3) out.push(`Foreign capitals "watching ${name} closely," as ever`);
   return out;
 }

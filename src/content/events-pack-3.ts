@@ -19,20 +19,20 @@ export const PACK_3: GameEvent[] = [
     art: 'scene',
     emoji: '📢',
     title: 'Your First Big Rally',
-    body: `The hall is half-empty an hour before doors, and your stomach knows it. Then people trickle in, then pour in. The microphone waits.`,
+    body: `The hall is half-empty an hour before doors and your gut is screaming that you're a fraud. Then a trickle of warm bodies, then a flood of them. The microphone sits there like a loaded dare.`,
     choices: [
       {
-        label: 'Swing for a barn-burner of a speech',
+        label: 'Swing for a balls-out barn-burner of a speech',
         roll: {
           stat: 'media',
           dc: 48,
           success: {
             fx: { media: 10, support: 8, base: 6 },
-            text: 'You find a rhythm and the room finds its feet. The clip of the crowd roaring does your fundraising for a week.',
+            text: 'You catch a rhythm and the room loses its damn mind. The clip of the crowd screaming raises money for a solid week while you sleep.',
           },
           fail: {
             fx: { support: -4, base: -2 },
-            text: 'You over-reach, lose the thread, and the applause is the polite kind. You will rewrite this speech forever.',
+            text: 'You overreach, fumble the thread, and earn the limp golf-clap of polite pity. You will rewrite this speech in your head until you die.',
           },
         },
         tone: 'bold',
@@ -42,7 +42,8 @@ export const PACK_3: GameEvent[] = [
         fx: { support: 6, base: 4 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You skip the fireworks and just talk to them. It is not viral, but the people in the room believe you.',
+        result:
+          'You ditch the pyrotechnics and just talk to them like people. It does not go viral, but every poor bastard in that room walks out believing you.',
       },
     ],
   },
@@ -54,7 +55,7 @@ export const PACK_3: GameEvent[] = [
     art: 'rival',
     emoji: '🎩',
     title: 'The Local Machine',
-    body: `A ward boss with rings on every finger offers you turnout no volunteer army can match — a wall of votes, delivered. Nothing is free in his arithmetic.`,
+    body: `A ward boss wearing a gold ring on every greasy finger offers you turnout no volunteer army could dream of — a wall of votes, gift-wrapped. Nothing in this fat bastard's math is ever free.`,
     choices: [
       {
         label: 'Take the machine’s turnout',
@@ -62,14 +63,16 @@ export const PACK_3: GameEvent[] = [
         set: { owes_boss: true, corrupt_streak: true },
         then: [{ id: 'p3_b_machine_due', inTurns: 3 }],
         tone: 'slick',
-        result: 'The numbers arrive like clockwork. So, eventually, will the boss, with a list of what he expects.',
+        result:
+          'The numbers land like clockwork. So, eventually, will the boss — clutching a list of exactly what your soul costs.',
       },
       {
         label: 'Build your own ground game',
         fx: { base: 10, support: 2, funds: -4 },
         set: { clean_streak: true },
         tone: 'good',
-        result: 'You do it the slow way — clipboards, church basements, sore feet. It is yours, and no one can repossess it.',
+        result:
+          'You do it the slow, miserable way — clipboards, damp church basements, feet screaming in your shoes. It is yours, and no greasy bastard can ever repossess it.',
       },
     ],
   },
@@ -82,7 +85,7 @@ export const PACK_3: GameEvent[] = [
     art: 'rival',
     emoji: '🧾',
     title: 'The Boss Collects',
-    body: `The ward boss who handed you a wall of votes is in your doorway now, smiling, with a contract he would very much like you to bless.`,
+    body: `The ward boss who handed you a wall of votes is parked in your doorway, smiling like a shark, waving a contract he would dearly love you to bless with your virgin signature.`,
     choices: [
       {
         label: 'Sign the sweetheart deal',
@@ -90,14 +93,16 @@ export const PACK_3: GameEvent[] = [
         set: { corrupt_streak: true },
         scandal: { id: 'machine_contract', label: 'the boss’s no-bid contract', severity: 2 },
         tone: 'slick',
-        result: 'You bless the contract. The boss is satisfied, and you are now a name in his ledger forever.',
+        result:
+          'You bless the filthy thing. The boss is purring, and you are now a permanent entry in his little ledger of owned men.',
       },
       {
         label: 'Refuse and burn the bridge',
         fx: { base: -8, support: 6, heat: -4 },
         set: { defied_boss: true },
         tone: 'bold',
-        result: 'You tell him no. He takes his machine and his grudge home. Both will be back.',
+        result:
+          'You tell the prick no. He gathers up his machine and his grudge and waddles home. Rest assured, both come back hungrier.',
       },
     ],
   },
@@ -109,20 +114,22 @@ export const PACK_3: GameEvent[] = [
     art: 'scene',
     emoji: '🚪',
     title: 'The Grind',
-    body: `It is cold, it is raining, and there are four hundred more doors. Your staff suggests you could just do a fundraiser call-time block instead.`,
+    body: `It's freezing, it's pissing rain, and there are four hundred more doors. Your staff gently suggests you could just park your ass on a call-time block and beg rich people for money instead.`,
     choices: [
       {
         label: 'Knock every door yourself',
         fx: { base: 10, support: 6, funds: -2 },
         set: { grassroots: true, clean_streak: true },
         tone: 'good',
-        result: 'You shake cold hands until yours go numb. The local paper runs a photo titled, simply, "Showed Up."',
+        result:
+          'You shake frozen hands until your own go dead and useless. The local rag runs a photo titled, simply, "Showed Up," and that one word does more than any ad.',
       },
       {
         label: 'Spend the day dialing donors',
         fx: { funds: 12, base: -4 },
         tone: 'slick',
-        result: 'You raise a tidy sum from a warm chair. The doors go unknocked, and someone notices which you chose.',
+        result:
+          'You shake down a tidy pile of cash from a warm leather chair. The doors stay unknocked, and somebody out there clocks exactly which one you picked.',
       },
     ],
   },
@@ -134,7 +141,7 @@ export const PACK_3: GameEvent[] = [
     art: 'newspaper',
     emoji: '🎉',
     title: 'The Convention Speech',
-    body: `Tens of thousands in the hall, tens of millions at home, and a teleprompter holding the most important words of your life. This is the moment that becomes the montage.`,
+    body: `Tens of thousands packed in the hall, tens of millions slumped on couches at home, and a teleprompter holding the most important words of your sorry life. This is the moment that becomes the montage.`,
     choices: [
       {
         label: 'Reach for history — go big',
@@ -143,11 +150,11 @@ export const PACK_3: GameEvent[] = [
           dc: 55,
           success: {
             fx: { media: 14, support: 12, base: 6 },
-            text: 'You deliver the speech of a generation. Grown strategists weep. The bounce is enormous.',
+            text: 'You deliver the speech of a goddamn generation. Hardened strategists openly weep into their lanyards. The bounce is obscene.',
           },
           fail: {
             fx: { media: -6, support: -6, heat: 4 },
-            text: 'You aim for the rafters and clip a wing. The pundits call it "ambitious," which is not a compliment.',
+            text: 'You aim for the rafters and clip a wing on the way up. The pundits call it "ambitious," which is the noise critics make when something faceplants.',
           },
         },
         tone: 'bold',
@@ -156,7 +163,8 @@ export const PACK_3: GameEvent[] = [
         label: 'Give the safe, unifying address',
         fx: { support: 8, media: 6, base: 2 },
         tone: 'good',
-        result: 'You hit every mark and offend no one. Solid, presidential, forgettable — exactly as designed.',
+        result:
+          'You hit every mark and offend not one living soul. Solid, presidential, and so forgettable it dissolves before the balloons hit the floor — exactly as designed.',
       },
     ],
   },
@@ -179,11 +187,11 @@ export const PACK_3: GameEvent[] = [
           dc: 53,
           success: {
             fx: { media: 8, support: 8, heat: 4 },
-            text: 'You flood the zone with your own narrative before theirs sets. The surprise fizzles on the launch pad.',
+            text: 'You flood every screen with your own version before theirs can dry. The big surprise fizzles out on the launch pad like a wet firework.',
           },
           fail: {
             fx: { support: -10, heat: 8 },
-            text: 'Your scramble looks like panic, which looks like guilt. The story grows legs and runs.',
+            text: 'Your frantic scramble reads as panic, which reads as guilt. The story sprouts legs, then wheels, then a full marching band.',
           },
         },
         npcFx: { id: 'antagonist', relationship: -12 },
@@ -193,7 +201,8 @@ export const PACK_3: GameEvent[] = [
         label: 'Stay calm and let allies carry the rebuttal',
         fx: { support: 2, base: 2, media: -2 },
         tone: 'good',
-        result: 'You keep your dignity and let surrogates do the brawling. Slower, steadier, and your hands stay clean.',
+        result:
+          'You keep your dignity and let the surrogates roll around in the mud for you. Slower, steadier, and your manicured hands stay spotless.',
       },
     ],
   },
@@ -207,21 +216,23 @@ export const PACK_3: GameEvent[] = [
     art: 'bulletin',
     emoji: '🗄️',
     title: 'Your First Posting',
-    body: `A grey ministry, a grey desk, and a stack of files that decide other people’s lives. The clerk who shows you around mentions, lightly, who reports on whom.`,
+    body: `A grey ministry, a grey desk, and a teetering stack of files that quietly decide whether strangers get to keep breathing. The clerk giving you the tour mentions, very casually, exactly who snitches on whom.`,
     choices: [
       {
         label: 'Master the paperwork; become indispensable',
         fx: { influence: 10, base: 4 },
         set: { has_network: true },
         tone: 'slick',
-        result: 'You learn which form moves which mountain. Quietly, you become the person who knows where everything is.',
+        result:
+          'You learn which form moves which mountain and which one buries a man alive. Quietly, you become the bastard who knows where every body is filed.',
       },
       {
         label: 'Quietly protect the people in the files',
         fx: { support: 8, base: 4, heat: 4 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You misfile the right things and lose the dangerous ones. Small mercies, and a small, growing risk.',
+        result:
+          'You misplace the right paperwork and "lose" the documents that get people shot. Small mercies, and a small, growing chance you join them.',
       },
     ],
   },
@@ -233,7 +244,7 @@ export const PACK_3: GameEvent[] = [
     art: 'bulletin',
     emoji: '📛',
     title: 'The Denunciation',
-    body: `A colleague — competent, decent, and now suddenly "unreliable" — is to be denounced at the section meeting. Everyone will be watching whether you raise your hand.`,
+    body: `A colleague — competent, decent, and now mysteriously branded "unreliable" — is to be denounced at the section meeting. Every eye in the room is glued to whether your hand goes up.`,
     choices: [
       {
         label: 'Denounce them loudly',
@@ -241,13 +252,15 @@ export const PACK_3: GameEvent[] = [
         inc: { purge_count: 1 },
         set: { bloody_hands: true },
         tone: 'bold',
-        result: 'You read the charges with conviction you do not feel. Your colleague is gone by morning. You are noticed.',
+        result:
+          'You read the charges with a conviction you absolutely do not feel. Your colleague is gone by sunrise. The right people notice your enthusiasm.',
       },
       {
         label: 'Stay silent and study your shoes',
         fx: { heat: 6, base: -2 },
         tone: 'slick',
-        result: 'You neither accuse nor defend. Silence is the cowardice that lets you survive to the next meeting.',
+        result:
+          'You neither accuse nor defend. Cowardice, it turns out, is the precise thing that keeps you breathing till the next meeting.',
       },
       {
         label: 'Quietly warn them the night before',
@@ -256,7 +269,8 @@ export const PACK_3: GameEvent[] = [
         fx: { support: 8, influence: -6, heat: 6 },
         set: { secret_reformer: true },
         tone: 'good',
-        result: 'A whispered word in a stairwell. They vanish before the meeting — fled, not arrested. A debt is owed, and a risk is taken.',
+        result:
+          'One whispered word in a cold stairwell. They vanish before the meeting — fled, not dragged off. A debt is owed, and your own neck is now on the block.',
       },
     ],
   },
@@ -268,7 +282,7 @@ export const PACK_3: GameEvent[] = [
     art: 'scene',
     emoji: '📚',
     title: 'The Study Circle',
-    body: `In a back room that smells of cigarettes and daring, a few trusted people read the banned books and imagine a gentler country. They want to know if you are one of them.`,
+    body: `In a back room reeking of cheap smoke and genuine danger, a few trusted souls read the forbidden books and dream up a kinder country. They want to know if you're one of them or a rat.`,
     choices: [
       {
         label: 'Join them — quietly believe',
@@ -276,13 +290,15 @@ export const PACK_3: GameEvent[] = [
         set: { secret_reformer: true },
         then: [{ id: 'p3_v_circle_exposed', inTurns: 4 }],
         tone: 'good',
-        result: 'You take a seat and a great risk. For the first time in years, hope feels less like a liability.',
+        result:
+          'You pull up a chair and a colossal risk. For the first time in years, hope stops feeling like a loaded gun pointed at your own head.',
       },
       {
         label: 'Decline — too dangerous to dream',
         fx: { influence: 4, base: 2, heat: -4 },
         tone: 'slick',
-        result: 'You make your excuses and leave the books unread. Some windows are safer left painted shut.',
+        result:
+          'You mumble an excuse and leave the books unopened. Some windows are a hell of a lot safer painted shut.',
       },
       {
         label: 'Report the circle to the organs',
@@ -290,7 +306,8 @@ export const PACK_3: GameEvent[] = [
         inc: { purge_count: 1 },
         set: { bloody_hands: true, zealot_rep: true },
         tone: 'bold',
-        result: 'You give the names. The back room is emptied that week, and your file gains a gold star and a stain.',
+        result:
+          'You cough up every name. The back room is scrubbed empty within the week, and your file earns a shiny gold star sitting in a permanent stain.',
       },
     ],
   },
@@ -303,7 +320,7 @@ export const PACK_3: GameEvent[] = [
     art: 'crisis',
     emoji: '🔦',
     title: 'The Circle Is Exposed',
-    body: `The study circle has been discovered, and an investigator with patient eyes is asking everyone, one by one, who else attended. Your name is a question away.`,
+    body: `The study circle has been sniffed out, and an investigator with patient, dead eyes is working the room one body at a time, asking who else showed up. Your name is one nervous answer away.`,
     choices: [
       {
         label: 'Deny everything, coldly',
@@ -312,11 +329,11 @@ export const PACK_3: GameEvent[] = [
           dc: 55,
           success: {
             fx: { influence: 6, base: 4, heat: -4 },
-            text: 'You meet the patient eyes with colder ones and give nothing. The thread leads away from you.',
+            text: 'You meet those patient dead eyes with colder ones and give the bastard exactly nothing. The thread crawls off in some other direction.',
           },
           fail: {
             fx: { heat: 16, support: -8 },
-            text: 'Your denial is a beat too fast. The investigator writes something down and underlines it.',
+            text: 'Your denial comes one heartbeat too fast. The investigator jots something down, then underlines it twice, just for you.',
           },
         },
         tone: 'slick',
@@ -326,7 +343,8 @@ export const PACK_3: GameEvent[] = [
         fx: { support: 12, influence: -10, heat: 10 },
         set: { secret_reformer: true, martyr_rep: true },
         tone: 'bold',
-        result: 'You absorb the blame so the rest go free. It costs you dearly, and somewhere a handful of people will never forget it.',
+        result:
+          'You eat the whole blame so the rest walk free. It guts you, body and career, and somewhere a handful of people will whisper your name for the rest of their lives.',
       },
     ],
   },
@@ -338,20 +356,22 @@ export const PACK_3: GameEvent[] = [
     art: 'bulletin',
     emoji: '🔥',
     title: 'Auditioning Your Zeal',
-    body: `At the rally, the truest believers compete to chant the loudest and pledge the most. Fervor is being measured, and your volume is your résumé.`,
+    body: `At the rally, the truest believers elbow each other to chant the loudest and pledge the most insane crap. Fervor is being weighed by the pound, and your volume is your entire résumé.`,
     choices: [
       {
         label: 'Out-zealot the zealots',
         fx: { base: 12, media: 4, support: -4, heat: 4 },
         set: { hardliner_cred: true },
         tone: 'bold',
-        result: 'You bellow the slogans loudest of all. The doctrinaire wing claims you as theirs, for better and worse.',
+        result:
+          'You bellow the slogans louder than any frothing maniac in the square. The doctrinaire wing claims you as their own rabid son, for better and much worse.',
       },
       {
         label: 'Clap along, mean none of it',
         fx: { heat: 4, influence: 2 },
         tone: 'slick',
-        result: 'You move your lips and save your voice. Performed fervor is cheaper than the real thing and just as visible.',
+        result:
+          'You flap your lips and save your throat. Faked fervor is cheaper than the real poison and reads exactly the same from the stage.',
       },
     ],
   },
@@ -373,14 +393,16 @@ export const PACK_3: GameEvent[] = [
         set: { climber_rep: true },
         npcFx: { id: 'antagonist', relationship: -14 },
         tone: 'bold',
-        result: 'You let it be known, without saying it, that the future is you. Your rival sharpens accordingly.',
+        result:
+          'You let it be known, without ever stooping to say it, that the future has your face stapled to it. Your rival starts sharpening accordingly.',
       },
       {
         label: 'Build a coalition behind a compromise figure',
         fx: { influence: 8, support: 6, base: -2 },
         set: { has_network: true },
         tone: 'slick',
-        result: 'You play kingmaker instead of king. Power that is owed to you is sometimes safer than power that is yours.',
+        result:
+          'You play kingmaker instead of king. Power somebody owes you is sometimes a hell of a lot safer to hold than power with your fingerprints all over it.',
       },
     ],
   },
@@ -392,21 +414,23 @@ export const PACK_3: GameEvent[] = [
     art: 'bulletin',
     emoji: '🖼️',
     title: 'The Portrait Committee',
-    body: `An eager bureau proposes your face on the schoolroom walls, the morning broadcasts, the children’s primers. The machinery of adoration is asking for the green light.`,
+    body: `An eager little bureau proposes plastering your face on every schoolroom wall, every morning broadcast, every kid's primer. The whole adoration machine is idling at the line, begging for the green light.`,
     choices: [
       {
         label: 'Let the cult bloom',
         fx: { base: 10, media: 8, support: 4, heat: 6 },
         set: { cult_building: true, own_cult: true },
         tone: 'bold',
-        result: 'Your portrait multiplies overnight. To be everywhere at once is a kind of immortality and a kind of prison.',
+        result:
+          'Your mug multiplies overnight like a glorious rash. Being everywhere at once turns out to be a flavor of immortality and a flavor of prison cell.',
       },
       {
         label: 'Forbid it — "the Party, not the man"',
         fx: { support: 8, base: -2, heat: -4 },
         set: { ascetic_rep: true },
         tone: 'good',
-        result: 'You order your own face taken down. Modesty, performed at scale, is its own quiet kind of power.',
+        result:
+          'You order your own giant face scraped off the walls. Modesty, performed at industrial scale, is its own sneaky little flex of power.',
       },
     ],
   },
@@ -420,7 +444,7 @@ export const PACK_3: GameEvent[] = [
     art: 'scene',
     emoji: '👨‍👩‍👦',
     title: 'Blood and Office',
-    body: `A relative wants a posting they have not earned. Family loyalty pulls one way; the appearance of nepotism, and your own thin patience, pull the other.`,
+    body: `A relative wants a cushy posting they did absolutely nothing to earn. Family loyalty yanks one way; the stink of nepotism and your own paper-thin patience yank the other.`,
     choices: [
       {
         label: 'Find them a comfortable sinecure',
@@ -428,14 +452,16 @@ export const PACK_3: GameEvent[] = [
         set: { nepotism: true, corrupt_streak: true },
         scandal: { id: 'family_sinecure', label: 'the relative on the payroll', severity: 1 },
         tone: 'slick',
-        result: 'You make the call. Blood is honored, and a future headline is quietly written and filed.',
+        result:
+          'You make the call. Blood is honored, and a future headline gets quietly written, notarized, and filed under "inevitable."',
       },
       {
         label: 'Tell them no, gently but firmly',
         fx: { base: -2, support: 6, influence: 2 },
         set: { clean_streak: true },
         tone: 'good',
-        result: 'You hold the line and weather the cold silence at the next family dinner. Principles are expensive at home.',
+        result:
+          'You hold the line and choke down the arctic silence at the next family dinner. Principles, it turns out, cost the most at your own damn table.',
       },
     ],
   },
@@ -447,7 +473,7 @@ export const PACK_3: GameEvent[] = [
     art: 'scene',
     emoji: '🕯️',
     title: 'A Late Night of Conviction',
-    body: `Past midnight, alone with a draft, you can write the careful speech your handlers approved — or the honest one you actually believe.`,
+    body: `Past midnight, alone with a draft and a cold coffee, you can publish the gutless speech your handlers blessed — or the honest one that actually lives somewhere in your chest.`,
     choices: [
       {
         label: 'Publish the honest one',
@@ -456,11 +482,11 @@ export const PACK_3: GameEvent[] = [
           dc: 50,
           success: {
             fx: { support: 12, base: 8 },
-            text: 'You say the true thing plainly, and it lands. People are starved for someone who means it.',
+            text: 'You say the true thing plainly, and it lands square in the gut. People are starving for one bastard who actually means a word he says.',
           },
           fail: {
             fx: { support: -6, heat: 6 },
-            text: 'You say the true thing and it is promptly clipped, twisted, and weaponized. Honesty is a gamble.',
+            text: 'You say the true thing and it gets clipped, gutted, and rammed back down your throat by lunch. Honesty is a coin flip with a knife on both sides.',
           },
         },
         set: { peacemaker: true },
@@ -470,7 +496,8 @@ export const PACK_3: GameEvent[] = [
         label: 'Run the safe, approved draft',
         fx: { media: 4, support: 2, base: -2 },
         tone: 'slick',
-        result: 'You file the version that survives a focus group. It says little and risks nothing, which is the point.',
+        result:
+          'You file the version that survived a focus group with all its teeth pulled. It says nothing and risks nothing, which is the whole gutless point.',
       },
     ],
   },
@@ -491,7 +518,8 @@ export const PACK_3: GameEvent[] = [
         fx: { influence: 8, support: 6, base: -2 },
         npcFx: { id: 'antagonist', relationship: 18 },
         tone: 'good',
-        result: 'You shake hands and mean it. The war cools, and you both, briefly, remember you were once just people.',
+        result:
+          'You shake the hand and actually mean it. The war cools off, and for one weird minute you both remember you used to be regular schmucks before all this.',
       },
       {
         label: 'Smile, agree, and prepare a knife',
@@ -499,7 +527,8 @@ export const PACK_3: GameEvent[] = [
         npcFx: { id: 'antagonist', relationship: -10 },
         set: { backstabber: true },
         tone: 'slick',
-        result: 'You toast the truce and keep one hand behind your back. Trust is a resource you have chosen not to spend.',
+        result:
+          'You toast the truce with one hand and keep the other one wrapped around a blade behind your back. Trust is a resource you flatly refuse to blow on this prick.',
       },
     ],
   },
@@ -511,20 +540,22 @@ export const PACK_3: GameEvent[] = [
     art: 'newspaper',
     emoji: '🏅',
     title: 'The Press Dinner',
-    body: `The press association hands out its annual awards over bad chicken and worse wine, and tradition demands the powerful roast themselves. The room is full of people who quote you.`,
+    body: `The press association hands out its little gold trinkets over rubbery chicken and worse wine, and tradition demands the powerful stand up and roast their own asses. The room is wall-to-wall people who quote you for a living.`,
     choices: [
       {
         label: 'Be self-deprecating and charming',
         fx: { media: 10, support: 4 },
         set: { press_friendly: true },
         tone: 'good',
-        result: 'You land the jokes, including the ones at your own expense. The columnists go home a little fonder.',
+        result:
+          'You stick every joke, including the brutal ones aimed at yourself. The columnists waddle home a few degrees fonder of you.',
       },
       {
         label: 'Settle scores from the podium',
         fx: { media: -6, base: 6, heat: 6 },
         tone: 'bold',
-        result: 'You use the mic to swing at your critics. Your base loves it; everyone holding a pen remembers it.',
+        result:
+          'You grab the mic and start swinging at your critics. Your base eats it up with a spoon; every single bastard holding a pen writes the date down.',
       },
     ],
   },
@@ -539,7 +570,7 @@ export const PACK_3: GameEvent[] = [
     art: 'crisis',
     emoji: '🌾',
     title: 'The Harvest Fails',
-    body: `A failed harvest meets an empty reserve, and hunger begins to walk the provinces. Pride says project strength; arithmetic says ask for help.`,
+    body: `A dead harvest slams into an empty reserve, and hunger starts strolling the provinces like it owns them. Pride howls at you to project strength; cold arithmetic mutters that you'd better start begging.`,
     choices: [
       {
         label: 'Swallow your pride and request foreign aid',
@@ -548,11 +579,11 @@ export const PACK_3: GameEvent[] = [
           dc: 50,
           success: {
             fx: { support: 12, funds: 6, base: -4 },
-            text: 'The grain ships arrive and the queues shorten. Admitting need cost you face and saved a great many lives.',
+            text: 'The grain ships dock and the bread lines shrink. Admitting you needed help cost you a chunk of face and saved a staggering number of skinny bastards.',
           },
           fail: {
             fx: { support: -6, heat: 6 },
-            text: 'The aid comes with cameras and conditions, and your rivals call it surrender. Full bellies, bruised pride.',
+            text: 'The aid rolls in trailing cameras and conditions, and your rivals scream "surrender" from every rooftop. Full bellies, bruised ego, terrible optics.',
           },
         },
         tone: 'good',
@@ -563,7 +594,8 @@ export const PACK_3: GameEvent[] = [
         set: { potemkin: true },
         scandal: { id: 'hidden_famine', label: 'the famine you covered up', severity: 3 },
         tone: 'slick',
-        result: 'The newsreels brim with bread while the provinces thin. A secret this size does not stay buried forever.',
+        result:
+          'The newsreels overflow with golden loaves while the provinces quietly shrivel. A lie this fat does not stay buried — it claws its way back up eventually.',
       },
     ],
   },
@@ -576,7 +608,7 @@ export const PACK_3: GameEvent[] = [
     art: 'crisis',
     emoji: '✊',
     title: 'Unrest in the Streets',
-    body: `The squares fill with angry crowds, and the order goes up the chain to you: disperse them, or hear them. The whole nation is watching which you choose.`,
+    body: `The squares flood with furious crowds, and the order rolls up the chain to land on your desk: scatter them, or shut up and hear them out. The whole damn nation is watching which way you flinch.`,
     choices: [
       {
         label: 'Go down and listen to the crowd',
@@ -585,11 +617,11 @@ export const PACK_3: GameEvent[] = [
           dc: 52,
           success: {
             fx: { support: 14, base: 8, heat: -4 },
-            text: 'You walk into the square unguarded and listen. The gesture stuns everyone, and the anger gives way to something workable.',
+            text: 'You walk into the square with no guards and actually listen. The sheer balls of it stuns everyone, and the rage melts into something you can work with.',
           },
           fail: {
             fx: { support: -6, heat: 8 },
-            text: 'You try to listen and get shouted down. The optics of a leader drowned out are not kind.',
+            text: 'You try to listen and get screamed flat into the pavement. A leader drowned out by his own people is not a great look, optically speaking.',
           },
         },
         set: { peacemaker: true },
@@ -602,7 +634,8 @@ export const PACK_3: GameEvent[] = [
         set: { bloody_hands: true, tyrant_rep: true },
         scandal: { id: 'crackdown', label: 'the night you cleared the square', severity: 3 },
         tone: 'bold',
-        result: 'The square is empty by dawn and quiet for a reason no one says aloud. The quiet will cost you, later, all at once.',
+        result:
+          'The square is swept empty by dawn and quiet for a reason nobody dares say out loud. That quiet sends you the bill later, all at once, with interest.',
       },
     ],
   },
@@ -615,7 +648,7 @@ export const PACK_3: GameEvent[] = [
     art: 'newspaper',
     emoji: '🗞️',
     title: 'The Story Lands at Midnight',
-    body: `A reporter calls for comment on a story running in six hours — one with documents, names, and your fingerprints faintly visible. There is just time to react, badly or well.`,
+    body: `A reporter calls for comment on a story running in six hours — one with documents, names, and your grubby fingerprints faintly smudged all over it. There's just enough time to react, beautifully or like a panicking idiot.`,
     choices: [
       {
         label: 'Get ahead of it — confess the small to bury the large',
@@ -624,11 +657,11 @@ export const PACK_3: GameEvent[] = [
           dc: 52,
           success: {
             fx: { media: 8, support: 6, heat: -6 },
-            text: 'You volunteer a minor sin before they print the major one. The framing becomes yours, and the worst stays unwritten.',
+            text: 'You toss them a cute little sin before they can print the monstrous one. The framing becomes yours, and the truly damning part stays in the dark.',
           },
           fail: {
             fx: { support: -10, heat: 10 },
-            text: 'Your pre-buttal only confirms there is something to bury. The reporter adds a paragraph and a smile.',
+            text: 'Your pre-emptive confession just screams that there is something to bury. The reporter adds one extra paragraph and a smug little grin.',
           },
         },
         tone: 'slick',
@@ -638,7 +671,8 @@ export const PACK_3: GameEvent[] = [
         fx: { heat: 8, influence: 4, support: -4 },
         set: { stonewaller: true },
         tone: 'bold',
-        result: 'You say nothing through expensive intermediaries. The silence holds the line and quietly admits the wound.',
+        result:
+          'You say absolutely nothing through a wall of pricey lawyers. The silence holds the line and quietly screams "guilty" to anyone with a pulse.',
       },
     ],
   },

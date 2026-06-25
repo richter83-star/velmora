@@ -14,23 +14,24 @@ export const SCANDAL_EVENTS: GameEvent[] = [
     emoji: '💵',
     kicker: 'Off the books',
     title: 'The Slush Fund',
-    body: `A staffer proposes an "unofficial" account — untraceable money for the favors that can't go on the books. It would solve a lot of problems now. It would become a problem later.`,
+    body: `A staffer slides you a plan for an "unofficial" account — a fat, untraceable pile of cash for the favors that can't ever touch a ledger. It would fix a shitload of problems today. It would become one enormous, career-ending problem later.`,
     choices: [
       {
-        label: 'Set it up — quietly',
+        label: 'Set it up — nice and quiet',
         fx: { funds: 14, heat: 6 },
         set: { corrupt_streak: true },
         scandal: { id: 'slush_fund', label: 'the off-the-books slush fund', severity: 2 },
         tone: 'slick',
         result:
-          'The money flows where it needs to. You make a point of never writing any of it down.',
+          'The money sloshes exactly where it needs to. You make a religion out of never writing down a single goddamn cent of it.',
       },
       {
-        label: 'Refuse to touch it',
+        label: 'Refuse to touch the filthy thing',
         fx: { support: 4, funds: -2 },
         set: { clean_streak: true },
         tone: 'good',
-        result: 'You shut it down before it starts. Some problems are best never created.',
+        result:
+          'You strangle it in the crib. Some problems are best never dragged kicking into the world.',
       },
     ],
   },
@@ -43,7 +44,7 @@ export const SCANDAL_EVENTS: GameEvent[] = [
     art: 'newspaper',
     emoji: '🗞️',
     kicker: 'It came back',
-    title: 'The Past Resurfaces',
+    title: 'The Skeleton Walks Again',
     body: (S) => {
       const sc = (S.scandals ?? []).find((x) => x.id === S.activeScandal);
       const what = sc ? sc.label : 'an old indiscretion';
@@ -51,7 +52,7 @@ export const SCANDAL_EVENTS: GameEvent[] = [
     },
     choices: [
       {
-        label: 'Bury it again — money and pressure',
+        label: 'Bury the body again — cash and a firm squeeze',
         req: (S) => S.stats.funds >= 12,
         reqText: 'Needs War Chest 12+',
         fx: { funds: -12, heat: -6 },
@@ -59,32 +60,32 @@ export const SCANDAL_EVENTS: GameEvent[] = [
         scandalResolve: 'buried',
         tone: 'slick',
         result:
-          'It sinks back beneath the surface. Someone new now knows you will pay to keep it there.',
+          'It glugs back down beneath the surface. One more person now knows you will gladly pay through the nose to keep it there.',
       },
       {
-        label: 'Get ahead of it — confess the old sin',
+        label: 'Get ahead of it — cough up the old sin yourself',
         fx: { support: -6, heat: -16, media: 4 },
         set: { honest_rep: true },
         scandalResolve: 'resolved',
         tone: 'good',
         result:
-          'You disclose it on your own terms. It stings for a news cycle, then it is genuinely finished.',
+          'You spill it on your own terms, your own podium. It stings like hell for one news cycle, then it is genuinely, blessedly dead.',
       },
       {
-        label: 'Deny everything',
+        label: 'Deny every last word of it',
         roll: {
           stat: 'media',
           dc: 55,
           success: {
             fx: { heat: -8 },
             scandalResolve: 'resolved',
-            text: 'You stonewall so flatly the story dies of boredom. This time.',
+            text: 'You stonewall so flat and so bored that the story keels over and dies of sheer tedium. This time.',
           },
           fail: {
             fx: { support: -14, heat: 14 },
             scandalResolve: 'exposed',
             ending: 'scandal',
-            text: 'The denial becomes the story. The receipts surface an hour later. It is over.',
+            text: 'The denial becomes the whole story. The receipts crawl out into the light an hour later. You are cooked.',
           },
         },
         tone: 'bold',

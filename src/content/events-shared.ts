@@ -17,38 +17,40 @@ export const SHARED_CRISES: GameEvent[] = [
     art: 'crisis',
     emoji: '🪧',
     kicker: 'The Streets Decide',
-    title: 'The Square Fills',
-    body: `By dawn the central square is full and still filling. The crowd is not yet a mob — but it is deciding what it will become, and it is watching what you do next.`,
+    title: 'The Square Fills Up With Angry Pricks',
+    body: `By sunup the central square is jammed and still bleaking in more bodies. It's not a mob yet — but it's standing there working up the nerve to become one, and ten thousand pairs of pissed-off eyes are locked on whatever stupid thing you do next.`,
     choices: [
       {
-        label: 'Send the loyalists to clear it',
+        label: 'Send the loyalists to crack some skulls',
         fx: { base: 6, support: -8, media: -4, heat: 14 },
         set: { bloody_hands: true, went_negative: true },
         tone: 'bold',
-        result: 'The square empties by noon. The photographs will outlive you.',
+        result:
+          'The square is empty by lunch. The photos of how you emptied it will outlive you, your kids, and your statue.',
       },
       {
-        label: 'Go out and face them yourself',
+        label: 'Grow a pair and go face them yourself',
         roll: {
           stat: 'media',
           dc: 52,
           success: {
             fx: { support: 14, media: 10, heat: -6 },
-            text: 'You find the words. The crowd exhales, and for one night they are yours again.',
+            text: 'You find the magic words. The crowd lets out one big collective sigh, and for one sweaty night they belong to you again.',
           },
           fail: {
             fx: { support: -10, media: -6, heat: 8 },
-            text: 'The words land wrong. The chant changes to something with your name in it.',
+            text: 'The words come out wrong and clammy. The chant mutates into something with your name in it and the word "out" right after.',
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Offer a concession and a commission',
+        label: 'Toss them a concession and a bullshit committee',
         fx: { support: 8, influence: -4, heat: -6 },
         set: { peacemaker: true },
         tone: 'good',
-        result: 'You give them a committee and a promise. It buys time, which is the only thing power ever really buys.',
+        result:
+          'You hand them a committee and a fat juicy promise. It buys time — which is the only thing power ever actually buys, the lying bastard.',
       },
     ],
   },
@@ -61,35 +63,37 @@ export const SHARED_CRISES: GameEvent[] = [
     art: 'crisis',
     emoji: '⛔',
     kicker: 'Isolation',
-    title: 'The Doors Close Abroad',
-    body: `Word comes that the borders of trade are tightening. Your foreign backers are suddenly hard to reach, and the ones who answer want to know what you can still offer them.`,
+    title: 'Everyone Abroad Slams the Door in Your Face',
+    body: `Word lands that the trade borders are clamping shut. Your foreign money men have all gone mysteriously unreachable, and the few who pick up want to know what the hell you can still do for them before they bother.`,
     choices: [
       {
-        label: 'Lean on your quiet backers',
+        label: 'Lean on the backers who hate being named',
         fx: { funds: 14, heat: 10 },
         set: { dark_money: true, owes_donor: true },
         tone: 'slick',
-        result: 'The money arrives through channels no one will ever audit out loud. You owe someone now.',
+        result:
+          'The cash slithers in through channels nobody will ever say out loud at a podium. You owe somebody now, and that somebody never, ever forgets.',
       },
       {
-        label: 'Tighten the belt and tough it out',
+        label: 'Cinch the belt and white-knuckle it',
         fx: { funds: -12, base: 8, support: 4, heat: -4 },
         set: { clean_streak: true },
         tone: 'bold',
-        result: 'You ration, then ration the rationing, and make the scarcity itself a show of resolve.',
+        result:
+          'You ration, then you ration the rationing, then you put the empty bellies on a poster and call the whole starving mess a heroic show of grit.',
       },
       {
-        label: 'Open a back channel to negotiate',
+        label: 'Open a sneaky back channel and grovel a little',
         roll: {
           stat: 'influence',
           dc: 50,
           success: {
             fx: { funds: 8, influence: 6, heat: -8 },
-            text: 'A discreet arrangement reopens one door. Enough to breathe.',
+            text: 'A quiet little handshake pries one door back open. Just enough to come up for air without anyone snapping a photo.',
           },
           fail: {
             fx: { support: -6, heat: 12 },
-            text: 'The back channel leaks. Now everyone knows you were the one asking.',
+            text: 'The back channel springs a leak. Now the whole damn country knows you were the one on your knees asking nicely.',
           },
         },
         tone: 'slick',
@@ -105,41 +109,42 @@ export const SHARED_CRISES: GameEvent[] = [
     art: 'crisis',
     emoji: '🕳️',
     kicker: 'The Mole',
-    title: 'The Leak',
-    body: `Someone close has been carrying your words out of the room. The pattern is unmistakable; the face is not — not yet.`,
+    title: 'Some Rat Is Selling Your Secrets',
+    body: `Somebody close has been smuggling your words out of the room. The pattern is screaming obvious; the face is not — not yet. One of the smiling pricks who eats at your table is a leaky little snitch.`,
     speaker: (S) => ({ name: S.opp, role: 'the rival who benefits', avatar: S.oppAvatar }),
     choices: [
       {
-        label: 'Purge the inner circle to be sure',
+        label: 'Purge the whole inner circle just to be safe',
         fx: { base: -4, influence: 6, heat: 10 },
         set: { bloody_hands: true },
         inc: { purge_count: 1 },
         tone: 'bold',
-        result: 'You cut wide to be certain you cut the right one. The survivors are very loyal, and very quiet.',
+        result:
+          'You cut nice and wide to make damn sure you got the right one. The survivors are extremely loyal now, and extremely quiet, and extremely sweaty.',
       },
       {
-        label: 'Set a trap with false information',
+        label: 'Bait the rat with juicy fake info',
         roll: {
           stat: 'influence',
           dc: 54,
           success: {
             fx: { influence: 12, media: 6, heat: -4 },
             set: { has_network: true },
-            text: 'The lie surfaces in the wrong mouth. Now you know the face, and you own the moment.',
+            text: 'The lie pops out of exactly the wrong mouth. Now you know the face, you own the moment, and the rat has no clue you watched him do it.',
           },
           fail: {
             fx: { influence: -8, heat: 10 },
-            text: 'The trap is spotted. Whoever it is now knows you are hunting.',
+            text: 'The trap gets clocked. Whoever it is now knows you are hunting — and a spooked rat is a rat that bites first.',
           },
         },
         tone: 'slick',
       },
       {
-        label: 'Let it run and feed them poison',
+        label: 'Let the rat run and feed it poison',
         fx: { influence: 8, heat: 4 },
         set: { has_network: true, blackmailer: true },
         tone: 'slick',
-        result: 'You keep the channel open and choose what flows through it. The most useful traitor is one who thinks they are winning.',
+        result: `You keep the pipe wide open and decide exactly what filth flows down it. The most useful traitor alive is one who's grinning, certain he's the one winning.`,
       },
     ],
   },

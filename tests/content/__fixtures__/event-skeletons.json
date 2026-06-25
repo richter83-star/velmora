@@ -109,7 +109,7 @@
   },
   "b_oppo_file": {
     "art": "rival",
-    "body": "__fn__:(S) => `A staffer brings you a folder. Inside: an unflattering, possibly-true story about ${S.opp}, your likely rival. \"We could leak this,\" she says. \"Or we could be the bigger person and lose.\"`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -432,7 +432,7 @@
   },
   "b_debate": {
     "art": "scene",
-    "body": "__fn__:(S) => `You're on stage with ${S.opp}. They just landed a clean hit on your record. Ninety seconds to respond, millions watching.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -726,7 +726,7 @@
   },
   "v_first_patron": {
     "art": "rival",
-    "body": "__fn__:(S) => `Comrade ${S.opp}, a senior cadre, finds you after the meeting. \"I can make your file shine,\" he murmurs. \"Or I can make it disappear. Loyal men eat well in this Party. Are you loyal — to me?\"`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -1144,7 +1144,7 @@
   },
   "v_rival_dossier": {
     "art": "rival",
-    "body": "__fn__:(S) => `Your people have assembled a file on ${S.opp} — affairs, foreign cousins, an old anti-Party joke. Enough to end them. Enough, if mishandled, to end you.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -1362,7 +1362,7 @@
   },
   "v_succession_whisper": {
     "art": "rival",
-    "body": "__fn__:(S) => `The General Secretary is dying. Behind the curtains, the Standing Committee is choosing. ${S.opp} is ahead of you. The next move decides everything.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -1549,7 +1549,7 @@
   },
   "c_recession": {
     "art": "crisis",
-    "body": "__fn__:(S) => S.path === \"ballot\" ? `Markets tumble. Factories shutter. Voters want someone to blame, and your name is on a ballot soon.` : `The plan has failed quietly for years and loudly today. Shortages spread. The people are hungry and the Party needs a story.`",
+    "body": "__fn__:(S) => S.path === \"ballot\" ? `` : ``",
     "choices": [
       {
         "fx": {
@@ -1906,7 +1906,7 @@
   },
   "c_protest": {
     "art": "crisis",
-    "body": "__fn__:(S) => S.path === \"ballot\" ? `Hundreds of thousands flood the capital. The cameras are live. How you handle a crowd this size defines you.` : `The unthinkable: open protest in the square. The Party watches to see if you have the stomach to make it stop.`",
+    "body": "__fn__:(S) => S.path === \"ballot\" ? `` : ``",
     "choices": [
       {
         "fx": {
@@ -2497,7 +2497,7 @@
   },
   "npc_rival_overture": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} requests a private meeting. \"We keep bloodying each other for the cameras,\" they say. \"What if — just once — we didn't?\"`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -2550,7 +2550,7 @@
   },
   "npc_rival_opening": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} has made a real mistake — the kind you could turn into a knockout blow. Or rise above.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -2668,7 +2668,7 @@
   },
   "scandal_resurfaces": {
     "art": "newspaper",
-    "body": "__fn__:(S) => { const sc = (S.scandals ?? []).find((x) => x.id === S.activeScandal); const what = sc ? sc.label : \"an old indiscretion\"; return `A reporter has been digging, and ${what} is about to see daylight. You thought this was behind you. It is not behind you.`; }",
+    "body": "__fn__:(S) => { const sc = (S.scandals ?? []).find((x) => x.id === S.activeScandal); const what = sc ? sc.label : \"an old indiscretion\"; return `${what}`; }",
     "choices": [
       {
         "fx": {
@@ -2894,7 +2894,7 @@
   },
   "p1_b_attack_ad": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} cuts a brutal ad about you — half true, which is the worst kind. Your team wants to fire back even harder.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -3539,7 +3539,7 @@
   },
   "p2_b_oppo_dossier": {
     "art": "rival",
-    "body": "__fn__:(S) => `A staffer slides you a folder: unflattering, unverified, and very possibly true material about ${S.opp}. Using it would be a knife fight in a phone booth.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -3923,7 +3923,7 @@
   },
   "p2_v_defector": {
     "art": "rival",
-    "body": "__fn__:(S) => `A mid-level official has fled across the border, and ${S.opp} is hinting, loudly, that you signed off on their travel papers. You did not. Truth is slow; rumor is fast.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -4604,7 +4604,7 @@
   },
   "p3_b_october_surprise": {
     "art": "rival",
-    "body": "__fn__:(S) => `Days before the vote, ${S.opp}’s camp drops a damaging story about you — timed for maximum damage and minimum time to respond. The clock is a weapon now.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -4916,7 +4916,7 @@
   },
   "p3_v_succession": {
     "art": "rival",
-    "body": "__fn__:(S) => `The old leader is failing, and the corridors hum with the only question that matters: who is next. ${S.opp} is maneuvering openly. The throne is close enough to touch.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -5111,7 +5111,7 @@
   },
   "p3_s_old_rival_truce": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp}, who has fought you at every rung, requests a private meeting and — astonishingly — offers a truce. It could be sincere. It could be a trap with good manners.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -5609,7 +5609,7 @@
   },
   "p4_b_recount": {
     "art": "rival",
-    "body": "__fn__:(S) => `The result is a hair’s breadth, and ${S.opp} is demanding a recount while hinting darkly about \"irregularities.\" The lawyers are circling; the cameras are live.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -5666,7 +5666,7 @@
   },
   "p4_b_final_debate": {
     "art": "rival",
-    "body": "__fn__:(S) => `One last debate against ${S.opp} before the nation votes. Everything you have built comes down to ninety minutes and one unscripted moment.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -7005,7 +7005,7 @@
   },
   "p5_v_war_hero": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp}, a decorated war hero, is dangerously beloved — the kind of popularity that makes the Centre nervous and makes you a useful knife.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "inc": {
@@ -7896,7 +7896,7 @@
   },
   "p6_b_debate_leak": {
     "art": "rival",
-    "body": "__fn__:(S) => `A sympathetic insider slips you the debate questions in advance — a chance to bury ${S.opp} with \"spontaneous\" brilliance. It is also, unmistakably, cheating.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -8088,7 +8088,7 @@
   },
   "p6_v_succession_plot": {
     "art": "rival",
-    "body": "__fn__:(S) => `A cabal — ${S.opp} among them — quietly proposes to ease the failing leader aside. Join and you risk everything; refuse and you may be the loose end they tidy up.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -8262,7 +8262,7 @@
   },
   "p6_v_general": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp}, who commands real soldiers, offers you his loyalty — or, between the lines, something more drastic against the Centre if you would only nod.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -8496,7 +8496,7 @@
   },
   "p6_s_rival_dies": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp}, who fought you for years, has died suddenly. The nation watches to see whether you eulogize an enemy with grace or settle the score from the graveside.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -10262,7 +10262,7 @@
   },
   "p8_b_empty_chair": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} is ducking the big debate. You can debate an empty chair for the cameras or graciously let it go and look like the bigger person.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "label": "",
@@ -10396,7 +10396,7 @@
   },
   "p8_b_billboard": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} has plastered the highways with a billboard mocking you by name. Your team has a brutal comeback design ready to print.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -10948,7 +10948,7 @@
   },
   "p8_s_defeated_rival": {
     "art": "rival",
-    "body": "__fn__:(S) => `You have beaten ${S.opp} decisively, and now they sit before you, diminished. You could offer them a real post — talent is talent — or savor the win and leave them out in the cold.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -12363,7 +12363,7 @@
   },
   "p9_s_surprise_alliance": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp}, your bitterest rival, proposes a startling alliance against a greater common threat. The logic is sound; the trust is nonexistent.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -13247,7 +13247,7 @@
   },
   "io_officers_test": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} arrives with epaulettes and a flat stare. The Corps will throw its discipline behind you — but first you must prove you can command, not merely shout. Pick a man, the colonel says, and have him broken.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -13692,7 +13692,7 @@
   },
   "io_successor": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} has been collecting loyalists, learning your speeches, and standing a little too close to the cameras. Someone is already measuring your chair. The only question is how you measure them.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -14178,7 +14178,7 @@
   },
   "gr_board_coup": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} has been counting votes you assumed were yours, building a rival coalition one private dinner at a time. The next board meeting will be an ambush unless you move first.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -14944,7 +14944,7 @@
   },
   "ap_council_faction": {
     "art": "rival",
-    "body": "__fn__:(S) => `${S.opp} arrives with a velvet ultimatum: the Orthodox will bless your elevation, but only if you first denounce the reformers and recant your softer teachings.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {
@@ -15419,7 +15419,7 @@
   },
   "ap_dissent_within": {
     "art": "rival",
-    "body": "__fn__:(S) => `In private, ${S.opp} confesses they no longer believe — yet still serves on your Council, competent and quietly corrosive. A doubter at the heart of the faith is a delicate problem.`",
+    "body": "__fn__:(S) => `${S.opp}`",
     "choices": [
       {
         "fx": {

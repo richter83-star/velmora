@@ -17,22 +17,24 @@ export const PACK_5: GameEvent[] = [
     art: 'newspaper',
     emoji: '🗺️',
     title: 'The Redistricting Map',
-    body: `Your party controls the pen that redraws the district lines. A few careful curves could lock in your majority for a decade — and look exactly as ugly as it is.`,
+    body: `Your party holds the magic pen that redraws the district lines, and holy hell is that pen tempting. A few greasy little curves and you lock in your majority for a decade — while the map ends up looking exactly as bent and crooked as you are.`,
     choices: [
       {
-        label: 'Draw the map to win',
+        label: 'Draw the map like a drunk lizard and win anyway',
         fx: { influence: 10, base: 6, heat: 8 },
         set: { corrupt_streak: true },
         scandal: { id: 'gerrymander', label: 'the district map you bent', severity: 2 },
         tone: 'slick',
-        result: 'The lines slither to your advantage. Safe seats, soft scandal, and a cartographer who will testify someday.',
+        result:
+          'The lines slither off into shapes God never intended. Safe seats, a soft little scandal, and one cartographer who is absolutely going to sing to somebody someday.',
       },
       {
-        label: 'Back an independent commission',
+        label: 'Hand the pen to a fairness commission like a sucker',
         fx: { support: 10, base: -4, influence: -2 },
         set: { clean_streak: true },
         tone: 'good',
-        result: 'You give away the pen to look fair, and look fair you do. Your safe seats get a little less safe.',
+        result:
+          'You give away the pen to look like a saint, and a saint you do look. Your safe seats get a little less safe, you noble idiot.',
       },
     ],
   },
@@ -44,30 +46,31 @@ export const PACK_5: GameEvent[] = [
     art: 'bulletin',
     emoji: '🏥',
     title: 'The Healthcare Vote',
-    body: `Your big reform is finally on the floor. Pass it and you change millions of lives; water it down and you can actually get the votes. Purity or arithmetic.`,
+    body: `Your big shiny reform finally hits the floor. Pass the real thing and you change millions of lives; gut it into mush and you can actually scrape the votes together. Pick your poison: purity, or the math that doesn't give a damn about your feelings.`,
     choices: [
       {
-        label: 'Hold out for the full, bold version',
+        label: 'Hold out for the full, ballsy version',
         roll: {
           stat: 'support',
           dc: 54,
           success: {
             fx: { support: 14, base: 8 },
-            text: 'Against the odds, you whip the votes for the real thing. A genuine, generational achievement.',
+            text: 'Against every smug prediction, you whip the votes for the real deal. A genuine, generation-defining win that nobody thought your sorry coalition had in it.',
           },
           fail: {
             fx: { support: -8, base: -4, heat: 4 },
-            text: 'You reach for everything and the coalition cracks. The bill dies and the blame lands on you.',
+            text: 'You grab for everything and the coalition splits like cheap pants. The bill dies face-down in the gutter and every greasy finger points at you.',
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Take the half-loaf compromise',
+        label: 'Swallow the half-loaf compromise',
         fx: { support: 8, influence: 6, base: -2 },
         set: { dealmaker: true },
         tone: 'good',
-        result: 'You pass the watered version and call it a start. Real help reaches real people; idealists call it betrayal.',
+        result:
+          'You pass the watered-down sludge and call it "a start." Real help reaches real people; the purity freaks scream betrayal from their fainting couches.',
       },
     ],
   },
@@ -79,20 +82,22 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '⭐',
     title: 'The Kingmaker',
-    body: `A revered elder statesman, whose blessing moves voters, will endorse you — but only if you adopt their cherished, slightly outdated pet cause.`,
+    body: `A wrinkled, sainted elder statesman — whose blessing yanks voters around like puppets — will endorse you. Catch: you have to swallow his beloved, half-mummified pet cause and pretend you love it too.`,
     choices: [
       {
-        label: 'Take the blessing, carry the cause',
+        label: 'Take the blessing, choke down the dead cause',
         fx: { support: 10, influence: 6, base: -2 },
         set: { owes_elder: true },
         tone: 'slick',
-        result: 'The elder anoints you on a sunny stage. You also inherit a position you would not have chosen.',
+        result:
+          'The old relic anoints you on a sunny stage while the cameras weep. You also inherit a position you would not touch with a borrowed pole.',
       },
       {
-        label: 'Win without them',
+        label: 'Tell the old man to keep his strings',
         fx: { base: 8, support: -2, media: 2 },
         tone: 'bold',
-        result: 'You decline the strings and the blessing both. Independence looks good until you need that last point.',
+        result:
+          'You decline the strings and the blessing in one go. Independence feels great and looks great — right up until you need that last lousy point and it is not there.',
       },
     ],
   },
@@ -104,20 +109,22 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '📱',
     title: 'The Volunteer’s Mistake',
-    body: `An overeager young volunteer posted something ugly under the campaign banner. It is climbing fast, and it is technically your name on the account.`,
+    body: `Some twitchy young volunteer posted something genuinely revolting under the campaign banner. It is going viral at light speed, and unfortunately it is technically your name stamped on the account.`,
     choices: [
       {
-        label: 'Take responsibility, handle it with grace',
+        label: 'Eat the blame and cover the kid',
         fx: { support: 6, media: 4, base: -2 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You own the lapse, apologize cleanly, and protect the kid. Accountability, gracefully done, disarms the pile-on.',
+        result:
+          'You own the screwup, apologize like a grownup, and shield the dumb kid. Accountability, done with a little grace, kills the pile-on dead.',
       },
       {
-        label: 'Throw the volunteer to the wolves',
+        label: 'Feed the volunteer to the wolves',
         fx: { media: 4, heat: 4, base: -4 },
         tone: 'slick',
-        result: 'You fire them loudly and move on. The story dies; your own staff quietly notes how fast you cut a rope.',
+        result:
+          'You fire them loud enough for the cheap seats and stroll off. The story dies; your own staff quietly clocks exactly how fast you cut a rope when it suits you.',
       },
     ],
   },
@@ -129,29 +136,30 @@ export const PACK_5: GameEvent[] = [
     art: 'newspaper',
     emoji: '📉',
     title: 'The Sudden Slump',
-    body: `Your numbers have fallen off a cliff for reasons no one can quite name. The panicked consultants want a dramatic reinvention; your gut says hold the course.`,
+    body: `Your numbers just yeeted themselves off a cliff for reasons nobody can name. The consultants are sweating through their suits and screaming for a dramatic reinvention; your gut says hold the goddamn line.`,
     choices: [
       {
-        label: 'Reinvent — new look, new message',
+        label: 'Reinvent — new hair, new face, new everything',
         roll: {
           stat: 'media',
           dc: 52,
           success: {
             fx: { media: 8, support: 10 },
-            text: 'The reboot lands and the narrative flips to "comeback." Reinvention, when it works, looks like genius.',
+            text: 'The reboot sticks and the whole story flips to "comeback." Reinvention, when it actually works, looks like raw genius instead of a mid-life crisis.',
           },
           fail: {
             fx: { support: -8, base: -4 },
-            text: 'The makeover reeks of desperation. "Who are they even anymore?" becomes the question.',
+            text: 'The makeover stinks of flop sweat and desperation. "Who even ARE these people anymore?" becomes the only question anybody asks.',
           },
         },
         tone: 'slick',
       },
       {
-        label: 'Hold your nerve and your message',
+        label: 'Keep your nerve and your damn message',
         fx: { base: 8, support: 4 },
         tone: 'bold',
-        result: 'You refuse to panic and ride it out. Sometimes a slump is just weather; you decline to call it climate.',
+        result:
+          'You refuse to flinch and just ride out the storm. Sometimes a slump is only weather; you decline to wet yourself and call it the apocalypse.',
       },
     ],
   },
@@ -163,20 +171,22 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '🚶',
     title: 'The Staged Walkout',
-    body: `A bloc of activists rises mid-speech and walks out in choreographed protest, cameras conveniently positioned. The room — and the clip — is now yours to shape.`,
+    body: `Mid-speech, a clump of activists stands up and stomps out in a perfectly rehearsed huff, cameras suspiciously pre-positioned for maximum drama. The room — and the clip — is now yours to play with.`,
     choices: [
       {
-        label: 'Invite them to stay and be heard',
+        label: 'Call them back and actually hear them out',
         fx: { support: 8, media: 6, base: -2 },
         set: { peacemaker: true },
         tone: 'good',
-        result: 'You call after them to come back and talk. The graciousness upstages the stunt entirely.',
+        result:
+          'You holler after them to come sit down and talk it out. The graciousness completely upstages their precious little stunt.',
       },
       {
-        label: 'Mock them as they go',
+        label: 'Roast them on the way out the door',
         fx: { base: 8, media: 2, support: -4, heat: 2 },
         tone: 'bold',
-        result: 'You get off a sharp line at their backs. Your crowd laughs; the clip cuts both ways forever.',
+        result:
+          'You land a vicious one-liner at their retreating backs. Your crowd howls; the clip lives forever and cuts you right back whenever it feels like it.',
       },
     ],
   },
@@ -188,21 +198,23 @@ export const PACK_5: GameEvent[] = [
     art: 'newspaper',
     emoji: '🔎',
     title: 'The Ethics Probe',
-    body: `An ethics committee opens an inquiry into your office’s spending. There is probably nothing damning in there. Probably. The word "probably" is doing a lot of work.`,
+    body: `An ethics committee cracks open your office's spending records. There's probably nothing damning in there. Probably. That word "probably" is sweating and pulling a double shift.`,
     choices: [
       {
-        label: 'Cooperate fully and transparently',
+        label: 'Throw the books wide open and play clean',
         fx: { support: 6, base: 4, heat: -4 },
         set: { clean_streak: true },
         tone: 'good',
-        result: 'You open the books and the calendars. Transparency is dull, which is exactly what you want it to be.',
+        result:
+          'You hand over the ledgers and the calendars without a fuss. Transparency is boring as dishwater, which is exactly how you want this thing to feel.',
       },
       {
-        label: 'Stonewall behind procedure',
+        label: 'Stonewall the bastards behind procedure',
         fx: { influence: 4, heat: 10, support: -4 },
         scandal: { id: 'ethics_stonewall', label: 'the inquiry you stonewalled', severity: 2 },
         tone: 'slick',
-        result: 'Your lawyers turn the probe into a maze. It works, and the maze itself becomes the story.',
+        result:
+          'Your lawyers spin the probe into a hedge maze with no exit. It works — but now the maze itself is the headline, you slippery turd.',
       },
     ],
   },
@@ -216,28 +228,29 @@ export const PACK_5: GameEvent[] = [
     art: 'bulletin',
     emoji: '📋',
     title: 'The Quota of Names',
-    body: `The organs have sent down a number: this many enemies are to be found in your district by month’s end. The enemies do not exist, but the quota does.`,
+    body: `The organs have handed down a number from on high: this many enemies are to be dug up in your district by month's end. The enemies do not actually exist. The quota, the smug, sphincter-clenching quota, absolutely does.`,
     choices: [
       {
-        label: 'Fill the quota with real names',
+        label: 'Fill the quota with real, living names',
         fx: { base: 10, influence: 6, support: -8, heat: 6 },
         inc: { purge_count: 2 },
         set: { bloody_hands: true, tyrant_rep: true },
         tone: 'bold',
-        result: 'You hand up a list of the inconvenient and the unlucky. The quota is met. So is a line you cannot uncross.',
+        result:
+          'You hand up a list of the inconvenient and the unlucky, sealed with a smile. The quota is met. So is a line you can never, ever scrub yourself back across.',
       },
       {
-        label: 'Pad it with the already-dead and fled',
+        label: 'Stuff it with the already-dead and long-fled',
         roll: {
           stat: 'influence',
           dc: 54,
           success: {
             fx: { influence: 6, support: 8, heat: -2 },
-            text: 'You fill the list with the deceased and the long-gone. The number satisfies the Centre and harms no living soul.',
+            text: 'You pad the list with corpses and people three borders away. The number tickles the Centre pink and not one living soul takes a scratch.',
           },
           fail: {
             fx: { heat: 14, support: -4 },
-            text: 'An auditor notices your "enemies" are suspiciously hard to arrest. Questions follow you home.',
+            text: 'Some pencil-pushing auditor notices your "enemies" are suspiciously impossible to arrest, on account of being dead. The questions follow you all the way home.',
           },
         },
         set: { secret_reformer: true },
@@ -253,22 +266,24 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '🗞️',
     title: 'The Samizdat',
-    body: `A carbon-copied underground pamphlet is passing hand to hand — funny, true, and treasonous. You could trace it, crush it, or simply fail, very hard, to find it.`,
+    body: `A grubby carbon-copied underground pamphlet is getting passed hand to sweaty hand — and it's funny, it's true, and it's gloriously treasonous. You can hunt it, crush it, or just try really, REALLY hard to never find it.`,
     choices: [
       {
-        label: 'Hunt the press, make arrests',
+        label: 'Hunt the press, drag people off in cuffs',
         fx: { base: 8, influence: 4, support: -6 },
         inc: { purge_count: 1 },
         set: { zealot_rep: true },
         tone: 'bold',
-        result: 'You find the typewriter and the hands that fed it. The pamphlets stop; the legend of them grows.',
+        result:
+          'You track down the typewriter and the hands that fed it paper. The pamphlets stop cold; the legend of the damn things only gets bigger.',
       },
       {
-        label: 'Read it, smile, and look elsewhere',
+        label: 'Read it, snort, and look the other way',
         fx: { support: 6, heat: 6 },
         set: { secret_reformer: true },
         tone: 'good',
-        result: 'You pocket a copy and direct the search at empty rooms. Truth survives another week on your watch.',
+        result:
+          'You pocket a copy for the laughs and aim the manhunt at a bunch of empty rooms. The truth gets to live another week on your watch.',
       },
     ],
   },
@@ -280,20 +295,22 @@ export const PACK_5: GameEvent[] = [
     art: 'bulletin',
     emoji: '🗿',
     title: 'The Predecessor’s Statue',
-    body: `The old leader is out of favor, and the question of their enormous statue in the square is now, delicately, yours. Topple it loudly or relocate it quietly?`,
+    body: `The old leader has fallen out of favor, and the giant ugly statue of him squatting in the square is now, delicately, your steaming problem. Topple it with fireworks, or sneak it off into a ditch at three in the morning?`,
     choices: [
       {
-        label: 'Tear it down with great fanfare',
+        label: 'Yank it down with a brass band and fireworks',
         fx: { base: 8, media: 6, heat: 6 },
         set: { climber_rep: true },
         tone: 'bold',
-        result: 'You stage the toppling for the cameras. The crowd cheers the new era and learns how fast eras end.',
+        result:
+          'You stage the toppling for every camera in the land. The crowd cheers the shiny new era and gets a free lesson in exactly how fast an era can curdle.',
       },
       {
-        label: 'Quietly move it to a field somewhere',
+        label: 'Sneak it off to rot in a field somewhere',
         fx: { influence: 6, support: 2, heat: -2 },
         tone: 'slick',
-        result: 'You have it gone by dawn with no ceremony. No spectacle, no backlash, no martyr in bronze.',
+        result:
+          'You have the thing gone by dawn with zero ceremony. No spectacle, no backlash, no whining martyr cast in bronze. Just a hole and a hauling bill.',
       },
     ],
   },
@@ -305,22 +322,23 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '👪',
     title: 'The Defector’s Family',
-    body: `A prominent figure has defected abroad, humiliating the Centre. Their elderly parents and young children remain, and the question of what happens to them lands on you.`,
+    body: `A big-name figure has bolted abroad and made the Centre look like a sack of clowns. Their frail old parents and little kids are still here, and the lovely question of what to do with them just got dumped on your desk.`,
     choices: [
       {
-        label: 'Quietly protect the innocent family',
+        label: 'Quietly tuck the innocent family out of reach',
         fx: { support: 10, base: -4, heat: 8 },
         set: { secret_reformer: true, honest_rep: true },
         tone: 'good',
-        result: 'You bury the paperwork that would punish children for a parent’s choice. A risk, taken quietly, for decency.',
+        result: `You "lose" the paperwork that would punish little kids for a grown coward's choice. A real risk, taken in the dark, for the dangerous crime of basic decency.`,
       },
       {
-        label: 'Make an example of them',
+        label: 'Make a screaming example of them',
         fx: { base: 8, influence: 4, support: -8 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true },
         tone: 'bold',
-        result: 'You let the family pay the defector’s bill. The message is received; so is the kind of person you have become.',
+        result:
+          "You make the family eat the defector's tab right down to the grandkids. The message lands loud and clear — and so does the kind of ghoul you have turned into.",
       },
     ],
   },
@@ -334,20 +352,20 @@ export const PACK_5: GameEvent[] = [
     title: 'The Inconvenient Hero',
     speaker: (S) => ({ name: S.opp, role: 'a decorated rival', avatar: S.oppAvatar }),
     body: (S) =>
-      `${S.opp}, a decorated war hero, is dangerously beloved — the kind of popularity that makes the Centre nervous and makes you a useful knife.`,
+      `${S.opp}, a chest-full-of-medals war hero, is dangerously, nauseatingly beloved — the exact flavor of popularity that gives the Centre night sweats and turns you into a very handy knife.`,
     choices: [
       {
-        label: 'Engineer their downfall',
+        label: 'Engineer the hero’s spectacular faceplant',
         roll: {
           stat: 'influence',
           dc: 54,
           success: {
             fx: { influence: 10, base: 6, heat: 6 },
-            text: 'You assemble a quiet case and the hero is reassigned to obscurity. The Centre is grateful; you are feared.',
+            text: 'You stitch together a quiet little case and the hero gets reassigned to the ass-end of nowhere. The Centre sends a thank-you card; everyone else just learns to fear you.',
           },
           fail: {
             fx: { heat: 12, support: -6 },
-            text: 'Your move against a beloved figure is clumsy and seen. Sympathy hardens around them, suspicion around you.',
+            text: 'Your swipe at a national darling is clumsy and very, very seen. Sympathy hardens around them like cement, and every suspicious eye in the room swings to you.',
           },
         },
         npcFx: { id: 'antagonist', relationship: -16 },
@@ -355,12 +373,13 @@ export const PACK_5: GameEvent[] = [
         tone: 'bold',
       },
       {
-        label: 'Befriend them instead',
+        label: 'Cozy up and ride their coattails instead',
         fx: { influence: 6, support: 6, base: 2 },
         npcFx: { id: 'antagonist', relationship: 14 },
         set: { has_network: true },
         tone: 'slick',
-        result: 'You tie yourself to the hero’s star rather than snuffing it. A powerful friend, and a powerful liability.',
+        result:
+          "You hitch your wagon to the hero's blazing star instead of snuffing it. A powerful friend, sure — and a powerful loaded gun pointed lovingly at your own foot.",
       },
     ],
   },
@@ -372,21 +391,23 @@ export const PACK_5: GameEvent[] = [
     art: 'bulletin',
     emoji: '🪑',
     title: 'The Central Committee Vote',
-    body: `A vote that will reshape the top of the Party is coming, and the blocs are forming. Your handful of proxies could tip it — to a reformer, a hardliner, or to chaos you can exploit.`,
+    body: `A vote that'll rearrange the whole rotten top of the Party is barreling in, and the blocs are circling like sharks. Your fistful of proxies could tip the thing — toward a reformer, a hardliner, or a delicious pile of chaos you can pick clean.`,
     choices: [
       {
-        label: 'Throw your weight behind the reformer',
+        label: 'Throw your weight behind the soft-hearted reformer',
         fx: { support: 10, influence: 6, base: -6, heat: 6 },
         set: { secret_reformer: true, peacemaker: true },
         tone: 'good',
-        result: 'You spend your proxies on the gentler future. If they win, you rise with them; if not, your vote is on record.',
+        result:
+          'You blow your proxies on the gentler tomorrow. If they win, you ride up the elevator with them; if they lose, congrats, your vote is now carved in the record forever.',
       },
       {
-        label: 'Back the hardliner and bank the favor',
+        label: 'Back the iron-fisted bastard and bank the IOU',
         fx: { base: 10, influence: 8, support: -4 },
         set: { has_network: true },
         tone: 'slick',
-        result: 'You back the iron fist and the debt it owes you. Safe, cynical, and very much survivable.',
+        result:
+          'You prop up the hardliner and the fat debt he now owes you. Safe, cynical, and — most importantly — the kind of move that lets you keep breathing.',
       },
     ],
   },
@@ -398,23 +419,29 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '🏭',
     title: 'The Industrial Accident',
-    body: `A rushed factory under your authority has failed catastrophically, with a grim toll. The Centre must never learn it was haste, not sabotage, that did it.`,
+    body: `A factory you rushed into existence just blew itself to hell with a body count to match. The Centre can NEVER find out it was your corner-cutting, and not some imaginary saboteur, that lit the fuse.`,
     choices: [
       {
-        label: 'Bury it; blame a wrecker',
+        label: 'Bury it; pin it on a "wrecker"',
         fx: { influence: 6, base: 4, heat: 12, support: -6 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true },
-        scandal: { id: 'factory_coverup', label: 'the accident you blamed on a scapegoat', severity: 3 },
+        scandal: {
+          id: 'factory_coverup',
+          label: 'the accident you blamed on a scapegoat',
+          severity: 3,
+        },
         tone: 'slick',
-        result: 'You pin it on an innocent "saboteur" and move on. The truth is buried with the victims, for now.',
+        result:
+          'You hang the whole thing on some poor innocent "saboteur" and waltz away whistling. The truth gets buried right there with the victims — for now, anyway.',
       },
       {
-        label: 'Report it honestly and take the hit',
+        label: 'Tell the ugly truth and eat the consequences',
         fx: { support: 8, influence: -8, base: -2 },
         set: { honest_rep: true },
         tone: 'bold',
-        result: 'You tell the Centre it was haste and accept the consequences. Honesty here is nearly a form of suicide; you choose it anyway.',
+        result:
+          'You tell the Centre it was your own haste and stick your neck out for the chop. Honesty here is basically career suicide with a cherry on top; you do it anyway.',
       },
     ],
   },
@@ -428,29 +455,30 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '🎬',
     title: 'The Documentary Crew',
-    body: `A respected filmmaker wants months of fly-on-the-wall access. Handled well it is a flattering legacy; handled badly it is a hundred hours of evidence.`,
+    body: `A fancy, respected filmmaker wants months of fly-on-the-wall access to your sweaty inner life. Played right, it's a glowing legacy reel; played wrong, it's a hundred hours of high-definition evidence against you.`,
     choices: [
       {
-        label: 'Grant deep, unguarded access',
+        label: 'Throw the doors open, let them film everything',
         roll: {
           stat: 'media',
           dc: 52,
           success: {
             fx: { media: 12, support: 8 },
-            text: 'The candor reads as confidence and the film canonizes you. A gamble that paid in legend.',
+            text: 'The raw candor reads as iron confidence and the film basically canonizes you. A reckless gamble that paid out in pure legend.',
           },
           fail: {
             fx: { media: -6, heat: 8 },
-            text: 'The camera catches a temper, a contradiction, a cruelty. The edit is not on your side.',
+            text: 'The camera catches a tantrum, a flat-out lie, and one genuinely cruel little moment. The edit, it turns out, is not exactly on Team You.',
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Give them a tightly managed version',
+        label: 'Hand them a tightly leashed version',
         fx: { media: 6, base: 2 },
         tone: 'slick',
-        result: 'You allow only the choreographed moments. The film is glossy, safe, and faintly unconvincing.',
+        result:
+          'You let them shoot only the pre-chewed, choreographed moments. The film comes out glossy, safe, and about as convincing as a campaign smile.',
       },
     ],
   },
@@ -462,21 +490,23 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '🩻',
     title: 'The Health Scare',
-    body: `A routine check turns up something that needs watching. Nothing urgent, the doctors say — but in your position, a private fact is always one leak from a public crisis.`,
+    body: `A routine checkup turns up something the doctors want to "keep an eye on." Nothing urgent, they swear — but in your chair, one private little fact is always a single leak away from being a screaming public circus.`,
     choices: [
       {
-        label: 'Disclose it plainly and carry on',
+        label: 'Lay it out plainly and keep grinding',
         fx: { support: 8, media: 4, base: 2 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You tell the public the truth and keep working. Candor about being mortal, oddly, makes you more trusted.',
+        result:
+          'You tell the public the unvarnished truth and just keep working. Admitting you are a mortal meat-sack, weirdly, makes them trust you more.',
       },
       {
-        label: 'Keep it absolutely secret',
+        label: 'Lock it in a drawer and fake the vigor',
         fx: { influence: 4, heat: 6, support: -2 },
         set: { stonewaller: true },
         tone: 'slick',
-        result: 'You bury the file and project vigor. The secret holds — a small, ticking thing in a locked drawer.',
+        result:
+          'You bury the file and strut around like a prize bull. The secret holds — one small, ticking little time bomb sitting in a locked drawer with your name on it.',
       },
     ],
   },
@@ -488,19 +518,21 @@ export const PACK_5: GameEvent[] = [
     art: 'newspaper',
     emoji: '✍️',
     title: 'The Vision Book',
-    body: `Your "memoir of ideas" is due, and a talented ghostwriter has drafted it. It is better than anything you would write — and it puts bold words in your mouth you may have to defend.`,
+    body: `Your big "memoir of ideas" is overdue, and some absurdly gifted ghostwriter has cranked out a draft. It's smarter and sharper than anything you'd ever puke onto a page — and it crams bold words in your mouth you might actually have to defend out loud.`,
     choices: [
       {
-        label: 'Publish the bold version under your name',
+        label: 'Slap your name on the bold version and run',
         fx: { media: 8, base: 6, heat: 4 },
         tone: 'bold',
-        result: 'The book is a sensation and the ideas are now yours to own, live, on every stage, forever.',
+        result:
+          'The book detonates into a sensation and the ideas are now yours to own — live, on every stage, under every hot light, until the day you die.',
       },
       {
-        label: 'Sand down the riskier passages',
+        label: 'Sand the spicy bits down to mush',
         fx: { media: 4, support: 2 },
         tone: 'slick',
-        result: 'You blunt the sharp edges into safe platitudes. It sells modestly and commits you to nothing.',
+        result:
+          'You file every sharp edge down into safe, gummy platitudes. It sells modestly, offends nobody, and commits you to precisely jack squat.',
       },
     ],
   },
@@ -512,19 +544,21 @@ export const PACK_5: GameEvent[] = [
     art: 'scene',
     emoji: '🎭',
     title: 'The Mocking Mural',
-    body: `A wickedly funny caricature of you has appeared — on a wall, on every phone, on the lips of comedians. How you react becomes the next, larger joke.`,
+    body: `A brutally funny caricature of your stupid face has popped up — on a wall, on every phone, on the smirking lips of every comedian in the land. However you react becomes the next, even bigger, joke at your expense.`,
     choices: [
       {
-        label: 'Laugh along and buy the original',
+        label: 'Laugh along and buy the original off the artist',
         fx: { support: 8, media: 6, base: -2 },
         tone: 'good',
-        result: 'You praise the artist’s nerve and hang a copy in your office. Good humor turns the mockery into your applause.',
+        result:
+          "You praise the artist's brass and hang a copy in your own office. Good humor flips the mockery clean around into a standing ovation for you.",
       },
       {
-        label: 'Try to have it taken down',
+        label: 'Send goons to scrub it off the wall',
         fx: { heat: 8, base: 2, support: -6 },
         tone: 'bold',
-        result: 'You send someone to scrub the wall. By nightfall the image is on ten thousand walls and your humorlessness is the headline.',
+        result:
+          'You dispatch someone to wipe the wall clean. By nightfall the image is plastered across ten thousand walls and your thin little skin is the headline.',
       },
     ],
   },
@@ -536,21 +570,23 @@ export const PACK_5: GameEvent[] = [
     art: 'bulletin',
     emoji: '🎗️',
     title: 'The Anniversary',
-    body: `It is a decade since you first took office, and the occasion demands a speech. You can dwell on the gleaming legacy, or admit, just once, what you would do differently.`,
+    body: `It's been a whole decade since you first grabbed the chair, and the occasion demands a speech. You can polish the gleaming legacy and blow yourself, or admit — just this once — what you'd do differently.`,
     choices: [
       {
-        label: 'Trumpet the unblemished legacy',
+        label: 'Trumpet the flawless, immaculate legacy',
         fx: { media: 8, base: 6, heat: 2 },
         set: { cult_building: true },
         tone: 'bold',
-        result: 'You recite triumphs and omit the rest. The faithful roar; the historians sharpen their pens.',
+        result:
+          'You recite the triumphs and quietly skip the body count. The faithful roar themselves hoarse; the historians silently sharpen their pens.',
       },
       {
-        label: 'Admit a real regret',
+        label: 'Cop to one real, honest-to-God regret',
         fx: { support: 10, base: -2 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You name one true mistake out loud. Vulnerability, from a decade in power, lands like a thunderclap of honesty.',
+        result:
+          'You name one true screwup out loud, in front of everyone. Vulnerability, from a decade-deep power-junkie, lands like a thunderclap nobody saw coming.',
       },
     ],
   },
@@ -565,30 +601,31 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '⛺',
     title: 'The Refugee Wave',
-    body: `War next door has sent a tide of frightened families to your border. Open arms strain the country; closed gates strain the conscience and the cameras.`,
+    body: `A war next door has flushed a tide of terrified families straight at your border. Open arms wrench the country apart at the seams; slammed gates wrench the conscience — and, more pressingly, the cameras.`,
     choices: [
       {
-        label: 'Open the border and organize relief',
+        label: 'Open the gates and organize the relief',
         roll: {
           stat: 'support',
           dc: 52,
           success: {
             fx: { support: 12, media: 6, funds: -8 },
-            text: 'You welcome them with order and dignity. The cost is real; so is the moral standing it buys.',
+            text: 'You take them in with order and a shred of dignity. The cost is brutally real; so is the moral high ground it buys you to stand on and gloat.',
           },
           fail: {
             fx: { support: -8, heat: 8 },
-            text: 'Goodwill outruns logistics; the camps overflow and the backlash builds. Mercy, badly resourced, becomes a crisis.',
+            text: 'Your big heart badly outran your logistics; the camps overflow into a swamp and the backlash boils. Mercy, run on a shoestring, becomes its own disaster.',
           },
         },
         set: { peacemaker: true },
         tone: 'good',
       },
       {
-        label: 'Seal the border, project control',
+        label: 'Slam the border shut, flex the muscle',
         fx: { base: 10, heat: 8, support: -6 },
         tone: 'bold',
-        result: 'You close the gates and the hardliners cheer. The images at the fence are not ones you will want remembered.',
+        result:
+          'You bolt the gates and the hardliners go feral with joy. The pictures at the fence are not exactly the ones you want carved on your tombstone.',
       },
     ],
   },
@@ -601,31 +638,32 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '🚨',
     title: 'The Attack',
-    body: `A bomb in a crowded square. The wounded are still being counted, the public is terrified and furious, and every word you say in the next hour will echo for years.`,
+    body: `A bomb just gutted a packed square. The wounded are still being counted, the public is somewhere between gut-sick and rabid, and every single syllable you cough up in the next hour is going to ricochet for years.`,
     choices: [
       {
-        label: 'Steady the nation; resist overreach',
+        label: 'Steady the nation; don’t grab a power-grab',
         roll: {
           stat: 'support',
           dc: 52,
           success: {
             fx: { support: 14, base: 8, influence: 4 },
-            text: 'You grieve with the country and refuse to let fear rewrite its laws. Restraint, in that moment, is leadership.',
+            text: 'You grieve right alongside the country and flatly refuse to let blind fear rewrite the laws. Restraint, in that white-knuckle moment, is what actual leadership looks like.',
           },
           fail: {
             fx: { support: -6, heat: 6 },
-            text: 'Your calm is mistaken for weakness by a frightened public baying for action. The polls punish patience.',
+            text: 'A terrified mob baying for blood mistakes your calm for spinelessness. The polls happily punish you for the sin of not losing your mind.',
           },
         },
         tone: 'good',
       },
       {
-        label: 'Seize emergency powers',
+        label: 'Grab sweeping emergency powers',
         fx: { base: 10, influence: 8, heat: 12, support: -4 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, tyrant_rep: true },
         tone: 'bold',
-        result: 'You take sweeping new powers "for the duration." Emergencies, history notes, have a way of never quite ending.',
+        result:
+          'You snatch up vast new powers "just for the duration." Emergencies, as history loves to point out, have a real funny habit of never quite, ever ending.',
       },
     ],
   },
@@ -638,29 +676,30 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '🏦',
     title: 'The Bank Run',
-    body: `A rumor has become a stampede: lines snake around every bank, and the whole financial system could seize by closing time. Confidence is the only thing holding it up, and it is evaporating.`,
+    body: `A rumor metastasized into a full-blown stampede: lines snake around every bank in sight, and the entire financial system could seize up and die by closing time. The only thing propping it up is confidence, and confidence is evaporating like spit on a griddle.`,
     choices: [
       {
-        label: 'Guarantee every deposit, publicly',
+        label: 'Publicly guarantee every last deposit',
         roll: {
           stat: 'influence',
           dc: 50,
           success: {
             fx: { influence: 10, support: 10, funds: -8 },
-            text: 'You put the full faith of the state behind the savings, and the panic exhales. A bluff that had to work, and did.',
+            text: "You shove the full faith of the state behind everyone's savings, and the panic lets out one long shaky breath. A bluff that absolutely had to land, and somehow did.",
           },
           fail: {
             fx: { support: -8, heat: 8 },
-            text: 'The guarantee is doubted and the lines grow. Promising everything, and being disbelieved, is the worst outcome.',
+            text: 'Nobody buys the guarantee and the lines only get longer. Promising everyone everything, then being called a liar to your face, is the worst seat in the whole house.',
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Order a bank holiday to stop the bleed',
+        label: 'Slam a bank holiday on it to stop the bleed',
         fx: { influence: 6, support: -4, heat: 6 },
         tone: 'slick',
-        result: 'You freeze the system to break the panic. It works, roughly, and everyone remembers the day their money was locked away.',
+        result:
+          'You freeze the whole system solid to choke off the panic. It works, more or less, and everyone spends the rest of their lives remembering the day you locked up their money.',
       },
     ],
   },
@@ -673,26 +712,27 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '🔥',
     title: 'The Fire Season',
-    body: `Walls of flame are eating the dry hills and marching on the towns. The crews are stretched to breaking, and the smoke has reached the capital and the front pages.`,
+    body: `Walls of flame are chewing through the dry hills and marching straight at the towns. The crews are stretched to the snapping point, and the smoke has rolled right into the capital and onto every front page in the country.`,
     choices: [
       {
-        label: 'Pour every resource into the fight',
+        label: 'Throw every last resource into the fight',
         fx: { support: 10, funds: -12, base: 4 },
         tone: 'good',
-        result: 'You throw the treasury at the flames and stand with the crews. Expensive, exhausting, and the right call.',
+        result:
+          'You dump the whole treasury on the flames and stand shoulder to shoulder with the crews. Wildly expensive, soul-crushingly exhausting, and the obvious right call.',
       },
       {
-        label: 'Manage the optics, ration the response',
+        label: 'Spin the optics, ration the actual response',
         roll: {
           stat: 'media',
           dc: 50,
           success: {
             fx: { media: 6, funds: -4 },
-            text: 'You stage the right photos and spend the minimum. The coverage is kind; the hills, less so.',
+            text: 'You stage the perfect heroic photos and spend the absolute bare minimum. The coverage fawns over you; the hills, charred to the bone, are rather less impressed.',
           },
           fail: {
             fx: { support: -10, heat: 8 },
-            text: 'A town you under-resourced burns on live television. The optics you managed manage you instead.',
+            text: 'A town you cheaped out on burns down live on national television. The optics you tried to manage turn around and manage the hell out of you instead.',
           },
         },
         tone: 'slick',
@@ -708,27 +748,28 @@ export const PACK_5: GameEvent[] = [
     art: 'crisis',
     emoji: '☣️',
     title: 'The Chemical Spill',
-    body: `A derailed tanker has poisoned a river that feeds three towns. The company is stalling, the water is suspect, and the people want to know if it is safe to give their children a drink.`,
+    body: `A derailed tanker just poisoned the river feeding three towns. The company is stalling and lawyering up, the water is sketchy as hell, and the people want a straight answer about whether it's safe to pour their kid a glass.`,
     choices: [
       {
-        label: 'Order a hard shutdown and full disclosure',
+        label: 'Order a hard shutdown and spill the whole truth',
         fx: { support: 12, funds: -8, heat: -2 },
         set: { honest_rep: true },
         tone: 'good',
-        result: 'You cut the water, truck in clean supplies, and tell the truth fast. Costly, correct, and trusted.',
+        result:
+          'You cut the water, truck in clean supplies, and tell the unvarnished truth fast. Costly, correct, and — rarest of all — actually believed.',
       },
       {
-        label: 'Reassure the public while you study it',
+        label: 'Tell everyone to relax while you "study it"',
         roll: {
           stat: 'media',
           dc: 52,
           success: {
             fx: { media: 6, base: 4 },
-            text: 'Your calm holds and the tests come back survivable. You bought time and, this once, it paid off.',
+            text: 'Your soothing act holds and the tests crawl back somewhere short of catastrophic. You bought time on a coin flip, and this one rare time it came up heads.',
           },
           fail: {
             fx: { support: -12, heat: 12 },
-            text: 'The "it’s fine" briefing ages horribly when the test results leak. Reassurance becomes cover-up in one news cycle.',
+            text: 'The "everything\'s fine, folks" briefing ages like warm milk the second the test results leak. Reassurance flips into full-blown cover-up in a single news cycle.',
           },
         },
         scandal: { id: 'water_spin', label: 'the water you called safe', severity: 2 },

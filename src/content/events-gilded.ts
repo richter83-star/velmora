@@ -27,31 +27,31 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '📰',
     title: 'The First Hostile Bid',
-    body: `A struggling chain of local newspapers is ripe for the taking. Own the presses and you own how a hundred towns learn what happened. The current owners are begging you not to.`,
+    body: `A wheezing little chain of local rags is bleeding out and begging to be put down. Own the presses and you own what a hundred backwater towns think happened today. The current owners are on their knees sobbing at you not to. Adorable.`,
     choices: [
       {
-        label: 'Crush the resistance, take it cheap',
+        label: 'Squeeze the poor bastards and steal it cheap',
         fx: { funds: 8, influence: 10, media: 6, heat: 8 },
         set: { went_negative: true },
         tone: 'bold',
         result:
-          'You squeeze until they fold and buy the lot for pennies. The newsrooms are yours; the goodwill is not.',
+          'You choke them until they fold and grab the whole lot for pocket lint. The newsrooms are yours; the staff would happily piss on your grave.',
       },
       {
-        label: 'Pay a fair price, win the room',
+        label: 'Pay full freight, buy the whole damn room',
         fx: { funds: -10, media: 10, support: 6 },
         set: { dealmaker: true, clean_streak: true },
         tone: 'good',
         result:
-          'You overpay on purpose and shake every hand twice. The old families note that you bought respect along with the presses.',
+          'You overpay on purpose and pump every clammy hand twice. The old money families notice you bought their respect right along with the printing presses.',
       },
       {
-        label: 'Befriend the editors, run the narrative',
+        label: 'Cozy up to the editors and own the spin',
         fx: { media: 12, influence: 4, heat: 4 },
         set: { press_friendly: true },
         tone: 'slick',
         result:
-          'You keep them all employed and very grateful. The headlines develop a curious, flattering slant.',
+          'You keep every last hack employed and pathetically grateful. The headlines develop a sudden, miraculous, ass-kissing slant toward you.',
       },
     ],
   },
@@ -63,37 +63,37 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '🍽️',
     title: 'A Quiet Lunch',
-    body: `The regulator who could halt your every move wants a "conversation" — no aides, no minutes. So do you. The wine list alone costs more than her monthly salary.`,
+    body: `The regulator who could strangle your whole empire in its crib wants a "conversation" — no aides, no minutes, no witnesses. So do you. The wine list alone costs more than her takes home in a month, and you both know it.`,
     choices: [
       {
-        label: 'Make her a friend of the family',
+        label: 'Make her a dear friend of the family',
         fx: { influence: 10, heat: 10, funds: -4 },
         set: { owes_donor: true, dark_money: true },
         tone: 'slick',
         result:
-          'By dessert she is on a quiet retainer that appears in no ledger. Your filings will sail through. So might the eventual subpoena.',
+          'By dessert she is on a cozy little retainer that appears in absolutely no ledger anywhere. Your filings will sail right through. So, eventually, might the subpoena.',
       },
       {
-        label: 'Keep it strictly above board',
+        label: 'Keep your hands clean and your fly zipped',
         fx: { support: 6, influence: 4, heat: -6 },
         set: { clean_streak: true },
         tone: 'good',
         result:
-          'You pay your half, talk only policy, and leave a paper trail you would happily read aloud. Slower, cleaner, harder to bury.',
+          'You pay your own half, talk nothing but boring policy, and leave a paper trail you would happily read aloud in church. Slower, cleaner, a real pain in the ass to bury.',
       },
       {
-        label: 'Probe for what she fears',
+        label: 'Sniff around for whatever scares the hell out of her',
         roll: {
           stat: 'influence',
           dc: 52,
           success: {
             fx: { influence: 12, heat: 4 },
             set: { has_network: true },
-            text: 'You find the soft spot — a debt, a relative, a quiet ambition — and now the regulator regulates gently.',
+            text: 'You find the soft underbelly — a debt, a screwup relative, a quiet little ambition — and now the regulator regulates you with all the ferocity of a wet sponge.',
           },
           fail: {
             fx: { heat: 12, support: -6 },
-            text: 'You overreach, she stiffens, and a memo about "an inappropriate approach" begins its slow climb upward.',
+            text: 'You push too hard, she goes rigid as a board, and a memo about "an inappropriate approach" starts its slow, ominous crawl up the chain.',
           },
         },
         tone: 'bold',
@@ -108,38 +108,38 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🪧',
     title: 'The Floor Walks Out',
-    body: `Workers at your largest subsidiary are organizing, and the whole floor has stopped. The cameras are already at the gate. Concede and others will ask; crush it and you become the villain of the evening broadcast.`,
+    body: `The grunts at your biggest subsidiary have grown spines and stopped working. The whole floor is dead and the cameras are already chewing the chain-link at the gate. Cave and every other floor gets ideas; crush it and you're the cartoon ogre on tonight's broadcast.`,
     choices: [
       {
-        label: 'Break it hard, make an example',
+        label: 'Smash it flat and make a bloody example',
         fx: { funds: 6, influence: 6, heat: 14, support: -8 },
         set: { went_negative: true, stonewaller: true },
         tone: 'bold',
         result:
-          'You replace the leaders and reopen by morning. The subsidiary runs; the footage of the locked gate runs longer.',
+          'You can the ringleaders and have the place humming again by sunrise. The subsidiary runs fine; the footage of that padlocked gate runs a hell of a lot longer.',
       },
       {
-        label: 'Cut a deal, share a sliver',
+        label: 'Toss them a sliver and call it partnership',
         fx: { funds: -8, support: 10, base: 8 },
         set: { dealmaker: true },
         tone: 'good',
         result:
-          'You give them a raise and a photo op and call it partnership. It costs real Capital; it buys a story you can stand next to.',
+          'You hand them a raise, a photo op, and a fistful of warm horseshit about "family." It bleeds real Capital; it buys a story you can stand next to without flinching.',
       },
       {
-        label: 'Quietly buy off the organizers',
+        label: 'Slip the organizers some quiet envelopes',
         roll: {
           stat: 'funds',
           dc: 50,
           success: {
             fx: { influence: 8, base: 6, heat: 4 },
             set: { owes_donor: true },
-            text: 'A few private envelopes and the leaders rediscover the virtues of patience. The walkout dissolves into a rumor.',
+            text: 'A few fat envelopes and the ringleaders suddenly rediscover the deep spiritual virtue of shutting up. The walkout melts into a rumor by Tuesday.',
           },
           fail: {
             fx: { heat: 16, support: -10 },
             set: { corrupt_streak: true },
-            text: 'One organizer keeps the envelope and the receipts. Now there is a strike *and* a photograph of cash.',
+            text: 'One organizer keeps both the envelope AND the receipts, the rat. Now you have a strike *and* a glossy photograph of your cash. Brilliant.',
           },
         },
         tone: 'slick',
@@ -154,37 +154,37 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'newspaper',
     emoji: '🏝️',
     title: 'A Reporter Finds the Structure',
-    body: `A persistent journalist has traced a chain of shell entities back toward your name. Nothing is illegal yet. "Yet" is doing heroic work in that sentence.`,
+    body: `Some persistent little notebook-jockey has traced a chain of shell companies straight back toward your name. None of it is technically illegal yet. That word "yet" is sweating and doing the heaviest lifting of its entire life.`,
     choices: [
       {
-        label: 'Deepen the maze offshore',
+        label: 'Bury it another island deeper',
         fx: { funds: 12, heat: 12 },
         set: { dark_money: true, corrupt_streak: true },
         tone: 'slick',
         result:
-          'You move the structure one jurisdiction further from daylight. The Capital compounds quietly; so does the risk.',
+          'You shove the whole structure one more sunny jurisdiction away from daylight. The Capital quietly breeds in the dark; so, just as quietly, does the risk of a perp walk.',
       },
       {
-        label: 'Unwind it and disclose',
+        label: 'Blow it all up and confess first',
         fx: { funds: -10, support: 10, heat: -10 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
         result:
-          'You collapse the whole apparatus and publish the lot before the story can. Costly, startling, and oddly freeing.',
+          'You detonate the entire shell empire and publish the guts of it before the story can. Expensive, jaw-dropping, and weirdly liberating, like ripping off a financial scab.',
       },
       {
-        label: 'Charm the reporter off the trail',
+        label: 'Charm the reporter off the scent',
         roll: {
           stat: 'media',
           dc: 53,
           success: {
             fx: { media: 8, influence: 6, heat: -4 },
             set: { press_friendly: true },
-            text: 'You offer access, candor, and a better story elsewhere. The thread is quietly dropped for a juicier spool.',
+            text: 'You dangle access, fake candor, and a shinier story across the room. The thread gets dropped for a juicier spool, because reporters are magpies with deadlines.',
           },
           fail: {
             fx: { heat: 14, media: -6 },
-            text: 'The charm reads as a bribe attempt. Now the structure *and* the lunch are in the lede.',
+            text: 'The charm reads exactly like a bribe attempt, because it was one. Now the offshore structure *and* the cozy lunch are both in the lede. Outstanding work.',
           },
         },
         tone: 'bold',
@@ -203,31 +203,31 @@ export const GILDED_EVENTS: GameEvent[] = [
     title: 'The Coalition in the Cloakroom',
     speaker: (S) => ({ name: S.opp, role: 'a board member', avatar: S.oppAvatar }),
     body: (S) =>
-      `${S.opp} has been counting votes you assumed were yours, building a rival coalition one private dinner at a time. The next board meeting will be an ambush unless you move first.`,
+      `${S.opp} has been quietly counting votes you stupidly assumed were yours, stitching together a backstabbing little coalition one creepy private dinner at a time. Next board meeting is a knifing unless you move first.`,
     choices: [
       {
-        label: 'Buy out the swing votes',
+        label: 'Buy the spineless swing votes outright',
         fx: { funds: -12, influence: 12, heat: 6 },
         set: { dealmaker: true, owes_donor: true },
         tone: 'slick',
         result:
-          'You sweeten three directors until the math reverses. The coalition collapses; your ledger remembers the favors.',
+          'You sweeten three wobbly directors until the arithmetic flips on its head. The coalition collapses like a soufflé; your ledger remembers every greasy favor.',
       },
       {
-        label: 'Expose their methods publicly',
+        label: 'Drag their dirty little dinners into the light',
         fx: { media: 8, support: 6, heat: 4 },
         set: { went_negative: true },
         tone: 'bold',
         result:
-          'You leak the dinners and the whispering campaign curdles into a scandal of their own making. The cloakroom empties.',
+          'You leak the secret suppers and the whispering campaign curdles into a scandal of their own stupid making. The cloakroom empties faster than a fire drill.',
       },
       {
-        label: 'Offer the rival a graceful exit',
+        label: 'Hand the rival a golden parachute and a smile',
         fx: { influence: 6, support: 8, base: 6 },
         set: { clean_streak: true, has_biographer: true },
         tone: 'good',
         result:
-          'You hand them a dignified title and a quiet payout. The old families admire the restraint; your biographer loves the chapter.',
+          'You give them a fancy meaningless title and a quiet pile of money to go away. The old families purr at the restraint; your biographer dampens the page over it.',
       },
     ],
   },
@@ -239,31 +239,31 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '🎗️',
     title: 'The Grand Gesture',
-    body: `Your advisors propose a dazzling act of public generosity — a foundation, a wing, a fund. The only open question is whether you mean a word of it.`,
+    body: `Your advisors are pitching a blinding act of public generosity — a foundation, a hospital wing, a fund with your name slapped on it in eight-foot letters. The only real question is whether you mean a single syllable of it.`,
     choices: [
       {
-        label: 'Give it away — and mean it',
+        label: 'Actually give it away — and actually mean it',
         fx: { funds: -16, support: 14, base: 8 },
         set: { secret_reformer: true },
         tone: 'good',
         result:
-          'You sign over a fortune that even your accountants beg you to keep. Something in the public eye shifts; something in yours does too.',
+          'You sign over a fortune so large your accountants physically beg you to stop. Something in the public eye softens; something behind your own ribs, alarmingly, does too.',
       },
       {
-        label: 'A foundation that funds your friends',
+        label: 'A "charity" that funnels cash to your friends',
         fx: { media: 8, influence: 8, heat: 8 },
         set: { dark_money: true, owes_donor: true },
         tone: 'slick',
         result:
-          'The grants flow to causes that happen to employ allies and seat you on every gala dais. Generosity, optimized.',
+          'The grants flow exclusively to noble causes that happen to employ your cronies and seat your fat ass on every gala dais in town. Generosity, fully optimized.',
       },
       {
-        label: 'A modest, well-documented gift',
+        label: 'A modest gift, every penny documented',
         fx: { funds: -6, support: 6, media: 4 },
         set: { clean_streak: true, has_biographer: true },
         tone: 'good',
         result:
-          'You give a sensible sum and let the paperwork speak. No fireworks, but the old families nod at a man who keeps receipts.',
+          'You give a sensible chunk and let the paperwork do the bragging. No fireworks, but the old families nod approvingly at a man who keeps his damn receipts.',
       },
     ],
   },
@@ -275,31 +275,31 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '⛓️',
     title: 'You Own Their Debt',
-    body: `A rival enterprise needs a vote to go its way. You have quietly bought enough of its debt to decide that vote yourself. They do not yet know who holds the paper.`,
+    body: `A rival outfit needs a vote to break its way. You have quietly hoovered up enough of their debt to decide that vote yourself, from your bathtub, with one finger. The poor saps have no idea who's holding the paper around their neck.`,
     choices: [
       {
-        label: 'Call the loan, seize control',
+        label: 'Call the loan and gut them like a fish',
         fx: { funds: 14, influence: 12, heat: 10, support: -6 },
         set: { corrupt_streak: true },
         tone: 'bold',
         result:
-          'You reveal the paper at the worst possible moment and walk out owning them. The Capital is real; so is the new enemy.',
+          'You flash the paper at the single worst possible second and waltz out owning them down to the carpet. The Capital is real; so is the brand-new enemy who now hates your guts.',
       },
       {
-        label: 'Trade the leverage for a long alliance',
+        label: 'Swap the leverage for a long, loyal leash',
         fx: { influence: 10, base: 6, funds: 4 },
         set: { dealmaker: true },
         tone: 'slick',
         result:
-          'You restructure the debt in exchange for loyalty no contract could buy. They walk out grateful and yours.',
+          'You restructure the debt in exchange for loyalty no contract could ever buy. They shuffle out weeping with gratitude and belonging to you body and soul.',
       },
       {
-        label: 'Forgive part of it, on the record',
+        label: 'Forgive a chunk, loudly, on the record',
         fx: { funds: -8, support: 10, heat: -6 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
         result:
-          'You write off a slice and let the gesture be seen. Leverage spent on goodwill is a strange investment that sometimes pays.',
+          'You write off a slice and make damn sure people watch you do it. Leverage blown on goodwill is a strange, masochistic investment that, once in a blue moon, actually pays.',
       },
     ],
   },
@@ -311,37 +311,37 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '📉',
     title: 'The Markets Buckle',
-    body: `Credit seizes and a panic spreads — one your own leveraged plays may have lit. You can profit from the wreckage, or spend a fortune steadying a frightened economy that will never know you did.`,
+    body: `Credit seizes up, panic spreads like a stomach bug — and your own greedy leveraged bets may well be the match that lit it. You can feast on the wreckage, or burn a fortune steadying a terrified economy that will never, ever know you saved its ungrateful ass.`,
     choices: [
       {
-        label: 'Short the collapse, profit from the fall',
+        label: 'Short the inferno, get fat off the fall',
         fx: { funds: 18, influence: 6, heat: 12, support: -8 },
         set: { corrupt_streak: true, dark_money: true },
         tone: 'slick',
         result:
-          'You bet against the burning house and the Capital pours in. Somewhere an inquiry pins a date to your trades.',
+          'You bet against the burning house with the whole neighborhood still inside, and the Capital gushes in. Somewhere an inquiry is gleefully pinning a date to your trades.',
       },
       {
-        label: 'Backstop the system, quietly',
+        label: 'Quietly prop the whole thing up yourself',
         fx: { funds: -16, support: 12, influence: 8 },
         set: { bailed_banks: true, dealmaker: true },
         tone: 'good',
         result:
-          'You inject your own money where the state cannot move fast enough. The panic eases. The finance bloc will remember who held the floor.',
+          'You shovel your own money into the holes the state is too slow and gutless to plug. The panic eases. The finance bloc will never forget who held the floor when it mattered.',
       },
       {
-        label: 'Take it public — bail it out loudly',
+        label: 'Make a big loud show of bailing it out',
         roll: {
           stat: 'support',
           dc: 54,
           success: {
             fx: { support: 14, media: 8, base: 6 },
             set: { secret_reformer: true },
-            text: 'You stand in front of the cameras, pledge a relief fund, and the falling knife slows. The public exhales your name.',
+            text: 'You plant yourself in front of the cameras, pledge a fat relief fund, and the falling knife slows mid-air. The whole frightened public exhales your name like a prayer.',
           },
           fail: {
             fx: { support: -12, heat: 12 },
-            text: 'The fund looks like a stunt and the markets call your bluff. Now you own both the crash and the failed rescue.',
+            text: 'The fund reeks of a publicity stunt and the markets call your bluff to your face. Now you own the crash AND the belly-flop of a rescue. Two for one.',
           },
         },
         tone: 'bold',
@@ -358,40 +358,40 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'newspaper',
     emoji: '⚖️',
     title: 'Called to Testify',
-    body: `Parliament wants you under oath to explain how one person came to own so much of so many things. The gallery is full. Every answer becomes a clip before you finish it.`,
+    body: `The legislature wants you under oath to explain how one greedy human came to own so much of so many things. The gallery is packed to the rafters. Every word out of your mouth becomes a clip before you finish saying it.`,
     choices: [
       {
-        label: 'Stonewall — answer nothing useful',
+        label: 'Stonewall — say a whole lot of nothing',
         fx: { influence: 6, heat: 12, support: -8 },
         set: { stonewaller: true },
         tone: 'bold',
         result:
-          'You filibuster in fluent legalese and concede not an inch. The committee fumes; the footage of you smirking does numbers.',
+          'You filibuster in flawless lawyer-gibberish and give up not one inch of ground. The committee turns purple; the footage of you smirking at them does absolute numbers online.',
       },
       {
-        label: 'Charm the room, own the narrative',
+        label: 'Charm the whole room and steal the story',
         roll: {
           stat: 'media',
           dc: 55,
           success: {
             fx: { media: 14, support: 10, heat: -6 },
             set: { press_friendly: true, has_biographer: true },
-            text: 'You turn the hearing into a keynote about building things. By lunch you are the sympathetic figure and they are the bullies.',
+            text: 'You hijack the hearing into a TED talk about Building Things, and by lunch you are the noble underdog and the committee are sneering schoolyard bullies. Masterful.',
           },
           fail: {
             fx: { support: -10, heat: 10 },
-            text: 'A folksy answer lands as arrogance, the clip loops, and the hearing becomes your worst day in years.',
+            text: 'Your aw-shucks folksy answer lands like a smug fart in an elevator, the clip loops forever, and the hearing becomes the worst day you have had in years.',
           },
         },
         tone: 'slick',
       },
       {
-        label: 'Volunteer to break up the empire',
+        label: 'Offer to break up your own empire',
         fx: { funds: -12, support: 14, heat: -10 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
         result:
-          'You stun the chamber by offering to split the empire yourself. Pundits call it genius or surrender; the public just calls it decent.',
+          'You stun the entire chamber by volunteering to chop the empire up yourself. Pundits scream genius or surrender; the public, exhausted by both, just calls it decent.',
       },
     ],
   },
@@ -403,31 +403,31 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '👑',
     title: 'Who Inherits It All',
-    body: `The empire will outlive you, and the lawyers want a name on the line. Each candidate owes you something different — and would owe you more, or less, once you are gone.`,
+    body: `The empire is going to outlive your miserable carcass, and the lawyers are circling for a name on the dotted line. Every candidate owes you something different — and would owe you wildly more, or gloriously less, the second you're worm food.`,
     choices: [
       {
-        label: 'Anoint a loyal heir who owes you everything',
+        label: 'Crown a lapdog heir who owes you his whole life',
         fx: { influence: 12, base: 8, heat: 4 },
         set: { dealmaker: true, owes_donor: true },
         tone: 'slick',
         result:
-          'You pick the one whose every rung you built. The dynasty continues, indebted to you in perpetuity.',
+          'You pick the one whose every single rung you personally bolted to the ladder. The dynasty rolls on, in hock to you until the heat death of the universe.',
       },
       {
-        label: 'Hand it to the old families to steward',
+        label: 'Hand it to the old families to babysit',
         fx: { support: 8, influence: 6, base: 6 },
         set: { has_biographer: true, clean_streak: true },
         tone: 'good',
         result:
-          'You braid your empire into the dynasties that ran Velmora before you. They embrace you, at last, as one of their own.',
+          'You braid your empire into the inbred dynasties that ran Velmora long before your grubby arrival. They finally embrace you, at long last, as one of their own.',
       },
       {
-        label: 'Leave it to a public trust',
+        label: 'Leave the whole lot to a public trust',
         fx: { funds: -10, support: 14, heat: -8 },
         set: { secret_reformer: true },
         tone: 'good',
         result:
-          'You will the whole thing to a foundation no heir can raid. The lawyers are appalled; the public is, briefly, in love.',
+          'You will the entire pile to a foundation no greedy heir can crack open. The lawyers are physically appalled; the public, just for a moment, falls head over heels for you.',
       },
     ],
   },
@@ -439,40 +439,40 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🕵️',
     title: 'Someone Inside Is Talking',
-    body: `An insider has been meeting investigators in parking garages, carrying documents only a handful of people could have. The leak is real, the timeline is short, and the choices are all ugly.`,
+    body: `Some traitor on the inside has been meeting investigators in parking garages like a bad spy movie, hauling out documents only a tiny handful of people could possibly have. The leak is real, the clock is screaming, and every single option in front of you is ugly as sin.`,
     choices: [
       {
-        label: 'Bury them in lawyers and silence',
+        label: 'Bury the rat in lawyers and ruin',
         fx: { funds: -8, influence: 8, heat: 14, support: -6 },
         set: { stonewaller: true, corrupt_streak: true },
         tone: 'bold',
         result:
-          'You smother the insider in nondisclosures and ruin. The talking stops; the smell of it lingers in every hallway.',
+          'You smother the snitch under a mountain of nondisclosures and personal annihilation. The talking stops dead; the stench of it loiters in every hallway for years.',
       },
       {
-        label: 'Out-leak them — control the story first',
+        label: 'Out-leak the leaker, own the story first',
         roll: {
           stat: 'media',
           dc: 53,
           success: {
             fx: { media: 10, influence: 6, heat: -4 },
             set: { press_friendly: true, dark_money: true },
-            text: 'You drop your own version through friendly outlets before theirs lands. The insider becomes a footnote in your narrative.',
+            text: 'You dump your own polished version through tame outlets before theirs ever hits the press. The whistleblower shrivels into a forgettable footnote in YOUR narrative.',
           },
           fail: {
             fx: { heat: 16, support: -10 },
-            text: 'Your spin collides with their documents and loses. Now there are two stories and only one of them is true.',
+            text: 'Your spin slams headfirst into their documents and loses, badly. Now there are two stories floating around and only one of them has the inconvenient virtue of being true.',
           },
         },
         tone: 'slick',
       },
       {
-        label: 'Cooperate, clean house in public',
+        label: 'Cooperate and clean house in the open',
         fx: { funds: -6, support: 12, heat: -12 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
         result:
-          'You open the books, thank the insider, and fire the rot yourself. It hurts now and saves you the indictment later.',
+          'You crack open the books, thank the whistleblower out loud, and fire the rot yourself with your own hands. It stings like hell now and spares you the perp walk later.',
       },
     ],
   },
@@ -484,40 +484,40 @@ export const GILDED_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '🌐',
     title: 'A Sovereign Fund Comes Calling',
-    body: `An immense, faceless pool of foreign money wants a stake in the empire. The terms are generous, the source is opaque, and the strings are exactly as long as they need to be.`,
+    body: `A gigantic, faceless ocean of foreign money wants a piece of the empire. The terms are obscenely generous, the source is murkier than a swamp, and the strings attached are exactly as long as they need to be to wrap around your throat.`,
     choices: [
       {
-        label: 'Take the money, ask no questions',
+        label: 'Grab the cash, ask zero questions',
         fx: { funds: 16, influence: 8, heat: 12 },
         set: { dark_money: true, owes_donor: true },
         tone: 'slick',
         result:
-          'The wire clears before lunch and the Capital is staggering. So, quietly, is the list of things you now cannot refuse.',
+          'The wire clears before lunch and the Capital is frankly obscene. So, very quietly, is the growing list of things you are now physically incapable of saying no to.',
       },
       {
-        label: 'Negotiate hard, keep control',
+        label: 'Haggle like a demon, keep control',
         roll: {
           stat: 'influence',
           dc: 52,
           success: {
             fx: { funds: 10, influence: 10 },
             set: { dealmaker: true },
-            text: 'You take the money and none of the leash, structuring it so they own profit but never a vote. A small masterpiece.',
+            text: 'You take the money and absolutely none of the leash, rigging it so they own a slice of profit but never a single vote. A tiny, beautiful, ruthless masterpiece.',
           },
           fail: {
             fx: { heat: 10, influence: -6 },
-            text: 'They smile, sign, and bury a clause you missed. The stake is theirs in all the ways that matter.',
+            text: 'They smile, they sign, and they bury one little clause you were too cocky to read. The stake is theirs now in every way that actually counts.',
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Decline — keep the empire homegrown',
+        label: 'Tell them to shove it — keep it homegrown',
         fx: { funds: -8, support: 10, base: 6, heat: -6 },
         set: { clean_streak: true, has_biographer: true },
         tone: 'good',
         result:
-          'You turn down a fortune to keep the strings off. The old families, who distrust outside money on principle, finally trust you.',
+          'You wave off a fortune just to keep the strings off your neck. The old families, who distrust outside money on pure reflex, finally decide you are one of the good ones.',
       },
     ],
   },
