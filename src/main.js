@@ -50,6 +50,11 @@ async function loadBank(){
    never ships it on the hot path. */
 let _live = null;
 function loadLive(){ return _live || (_live = import('./live')); }
+/* Voice narration (opt-in, Overhaul P6) is its own dynamic chunk — loaded only
+   when the user turns it on, so the default game never ships the engine. The
+   say()/hush() wrappers live INSIDE the IIFE below (they read SETTINGS + S). */
+let _voice = null;
+function loadVoice(){ return _voice || (_voice = import('./voice')); }
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -82,7 +87,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5" };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, voice:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5" };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -382,6 +387,7 @@ function resolveChoice(ci){
   const ch=ev.choices[ci];
   if(!ch) return;
   if(ch.req && !ch.req(S)) return; // locked
+  hush(); // stop narrating the dilemma the moment a choice is committed
 
   // All state mutation (fx/flags/arcs/npcs/scandals, the roll, queued `then`s,
   // stat deltas and markSeen) happens in the shared pure resolver. This wrapper
@@ -784,8 +790,8 @@ function renderEvent(ev){
   } else {
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
-  let sp="";
-  if(ev.speaker){ const s=ev.speaker(S); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,"neutral",false,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  let sp="", voiceKey=ev.id;
+  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,"neutral",false,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
   $("#stage").innerHTML=`<div class="ev ${art}">
     ${head}
@@ -801,6 +807,7 @@ function renderEvent(ev){
   });
   focusHeading(".ev-title");
   announce("New decision: "+ev.title+".");
+  say(body, voiceKey);
 }
 function renderResult(){
   const r=S.lastResult; if(!r)return;
@@ -816,6 +823,7 @@ function renderResult(){
   </div>`;
   $("#btn-continue-turn").addEventListener("click",afterResult);
   focusHeading(".result h4");
+  say(r.text, S.path);
 }
 
 /* ---- promotions ---- */
@@ -939,6 +947,7 @@ function renderEnding(){
   go("over");
   focusHeading(".over-card h2");
   announce("Career over. "+e.rank+". "+e.verdict+".");
+  say(e.text, S.path);
   sfx(e.win?"win":"lose");
   if(e.win) setTimeout(confetti,350);
 }
@@ -1252,6 +1261,7 @@ function renderSettings(){
   const r=$("#set-reduce"); if(r) r.setAttribute("aria-checked",SETTINGS.reduceMotion?"true":"false");
   const h=$("#set-high"); if(h) h.setAttribute("aria-checked",SETTINGS.highContrast?"true":"false");
   const s=$("#set-sound"); if(s) s.setAttribute("aria-checked",SETTINGS.sound?"true":"false");
+  const vo=$("#set-voice"); if(vo) vo.setAttribute("aria-checked",SETTINGS.voice?"true":"false");
   const er=$("#set-errors"); if(er) er.setAttribute("aria-checked",SETTINGS.errorReports?"true":"false");
   const ad=$("#set-director"); if(ad) ad.setAttribute("aria-checked",SETTINGS.aiDirector?"true":"false");
   const wv=$("#set-weave"); if(wv) wv.setAttribute("aria-checked",(SETTINGS.weaveDensity&&SETTINGS.weaveDensity!=="off")?"true":"false");
@@ -1373,6 +1383,14 @@ function blip(freq,start,dur,type,gain){
   o.connect(g).connect(ac.destination);
   o.start(t0); o.stop(t0+dur+0.03);
 }
+/* Opt-in narration (Overhaul P6). say() speaks a line in a character's
+   deterministic voice; hush() stops mid-line. Best-effort no-ops when narration
+   is off or unsupported — the on-screen text is always the caption of record. */
+function say(text,key){
+  if(!SETTINGS.voice || !text) return;
+  loadVoice().then(V=>{ if(V.isSupported()) V.speak(text, V.profileFor(key, S&&S.path)); }).catch(()=>{});
+}
+function hush(){ if(_voice) _voice.then(V=>V.stop()).catch(()=>{}); }
 function sfx(name){
   if(!SETTINGS.sound) return;
   const ac=actx(); if(!ac) return;
@@ -1519,6 +1537,7 @@ function boot(){
   $("#set-reduce").addEventListener("click",()=>toggleSetting("reduceMotion","Reduce motion"));
   $("#set-high").addEventListener("click",()=>toggleSetting("highContrast","High contrast"));
   $("#set-sound").addEventListener("click",()=>{ toggleSetting("sound","Sound"); if(SETTINGS.sound) sfx("click"); });
+  $("#set-voice").addEventListener("click",()=>{ toggleSetting("voice","Narration"); if(SETTINGS.voice) say("Narration on. Velmora will speak.","ballot"); else hush(); });
   $("#set-errors").addEventListener("click",()=>toggleSetting("errorReports","Error reporting"));
   $("#set-director").addEventListener("click",()=>toggleSetting("aiDirector","AI Director"));
   $("#set-weave").addEventListener("click",()=>{
