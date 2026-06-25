@@ -25,7 +25,11 @@ export default defineConfig({
       manifest: false, // keep the existing public/manifest.json + its <link>
       injectManifest: {
         injectionPoint: 'self.__WB_MANIFEST',
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
+        // Eager precache = the SHELL only (code, styles, fonts, manifest). Icons
+        // (png/svg) runtime-cache on first fetch; art/voice packs are runtime-cached
+        // per path (see sw.js). Keeps the install payload small as the overhaul adds
+        // heavy assets. (Overhaul P0.)
+        globPatterns: ['**/*.{js,css,html,woff2,json}'],
       },
       devOptions: { enabled: false },
     }),

@@ -13,6 +13,11 @@
 
 const SHELL_CACHE = 'velmora-shell';
 const FONT_CACHE = 'velmora-fonts';
+// Overhaul P0: art/voice packs runtime-cache into their own buckets (offline-
+// permanent per asset after first fetch; evictable independently of the shell).
+const ART_CACHE = 'velmora-art';
+const VOICE_CACHE = 'velmora-voice';
+const KEEP_CACHES = new Set([SHELL_CACHE, FONT_CACHE, ART_CACHE, VOICE_CACHE]);
 
 // Injected at build time: [{ url, revision }, ...] for every hashed asset.
 const PRECACHE = (self.__WB_MANIFEST || []).map((e) => (typeof e === 'string' ? e : e.url));
@@ -43,7 +48,7 @@ self.addEventListener('activate', (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((k) => k.startsWith('velmora-') && k !== SHELL_CACHE && k !== FONT_CACHE)
+            .filter((k) => k.startsWith('velmora-') && !KEEP_CACHES.has(k))
             .map((k) => caches.delete(k)),
         ),
       )
@@ -117,6 +122,29 @@ self.addEventListener('fetch', (event) => {
           .catch(() => cached);
         return cached || network;
       }),
+    );
+    return;
+  }
+
+  // 2.5) Art/voice packs → stale-while-revalidate in their own runtime caches
+  //      (offline-permanent per asset after first fetch). (Overhaul P0 rails.)
+  if (
+    url.origin === self.location.origin &&
+    (url.pathname.startsWith('/art/') || url.pathname.startsWith('/voice/'))
+  ) {
+    const cacheName = url.pathname.startsWith('/voice/') ? VOICE_CACHE : ART_CACHE;
+    event.respondWith(
+      caches.open(cacheName).then((cache) =>
+        cache.match(req, { ignoreVary: true }).then((hit) => {
+          const network = fetch(req)
+            .then((res) => {
+              if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+              return res;
+            })
+            .catch(() => hit);
+          return hit || network;
+        }),
+      ),
     );
     return;
   }

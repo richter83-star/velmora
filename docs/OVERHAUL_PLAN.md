@@ -2,6 +2,8 @@
 
 > Drafted 2026-06-24 via a planning workflow (3 system maps → 6-lane design panel → synthesis). The source-of-truth plan for the multi-session production overhaul. Re-read alongside `docs/PROGRESS.md`.
 
+**STATUS (2026-06-25):** Decisions locked → ART SOURCE = **AI-generate + human cleanup** (e.g. Higgsfield MCP, base-body + expression-overlay atlas); VOICE = **SpeechSynthesis-first**, streamed hero-line clips later. **P0 ✅ DONE** (asset-delivery rails: SW glob narrowed to shell-only; `/art/` + `/voice/` runtime-cache buckets added to `sw.js`; separate art/voice budget gate in `check-size.mjs`; `public/art/manifest.json` scaffolded; build + size + offline + smoke green, game unchanged). **NEXT: P1** — the pure portrait resolver behind a never-blocking legacy-SVG fallback. Still-open decisions for their phases: new-budget confirm, content posture ×3, age threshold (17+/18+), rewrite ownership, store target, paid-spend sign-off.
+
 ## What it becomes
 
 VELMORA stays the same deterministic, offline-capable, installable 5-path strategy PWA — but every speaker becomes a drawn **Family-Guy / South-Park-grade cartoon caricature** with a savage **TV-MA mouth** and a real **voice**, behind a re-scoped **Mature (17+)** content gate. The entry stays a sub-70 kB shell that boots instantly; **all art + audio live OUTSIDE the JS budget** as content-hashed, service-worker-cached packs that become offline-permanent per path on first visit.
