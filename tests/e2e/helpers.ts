@@ -27,10 +27,18 @@ export async function dismissTutorial(page: Page): Promise<void> {
   if (await skip.count()) await skip.click();
 }
 
+/** Accept the first-run Mature 17+ gate if it is showing (most specs pre-seed it
+ *  accepted via storageState; the localStorage-blocked sandbox spec cannot). */
+export async function dismissAgeGate(page: Page): Promise<void> {
+  const yes = page.locator('#age-gate:not([hidden]) #age-yes');
+  if (await yes.count()) await yes.click();
+}
+
 /** Start a new career on the given path (defaults for name/faction/trait). */
 export type PathName = 'ballot' | 'vanguard' | 'iron' | 'gilded' | 'anointed';
 
 export async function startCareer(page: Page, path: PathName): Promise<void> {
+  await dismissAgeGate(page);
   await page.locator('#btn-new').click();
   await page.locator(`.path-card[data-path="${path}"]`).click();
   await page.locator('#btn-begin-career').click();

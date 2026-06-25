@@ -402,6 +402,10 @@ button{font-family:var(--font-b);cursor:pointer}
 .tut-dot.on{background:var(--accent)}
 .tut-actions{display:flex;gap:10px}
 .tut-actions .btn{flex:1}
+/* Age gate (Overhaul P3): a first-run Mature 17+ self-attest dialog. Sits above
+   the tutorial, reusing the .tut overlay shell + .tut-card. */
+.age-gate{z-index:130;background:rgba(8,6,14,.86)}
+.age-fine{font-family:var(--font-m);font-size:.66rem;line-height:1.45;color:var(--ink-soft);margin:14px 0 0;text-align:center}
 
 /* ===== career slots ===== */
 .slot-card{border:var(--bw-base) solid var(--rp-ink-key);border-radius:var(--r-sm);background:var(--rp-paper-2);box-shadow:var(--rp-shadow-misreg);padding:14px 16px;margin:0 0 12px}

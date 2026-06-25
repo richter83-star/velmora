@@ -62,7 +62,7 @@ function prefetchBank(){
    ================================================================ */
 (function(){
 "use strict";
-const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1", META_KEY="velmora_meta_v1";
+const VERSION="1.0.0", SAVE_KEY="velmora_save_v1", SETTINGS_KEY="velmora_settings_v1", META_KEY="velmora_meta_v1", AGE_KEY="velmora_age_v1";
 
 /* ---------- cross-run meta-progression store (Phase 8) ----------
    Mirrors the save/settings localStorage+in-memory pattern, but uses its OWN
@@ -114,6 +114,20 @@ function saveSettings(){
 function applySettings(){
   document.body.classList.toggle("force-reduce-motion",!!SETTINGS.reduceMotion);
   document.body.classList.toggle("high-contrast",!!SETTINGS.highContrast);
+}
+
+/* ---------- Mature (17+) age gate — self-attested, on-device only (Overhaul P3).
+   Its own dedicated localStorage key + in-memory fallback (sandbox-safe), like the
+   save/settings/meta stores. This is a legal-disclaimer surface, not a security
+   control: clearing storage re-prompts — the accepted ceiling for a no-backend PWA. */
+function ageVerified(){
+  let raw=null;
+  try{ raw=localStorage.getItem(AGE_KEY); }catch(e){}
+  if(!raw && window._velmoraAge) raw=window._velmoraAge;
+  return raw==="1";
+}
+function setAgeVerified(){
+  try{ localStorage.setItem(AGE_KEY,"1"); }catch(e){ window._velmoraAge="1"; }
 }
 
 /* ---------- tiny utils / RNG ---------- */
@@ -1281,6 +1295,50 @@ function tutNext(){
 }
 function maybeTutorial(){ if(!SETTINGS.tutorialSeen) openTutorial(); }
 
+/* First-run Mature 17+ gate (Overhaul P3). Resolves once per device: accepting
+   persists + reveals the app; "under 17" shows a soft denial with a way back.
+   Focus-trapped, Esc-inert (it must be answered), background inert — mirroring the
+   tutorial's aria-modal handling. Pure client + localStorage → fully offline. */
+function ageButtons(){
+  const denied=$("#age-denied");
+  if(denied && !denied.hidden) return [$("#age-back")].filter(Boolean);
+  return [$("#age-no"),$("#age-yes")].filter(Boolean);
+}
+function showAgeGate(){
+  const gate=$("#age-gate"); if(!gate) return;
+  const main=$("#main"); if(main) main.inert=true;
+  $("#age-ask").hidden=false; $("#age-denied").hidden=true;
+  gate.hidden=false;
+  const yes=$("#age-yes"); if(yes) try{ yes.focus(); }catch(e){}
+  announce("Mature content. You must be 17 or older to play. Confirm your age to enter.");
+}
+function acceptAge(){
+  setAgeVerified();
+  const gate=$("#age-gate"); if(gate) gate.hidden=true;
+  const main=$("#main"); if(main) main.inert=false;
+  const cta=$("#btn-new"); if(cta) try{ cta.focus(); }catch(e){}
+  announce("Welcome to Velmora.");
+}
+function denyAge(){
+  $("#age-ask").hidden=true; $("#age-denied").hidden=false;
+  const back=$("#age-back"); if(back) try{ back.focus(); }catch(e){}
+  announce("You must be 17 or older to play Velmora.");
+}
+function backToAge(){
+  $("#age-denied").hidden=true; $("#age-ask").hidden=false;
+  const yes=$("#age-yes"); if(yes) try{ yes.focus(); }catch(e){}
+}
+function ageTrap(e){
+  if(e.key==="Escape"){ e.preventDefault(); return; } // the gate must be answered
+  if(e.key!=="Tab") return;
+  const b=ageButtons(); if(!b.length) return;
+  e.preventDefault();
+  const i=b.indexOf(document.activeElement);
+  const next = e.shiftKey ? (i<=0?b.length-1:i-1) : (i>=b.length-1?0:i+1);
+  try{ b[next].focus(); }catch(e2){}
+}
+function gateAge(){ if(!ageVerified()) showAgeGate(); }
+
 /* ================================================================
    CONFETTI / FX CANVAS + TOAST
    ================================================================ */
@@ -1500,10 +1558,17 @@ function boot(){
   $("#drawer").addEventListener("click",e=>{ if(e.target.id==="drawer") closeDrawer(); });
   $("#drawer").addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
 
+  $("#age-yes").addEventListener("click",acceptAge);
+  $("#age-no").addEventListener("click",denyAge);
+  $("#age-back").addEventListener("click",backToAge);
+  $("#age-gate").addEventListener("keydown",ageTrap);
+
   refreshContinueBtn();
 
   // Debug/test hook: expose the live run state (used by E2E arc assertions).
   window.__VELMORA_STATE = () => S;
+
+  gateAge(); // first-run Mature 17+ gate (over everything until answered)
 
   registerSW();
   prefetchBank(); // warm the code-split event-bank chunk so career start is instant

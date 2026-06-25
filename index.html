@@ -319,6 +319,30 @@
   </div>
 </div>
 
+<!-- first-run age gate (Mature 17+; self-attested, remembered on-device only) -->
+<div class="tut age-gate" id="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-title" aria-describedby="age-body" hidden>
+  <div class="tut-card">
+    <div id="age-ask">
+      <p class="tut-step">Mature content · 17+</p>
+      <h2 class="tut-title" id="age-title">Are you 17 or older?</h2>
+      <p class="tut-body" id="age-body">VELMORA is a savage adult political satire. It contains strong language, crude and sexual humor, and dark themes — wholly fictional, but firmly TV-MA. You must be 17 or older to play.</p>
+      <div class="tut-actions">
+        <button class="btn" id="age-no" type="button">I'm under 17</button>
+        <button class="btn primary" id="age-yes" type="button">I'm 17 or older — enter</button>
+      </div>
+      <p class="age-fine">By entering you confirm you are 17 or older. This choice is remembered on this device only.</p>
+    </div>
+    <div id="age-denied" hidden>
+      <p class="tut-step">Come back later</p>
+      <h2 class="tut-title">Not yet.</h2>
+      <p class="tut-body">VELMORA is for ages 17 and up. Please close this tab — we'll see you when you're older.</p>
+      <div class="tut-actions">
+        <button class="btn" id="age-back" type="button">Actually, I'm 17 or older</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <canvas id="fx-canvas"></canvas>
 <div id="toast-mount"></div>
   <script type="module" src="/src/main.js"></script>

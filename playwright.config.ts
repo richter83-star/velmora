@@ -18,6 +18,10 @@ export default defineConfig({
     headless: true,
     serviceWorkers: 'block', // offline spec overrides this with `test.use`
     trace: 'on-first-retry',
+    // Pre-seed the first-run Mature 17+ gate as accepted so gameplay specs are not
+    // blocked by it (Overhaul P3). The dedicated agegate.spec overrides this with a
+    // clean state to exercise the gate itself.
+    storageState: 'tests/e2e/.auth/age-verified.json',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], channel } }],
   webServer: {

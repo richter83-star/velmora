@@ -1,6 +1,6 @@
 # VELMORA — Terms of Use
 
-_Draft — review before public launch. Last updated: 2026-06-21._
+_Draft — review before public launch. Last updated: 2026-06-25._
 
 ## The game
 
@@ -10,9 +10,11 @@ VELMORA is a free-to-play, browser-based political-strategy game provided "as is
 
 VELMORA is **a work of satire and fiction**. The nation of Velmora, its parties, factions, leaders, rivals, and events are entirely invented. Nothing in the game depicts, references, or endorses any real nation, party, movement, ideology, religion, or living person. Any resemblance to real entities is coincidental. The game models the **mechanics of power in the abstract**; it does not advocate any real-world ideology, violence, or hatred.
 
-## Content rating
+## Content rating & age requirement
 
-Targeted at Teen / PEGI 12: political and consequence-based themes, no graphic content.
+VELMORA is rated **Mature (17+) — TV-MA / PEGI 18**. It contains strong and frequent profanity, crude and sexual humor and innuendo, cartoon violence, and dark satirical themes. It does **not** contain pornography, and — per the fiction disclaimer above — it never sexualizes or mocks any real person or real religion. **You must be 17 or older to play.**
+
+A one-time age confirmation is shown on first launch and remembered **only on your device** (browser local storage). Because the game has no account and no backend, this age gate is a good-faith **self-attestation**: it can be reset by clearing browser storage, and it is not, and cannot be, identity verification. That is the accepted limit of age assurance for an offline, backend-free web game.
 
 ## Monetization
 
