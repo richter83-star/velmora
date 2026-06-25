@@ -1,55 +1,55 @@
 import type { GameState } from '../engine/types';
 
 /**
- * Fake-news headline ticker (flavor) — a satirical news crawl beneath the HUD.
- * Headlines are fictional and non-partisan: they mock the press, polling, and
- * the theater of power in the abstract, never real people, parties, or events.
+ * Fake-news headline ticker (flavor) — a savage TV-MA news crawl beneath the HUD.
+ * Headlines are fictional and non-partisan: they mock the press, polling, and the
+ * theater of power in the abstract, never real people, parties, or events.
  *
- * Selection is PURE and deterministic from state (rotated by the turn counter)
- * so it never touches the gameplay RNG — the ticker is cosmetic and must not
- * affect run determinism.
+ * Selection is PURE and deterministic from state (rotated by the turn counter) so
+ * it never touches the gameplay RNG — the ticker is cosmetic and must not affect
+ * run determinism.
  */
 type Headline = string | ((name: string) => string);
 
 const GENERIC: Headline[] = [
-  'Pundits convene to discuss what other pundits are thinking',
-  'Poll finds majority of citizens have "had it up to here"',
-  'Editorial demands action; declines to specify which',
-  'Study: 6 in 10 statistics invented on the spot, study finds',
-  'Op-ed warns of slippery slope, cites earlier op-ed',
-  "Nation's pigeons reportedly unbothered by political crisis",
-  'Local official cuts ribbon; ribbon industry cautiously optimistic',
-  'Commentariat "cautiously apoplectic" over latest development',
-  'Survey: voters want lower taxes, more spending, and free parking',
-  'Weather expected to continue, meteorologists confirm',
-  'Breaking: something has happened; more at the top of the hour',
-  'Analysts upgrade outlook from "grim" to "grimly hopeful"',
-  'Capital traffic blamed on capital, and on traffic',
-  'Think tank releases report no one will read but everyone will cite',
-  'Historic summit produces historic photograph',
-  'Experts agree, then immediately disagree about what they agreed on',
+  `Pundits gather to discuss what other pundits are pretending to think`,
+  `Poll finds majority of citizens "fed right up to here" with everything`,
+  `Editorial demands bold action, declines to specify which, cashes cheque`,
+  `Study: 6 in 10 statistics pulled straight out of someone's ass, study finds`,
+  `Op-ed warns of slippery slope, cites a dumber op-ed from last Tuesday`,
+  `Nation's pigeons remain magnificently unbothered by the political crisis`,
+  `Local official cuts ribbon; entire ribbon lobby weeps with gratitude`,
+  `Commentariat "cautiously apoplectic" over thing they'll forget by Friday`,
+  `Survey: voters demand lower taxes, more spending, and a free pony`,
+  `Weather expected to keep grimly happening, terrified meteorologists confirm`,
+  `Breaking: something has happened; more screaming at the top of the hour`,
+  `Analysts upgrade the outlook from "grim" to "grim, but with snacks"`,
+  `Capital gridlock blamed on the capital, the traffic, and probably you`,
+  `Think tank drops a report nobody reads but every coward will cite`,
+  `Historic summit produces one historic photograph and exactly zero results`,
+  `Experts reach consensus, then immediately brawl over what they agreed on`,
 ];
 
 const BALLOT: Headline[] = [
-  (n) => `Latest poll puts ${n} up — or down — within the margin of error`,
-  'Attack-ad spending now exceeds a small nation’s entire budget',
-  'Candidate filmed eating local delicacy in deeply unflattering manner',
-  'Debate watched live by dozens, re-litigated forever by millions',
-  (n) => `${n} vows to fix everything by a date to be announced later`,
-  'Yard-sign shortage declared an emergency in three swing districts',
-  'Focus group reportedly "felt a lot of feelings" about the new slogan',
-  'Undecided voter interviewed for 400th consecutive news cycle',
+  (n) => `Latest poll puts ${n} up — or down — honestly nobody has a damn clue`,
+  `Attack-ad spending now dwarfs a small nation's entire annual war budget`,
+  `Candidate filmed inhaling a local delicacy like an unhinged raccoon`,
+  `Debate watched live by twelve people, screamed about forever by millions`,
+  (n) => `${n} solemnly vows to fix absolutely everything by a date TBD, pinky-swear`,
+  `Yard-sign shortage declared a five-alarm emergency by total lunatics`,
+  `Focus group "felt a whole lot of big feelings" about the slogan, learned nothing`,
+  `Same undecided voter interviewed for the 400th straight cycle, still undecided`,
 ];
 
 const VANGUARD: Headline[] = [
-  'Production figures exceed the plan, the forecast, and all credulity',
-  (n) => `Central organ praises ${n}’s "tireless and visionary guidance"`,
-  'Citizens reported to have gathered spontaneously, entirely of own accord',
-  'Anniversary parade to feature tanks, doves, and considerably more tanks',
-  'Ministry of Statistics announces record harvest of records',
-  (n) => `${n} observed smiling; analysts parse the footage for hidden meaning`,
-  'Loyal masses said to be "overflowing with quiet, orderly enthusiasm"',
-  'New five-year plan promises to complete the last five-year plan',
+  `Production figures exceed the plan, the forecast, and the laws of physics`,
+  (n) => `Central organ slobbers over ${n}'s "tireless and visionary guidance"`,
+  `Citizens reported to have gathered "spontaneously," entirely of their own free will`,
+  `Anniversary parade to feature tanks, doves, and a frankly excessive number of tanks`,
+  `Ministry of Statistics announces a glorious record harvest of records`,
+  (n) => `${n} observed smiling; terrified analysts comb the footage for hidden orders`,
+  `Loyal masses said to be "overflowing with quiet, orderly, mandatory enthusiasm"`,
+  `Heroic new five-year plan vows to finally finish the last damn five-year plan`,
 ];
 
 /** State-reactive headlines that comment on how the run is going. */
@@ -57,24 +57,24 @@ function reactive(S: GameState, name: string): string[] {
   const out: string[] = [];
   const s = S.stats;
   const f = S.flags ?? {};
-  if (s.heat >= 70) out.push(`Investigators reportedly "very keen to chat" with ${name}`);
-  else if (s.heat >= 50) out.push('Ethics watchdogs seen sharpening their pencils');
-  if (s.support <= 28) out.push(`${name}’s approval "merely taking a breather," aides insist`);
-  else if (s.support >= 70) out.push(`${name} riding a wave of public goodwill, for now`);
+  if (s.heat >= 70) out.push(`Investigators reportedly "dying to have a little chat" with ${name}`);
+  else if (s.heat >= 50) out.push(`Ethics watchdogs spotted sharpening their pencils and their knives`);
+  if (s.support <= 28) out.push(`${name}'s approval "just catching its breath," sweating aides insist`);
+  else if (s.support >= 70) out.push(`${name} riding a fat wave of public goodwill, the lucky bastard`);
   if ((S.world?.economy?.mood ?? 0) < 0)
-    out.push('Markets described by traders as "a bit emotional" today');
+    out.push(`Markets described by traders as "having a full emotional meltdown" today`);
   if ((S.world?.tension?.d ?? 0) > 4)
-    out.push('Border situation described as "tense but largely theatrical"');
-  if (S.activeScandal) out.push(`Old scandal resurfaces; ${name}’s office "declines to relive it"`);
+    out.push(`Border situation "tense but mostly for the cameras," officials shrug`);
+  if (S.activeScandal) out.push(`Old scandal claws its way back up; ${name}'s office "would rather not"`);
   if (f.corrupt_streak)
-    out.push(`Questions mount over ${name}’s mysteriously robust personal finances`);
+    out.push(`Questions mount over ${name}'s suspiciously, gloriously fat personal finances`);
   if (f.clean_streak || f.honest_rep)
-    out.push(`${name} praised for candor; veteran pundits deeply suspicious`);
+    out.push(`${name} praised for raw honesty; veteran hacks deeply, professionally suspicious`);
   if (S.path === 'vanguard' && f.bloody_hands)
-    out.push(`State media lauds ${name}’s "firm and loving hand"`);
+    out.push(`State media praises ${name}'s "firm, loving, and lightly stranglish hand"`);
   if (f.own_cult || f.cult_building)
-    out.push(`${name}’s official portrait reported on a further 4,000 walls`);
-  if (S.phase >= 3) out.push(`Foreign capitals "watching ${name} closely," as ever`);
+    out.push(`${name}'s glorious mug reportedly nailed to a further 4,000 walls`);
+  if (S.phase >= 3) out.push(`Foreign capitals "watching ${name} like a hawk," same as ever`);
   return out;
 }
 
@@ -99,11 +99,7 @@ export function pickHeadlines(S: GameState): string[] {
   const generic = GENERIC.map(resolve);
   const sided = (S.path === 'vanguard' ? VANGUARD : BALLOT).map(resolve);
 
-  const out = [
-    ...reactive(S, name),
-    ...rotate(generic, turn * 3, 5),
-    ...rotate(sided, turn * 2, 3),
-  ];
+  const out = [...reactive(S, name), ...rotate(generic, turn * 3, 5), ...rotate(sided, turn * 2, 3)];
   // De-dupe while preserving order.
   return [...new Set(out)];
 }
