@@ -2,7 +2,7 @@
 
 All notable changes to VELMORA. This project follows [Semantic Versioning](https://semver.org).
 
-## [Unreleased] — 2026-06-25 — The Mature Cartoon Overhaul
+## [1.1.0] — 2026-06-25 — The Mature Cartoon Overhaul
 
 VELMORA grows up: the same deterministic, offline, installable 5-path PWA, now a
 savage adult-cartoon (South Park / Veep) political satire behind a Mature gate.
