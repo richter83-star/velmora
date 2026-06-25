@@ -2,6 +2,44 @@
 
 All notable changes to VELMORA. This project follows [Semantic Versioning](https://semver.org).
 
+## [Unreleased] — 2026-06-25 — The Mature Cartoon Overhaul
+
+VELMORA grows up: the same deterministic, offline, installable 5-path PWA, now a
+savage adult-cartoon (South Park / Veep) political satire behind a Mature gate.
+Built across phases P2–P7, each leaving the game shippable with every gate green.
+
+### Content & rating
+
+- **Re-rated Mature (17+) / TV-MA.** A first-run, on-device, self-attested age gate
+  (focus-trapped, axe-clean, offline, persisted) and updated Terms/disclaimer.
+- **Full TV-MA prose sweep:** all **294 event dilemmas**, every ending payoff, the
+  Loom generative templates + lexicons, and the ticker headlines rewritten to a
+  profane, crude, merciless voice — all fictional, inside hard red lines.
+- **Content boundary as an executable gate:** `denylist.ts` re-scoped to
+  TV-MA-with-red-lines (profanity passes; explicit porn, sexualizing a real
+  person, and mocking a real named religion all fire). The red lines are now
+  CI-enforced over *every* prose surface (events, Loom, endings, headlines).
+- A **prose-only diff-guard** proved the entire rewrite changed only wording —
+  zero changes to ids, effects, flags, rolls, or logic — so saves stay loadable
+  and the seeded sweep stays byte-identical.
+
+### Graphics & voice (the stickiness pillars)
+
+- **Drawn cartoon art pipeline:** a pure portrait resolver behind a never-blocking
+  legacy-SVG fallback, a reproducible `scripts/process-art.mjs` encoder, and the
+  first hand-cleaned portrait (the Iron Provost). Art ships as lazy, SW-cached,
+  budget-gated packs — outside the JS budget.
+- **Opt-in on-device voice narration** (SpeechSynthesis): deterministic
+  per-character voices, always-on captions, best-effort + never-blocking +
+  offline. Ships as a 0.8 kB lazy chunk.
+
+### Engineering
+
+- Reclaimed entry-budget headroom by code-splitting the endings bank out of the
+  eager chunk (loaded at game-over, SW-precached, offline-safe).
+- New asset-delivery rails (per-path `/art/` + `/voice/` SW runtime caches; a
+  separate asset budget gate) keep heavy media off the JS budget.
+
 ## [1.0.0] — 2026-06-21 — Core game, launch-ready
 
 The first complete, shippable release: a cartoon political-strategy PWA where you
