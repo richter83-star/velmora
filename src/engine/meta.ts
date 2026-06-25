@@ -7,7 +7,7 @@
  * Everything is immutable — recordRun/unlockAchievements return NEW meta objects.
  */
 import type { GameState } from './types';
-import { purges, dominantTrait } from './endings';
+import { purges, dominantTrait } from './endings-traits';
 
 export const META_VERSION = 1;
 export const HISTORY_CAP = 50;

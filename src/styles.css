@@ -406,6 +406,8 @@ button{font-family:var(--font-b);cursor:pointer}
    the tutorial, reusing the .tut overlay shell + .tut-card. */
 .age-gate{z-index:130;background:rgba(8,6,14,.86)}
 .age-fine{font-family:var(--font-m);font-size:.66rem;line-height:1.45;color:var(--ink-soft);margin:14px 0 0;text-align:center}
+/* Brief placeholder while the code-split endings bank loads (Overhaul P6). */
+.over-loading{max-width:560px;margin:64px auto;text-align:center;padding:40px;font-family:var(--font-d);font-size:1.3rem;color:var(--ink-soft)}
 
 /* ===== career slots ===== */
 .slot-card{border:var(--bw-base) solid var(--rp-ink-key);border-radius:var(--r-sm);background:var(--rp-paper-2);box-shadow:var(--rp-shadow-misreg);padding:14px 16px;margin:0 0 12px}

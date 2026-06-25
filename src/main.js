@@ -15,7 +15,6 @@ import { PATHS } from './content/paths';
 import { TRAITS } from './content/traits';
 import { WORLD } from './content/world';
 import { FIRST, SUR } from './content/names';
-import { evaluateEnding } from './engine/endings';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
@@ -52,7 +51,7 @@ async function loadBank(){
 let _live = null;
 function loadLive(){ return _live || (_live = import('./live')); }
 function prefetchBank(){
-  const go = () => { import('./content/all-events').catch(()=>{}); };
+  const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
 }
 
@@ -586,10 +585,20 @@ function chooseAdvisor(id){
 /* ---- ending ---- */
 function endGame(cause){
   S.over=true; S.mode="over";
-  S.ending=evaluateEnding(S,cause);
-  recordRunOutcome();   // meta: history + lifetime stats + achievements + unlockables (before clearSave)
-  clearSave();
-  renderEnding();
+  // The endings bank (long TV-MA verdict prose) is code-split out of the entry and
+  // loaded only here, at game-over (Overhaul P6 budget reclaim). Switch to the over
+  // screen SYNCHRONOUSLY with a brief placeholder so the triggering button is gone at
+  // once (no double-trigger gap), then fill the real verdict once the chunk resolves.
+  // The chunk is SW-precached + idle-prefetched, so this is near-instant + offline-safe.
+  const st=$("#stage"); if(st) st.innerHTML=""; // drop the now-defunct game-screen controls (e.g. the finale button)
+  const m=$("#over-mount"); if(m) m.innerHTML='<div class="over-loading"><p>Composing your fate…</p></div>';
+  go("over");
+  import('./engine/endings').then(({evaluateEnding})=>{
+    S.ending=evaluateEnding(S,cause);
+    recordRunOutcome();   // meta: history + lifetime stats + achievements + unlockables (before clearSave)
+    clearSave();
+    renderEnding();
+  }).catch(()=>{});
 }
 /* Roll the finished run into the cross-run META. Order matters: this MUST run
    before clearSave() (it reads the complete S). Wrapped so a meta failure can

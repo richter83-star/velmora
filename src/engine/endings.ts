@@ -9,27 +9,13 @@
  */
 import type { GameState, Stats, Ending, LegacyEntry } from './types';
 import { PATHS } from '../content/paths';
+import { purges, dominantTrait } from './endings-traits';
+
+// Re-export so existing importers of these helpers from './endings' keep working.
+export { purges, dominantTrait } from './endings-traits';
 
 function flag(S: GameState, k: string): number | boolean {
   return S.flags[k] || 0;
-}
-export function purges(S: GameState): number {
-  const n = S.flags.purge_count;
-  return typeof n === 'number' ? n : 0;
-}
-
-export function dominantTrait(S: GameState): string {
-  const f = S.flags;
-  if (f.bloody_hands || f.tyrant_rep || purges(S) >= 4) return 'Iron Fist';
-  if (f.secret_reformer || f.peacemaker) return 'The Hidden Reformer';
-  if (f.own_cult || f.cult_building) return 'Cult of Personality';
-  if (f.corrupt_streak || f.cooked_books) return 'Sticky Fingers';
-  if (f.foreign_ties) return 'Foreign Entanglements';
-  if (f.has_network || f.blackmailer) return 'Master of the Backroom';
-  if (f.honest_rep || f.clean_streak || f.secret_decent) return 'Unusually Principled';
-  if (f.hawk || f.struck_first) return 'The Hard Liner';
-  if (f.media_friend || f.progressive) return 'Media Darling';
-  return 'Pragmatic Survivor';
 }
 
 export function scorecard(S: GameState, verdict: string): LegacyEntry[] {
