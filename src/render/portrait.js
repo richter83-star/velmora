@@ -22,6 +22,7 @@ export function setArtManifest(m) {
 /** Fetch /art/manifest.json once (non-blocking; failure keeps the empty default
  *  so every portrait falls back to legacy SVG). `fetchFn` is injectable for tests. */
 export async function loadArtManifest(fetchFn) {
+  const injected = !!fetchFn;
   const f = fetchFn || (typeof fetch === 'function' ? fetch : null);
   if (!f) return MANIFEST;
   try {
@@ -30,7 +31,31 @@ export async function loadArtManifest(fetchFn) {
   } catch {
     /* offline / missing → keep empty; legacy fallback everywhere */
   }
+  // Warm the SW runtime cache with the drawn assets while online. The manifest is
+  // precached (so the resolver emits <picture> even offline) — the art behind it must
+  // therefore be cached too, or a later offline render would 404 (CSP forbids an inline
+  // onerror fallback). Best-effort, real-runtime only (skipped when fetch is injected by
+  // tests). NOTE (P5): when the full cast lands, move to per-path prefetch, not all-art.
+  if (!injected && typeof fetch === 'function') prefetchArt();
   return MANIFEST;
+}
+
+/** Fire-and-forget fetch of every art file the manifest references (avif + webp),
+ *  populating the service-worker /art/ runtime cache. Failures are swallowed. */
+function prefetchArt() {
+  try {
+    const urls = new Set();
+    for (const key of Object.keys(MANIFEST.art)) {
+      const entry = MANIFEST.art[key] || {};
+      for (const p of Object.values(entry.expr || {})) urls.add('/art/' + p);
+      for (const p of Object.values(entry.webp || {})) urls.add('/art/' + p);
+    }
+    urls.forEach((u) => {
+      fetch(u).catch(() => {});
+    });
+  } catch {
+    /* ignore */
+  }
 }
 
 /** A stable character key from a descriptor (a randAvatar 7-field object, an

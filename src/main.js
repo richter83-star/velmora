@@ -264,8 +264,14 @@ function createAntagonist(){
   const free=P.oppNames.filter(n=>!S.usedOpp.includes(n));
   const name=free.length?pick(free):pick(P.oppNames);
   S.usedOpp.push(name);
+  // Store the recurring antagonist as a DESCRIPTOR (not a baked SVG): randAvatar is
+  // still drawn so RNG consumption is byte-identical, but we tag it with a path-specific
+  // resolver id. The portrait seam then shows the drawn cartoon when a pack exists
+  // (iron_antagonist has one, P2), and falls back to the legacy SVG everywhere else.
+  const look=randAvatar(S.path);
+  look.id=S.path+"_antagonist";
   S.npcs.antagonist={ id:"antagonist", name, role:ANTAGONIST_ROLE[S.path], kind:"antagonist",
-    avatar:buildAvatar(randAvatar(S.path),"smug"), relationship:ANTAGONIST_START_RELATIONSHIP,
+    avatar:look, relationship:ANTAGONIST_START_RELATIONSHIP,
     loyalty:0, met:false, firstPhase:S.phase };
   S.antagonistId="antagonist";
 }

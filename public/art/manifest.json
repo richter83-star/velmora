@@ -1,6 +1,12 @@
 {
   "version": 1,
   "note": "Asset registry for the cartoon overhaul. Populated in P2+ (per-path art packs under /art/<path>/, voice clips under /voice/). The portrait/voice resolvers (P1/P6) validate every art/voice key against this manifest before use; raw-SVG trust (safeAvatar) is retired for new assets in favor of these content-keyed entries.",
-  "art": {},
+  "art": {
+    "iron_antagonist": {
+      "name": "The Iron Provost",
+      "expr": { "neutral": "iron/provost.avif" },
+      "webp": { "neutral": "iron/provost.webp" }
+    }
+  },
   "voice": {}
 }
