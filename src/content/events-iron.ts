@@ -3,7 +3,11 @@ import type { GameEvent } from '../engine/types';
 /**
  * Dark Mirrors expansion — The Iron Order (theme-iron) event bank.
  *
- * Twelve dilemmas of a movement clawing from the streets to the Iron Palace.
+ * Twelve dilemmas of a movement clawing from the gutter to the Iron Palace,
+ * written in the overhaul's savage adult-cartoon voice (Overhaul P4): profane,
+ * crude, merciless satire of the strongman MECHANISM — ego, brutality,
+ * propaganda, and graft — never any real movement, leader, nation, or creed.
+ *
  * Stat display names on this path: support=Fervor, funds=War Chest,
  * influence=Cohesion, media=Propaganda, base=Vanguard, heat=Exposure.
  *
@@ -17,9 +21,8 @@ import type { GameEvent } from '../engine/types';
  * zealot_rep (the true believer), dark_money/owes_donor/dealmaker (THE PUPPET
  * of the industrialists), and a rarer secret_reformer route out.
  *
- * Fictional and non-partisan by construction — satire of the MECHANISM of
- * power, never the identity of any real movement, leader, nation, or creed.
- * Validated by the content linter like every other bank.
+ * PROSE-ONLY: ids, paths, phases, fx, flags, rolls, and tone tags are locked by
+ * the diff-guard; only the wording is TV-MA. Validated by the content linter.
  */
 export const IRON_EVENTS: GameEvent[] = [
   // ---------------- PHASE 1 ----------------
@@ -30,32 +33,29 @@ export const IRON_EVENTS: GameEvent[] = [
     weight: 12,
     art: 'scene',
     emoji: '🪧',
-    title: 'The First Mass Rally',
-    body: `The square is packed and the crowd is yours — restless, roaring, waiting for a signal. How far you push them tonight is how far they will go tomorrow.`,
+    title: 'The First Big Rally',
+    body: `The square is packed shoulder to sweaty shoulder, ten thousand idiots screaming your name like you personally invented bread. They're a loaded gun and you're holding the trigger. How rabid you let them get tonight is exactly how rabid they show up tomorrow.`,
     choices: [
       {
-        label: 'Whip them into a frenzy — let fists fly',
+        label: `Whip them into a frenzy and let the little bastards riot`,
         fx: { base: 12, support: 8, heat: 12, influence: -4 },
         set: { bloody_hands: true, grassroots: true },
         tone: 'bold',
-        result:
-          'The chanting turns to charging. A few shop windows pay for the night, and the Vanguard tastes its own strength.',
+        result: `The chanting turns to charging. A few shop windows eat a brick, somebody's uncle gets stomped, and the Vanguard discovers it absolutely loves this. So, God help you, do you.`,
       },
       {
-        label: 'A disciplined march — banners, no blood',
+        label: `A clean, disciplined march — banners up, fists down`,
         fx: { base: 8, influence: 6, support: 4, heat: 2 },
         set: { pledged: true },
         tone: 'good',
-        result:
-          'Ranks in step, voices in time, not a pane cracked. The officers watching from the kerb give a slow, approving nod.',
+        result: `Ranks in step, voices in time, not one window cracked. The officers watching from the kerb give you the slow approving nod usually reserved for a dog that finally stopped pissing indoors.`,
       },
       {
-        label: 'Deliver a fiery creed and let them carry it home',
+        label: `Give a frothing sermon and send them home reciting you`,
         fx: { support: 10, media: 6, base: 6 },
         set: { zealot_rep: true },
         tone: 'bold',
-        result:
-          'You give them words sharp enough to live by. They leave reciting you, which is better than obeying you.',
+        result: `You hand them words sharp enough to cut themselves on. They leave chanting your name instead of obeying your orders — which is somehow both better and so very much worse.`,
       },
     ],
   },
@@ -67,31 +67,28 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'newspaper',
     emoji: '📰',
     title: 'The Last Free Press',
-    body: `One stubborn paper still prints what it likes about you. Your people have the keys to its presses and a list of reasons. The question is only whether you use them.`,
+    body: `One stubborn little newspaper still prints whatever the hell it wants about you — lately, that you're a thug with a worse haircut. Your people have the keys to its presses and a grudge the size of the building. The only question left is whether you use them.`,
     choices: [
       {
-        label: 'Seize the presses tonight',
+        label: `Kick the doors in and seize the presses tonight`,
         fx: { media: 14, influence: 6, heat: 14, support: -4 },
         set: { bloody_hands: true },
         tone: 'bold',
-        result:
-          'By dawn the masthead prints your morning instead of its own. The empty editor’s chair makes the others very quiet.',
+        result: `By sunrise the front page prints your morning mood instead of its own opinions. The editor's chair sits empty and warm, and every other paper in town suddenly adores you to death.`,
       },
       {
-        label: 'Buy it quietly through a friendly backer',
+        label: `Buy the rag quietly through a friendly fat cat`,
         fx: { media: 10, funds: -6, heat: 4 },
         set: { dark_money: true, dealmaker: true },
         tone: 'slick',
-        result:
-          'A donor you have never publicly met owns it by Friday. The paper’s tone improves without a single broken lock.',
+        result: `Some donor you've supposedly never met owns it by Friday. The paper's tone improves dramatically without a single broken lock — money being the politest crowbar ever forged.`,
       },
       {
-        label: 'Leave it printing — let it look like proof you fear nothing',
+        label: `Let it keep printing — sneer like it's beneath you`,
         fx: { support: 6, influence: 4, heat: -6 },
         set: { secret_reformer: true },
         tone: 'good',
-        result:
-          'You let the critics shout into the wind. Abroad, observers note the Order tolerates a dissenting page. For now.',
+        result: `You let the critics scream into the void. Foreign observers note, approvingly, that the Order tolerates a dissenting page. For now. Big of you.`,
       },
     ],
   },
@@ -102,35 +99,32 @@ export const IRON_EVENTS: GameEvent[] = [
     weight: 10,
     art: 'rival',
     emoji: '🎖️',
-    title: 'The Officer Corps Demands a Demonstration',
+    title: 'The Officer Corps Wants a Demonstration',
     speaker: (S) => ({ name: S.opp, role: 'a colonel of the Officer Corps', avatar: S.oppAvatar }),
     body: (S) =>
       `${S.opp} arrives with epaulettes and a flat stare. The Corps will throw its discipline behind you — but first you must prove you can command, not merely shout. Pick a man, the colonel says, and have him broken.`,
     choices: [
       {
-        label: 'Hand them a name — show you can be obeyed',
+        label: `Hand them a name and prove you can be obeyed`,
         fx: { influence: 10, base: 6, heat: 10, support: -4 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, has_network: true },
         tone: 'bold',
-        result:
-          'You name a quartermaster who skimmed the stores. He is gone by morning. The colonel salutes you, properly, for the first time.',
+        result: `You give up a quartermaster who'd been skimming the stores. He's gone by morning — properly, permanently gone — and the colonel salutes you for the first time, like you finally passed potty training.`,
       },
       {
-        label: 'Pledge them a clean chain of command instead',
+        label: `Promise them a clean chain of command instead`,
         fx: { influence: 8, base: 4, support: 2 },
         set: { pledged: true, clean_streak: true },
         tone: 'good',
-        result:
-          'You promise rank by merit and orders without poison. The colonel is unconvinced but intrigued — discipline is its own seduction.',
+        result: `You promise rank by merit and orders without poison in them. The colonel doesn't buy it, but the old bastard's intrigued — discipline gives him something dangerously close to a thrill.`,
       },
       {
-        label: 'Refuse the demonstration — you take no orders',
+        label: `Refuse — you're nobody's trained monkey`,
         fx: { support: 8, base: 6, influence: -8, heat: 4 },
         set: { zealot_rep: true },
         tone: 'bold',
-        result:
-          'You will not be tested like a recruit. The ultras adore the defiance; the colonel files it away, and files are never lost.',
+        result: `You will not be tested like some sweaty recruit. The ultras lose their goddamn minds over the defiance; the colonel just smiles and files it away — and files, in the Order, are forever.`,
       },
     ],
   },
@@ -144,31 +138,28 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'bulletin',
     emoji: '🧥',
     title: 'The Uniform Decree',
-    body: `Your inner circle drafts a decree: one cut, one colour, one armband, worn by every man who claims to be with you. Visible allegiance, or visible refusal — there is to be no third thing.`,
+    body: `Your inner circle slaps a decree on your desk: one cut, one colour, one armband, worn by every man who claims to march with you. Visible loyalty or visible refusal — there's to be no cute third option for fence-sitting cowards.`,
     choices: [
       {
-        label: 'Mandate it — and punish the bare-armed',
+        label: `Make it mandatory — and make the bare-armed regret it`,
         fx: { base: 12, media: 8, heat: 12, support: -6 },
         set: { bloody_hands: true, zealot_rep: true },
         tone: 'bold',
-        result:
-          'The streets turn a single colour overnight. Those who hesitate are remembered, then visited.',
+        result: `The streets go one colour overnight. Anyone who hesitates gets remembered, then gets a visit, then gets the message tattooed somewhere it'll stick.`,
       },
       {
-        label: 'Make it voluntary — let pride do the work',
+        label: `Make it voluntary — let peer pressure do the dirty work`,
         fx: { base: 8, support: 6, influence: 2 },
         set: { grassroots: true },
         tone: 'good',
-        result:
-          'You hand them the armband as an honour, not an order. The true believers wear it to bed; the rest are shamed into it by Sunday.',
+        result: `You hand out the armband like a medal instead of an order. The true believers wear the thing to bed; everyone else gets shamed into it by Sunday brunch.`,
       },
       {
-        label: 'Let an industrialist fund the cloth — at a price',
+        label: `Let some industrialist foot the cloth bill — at a price`,
         fx: { funds: 10, base: 6, heat: 6 },
         set: { owes_donor: true, dealmaker: true },
         tone: 'slick',
-        result:
-          'A mill owner clothes the whole movement and bills you in influence, not coin. Every armband is now stitched with his interest.',
+        result: `A mill owner clothes the entire movement and bills you in favours, not coin. Every armband now comes pre-stitched with his grubby little interests.`,
       },
     ],
   },
@@ -180,38 +171,36 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🌑',
     title: 'A Disappearance in the Night',
-    body: `A rival faction leader who would never bend to you has simply vanished overnight. Your security chief will not meet your eyes. Whatever happened, the city will look to you to explain it — or to own it.`,
+    body: `A rival faction boss who'd sooner die than kiss your ring has just... vanished. Overnight. Poof. Your security chief has suddenly developed a deep fascination with his own shoes. Whatever happened, the whole city is going to look at you to either explain it or own it.`,
     choices: [
       {
-        label: 'Claim it openly — let the silence be a warning',
+        label: `Own it loud — let the empty chair do the talking`,
         fx: { base: 14, influence: 8, heat: 18, support: -8 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, zealot_rep: true },
         tone: 'bold',
-        result:
-          'You say only that disloyalty has a cost, and let the empty chair finish the sentence. The Vanguard stands a little taller; abroad, a file thickens.',
+        result: `You announce only that disloyalty has a price, and let the missing man finish the sentence for you. The Vanguard stands a little taller; somewhere abroad, a very thick file gets thicker.`,
       },
       {
-        label: 'Disavow it — pin it on overzealous underlings',
+        label: `Disavow it — blame some overeager idiots underneath you`,
         fx: { support: 6, media: 4, base: -6, heat: 4 },
         set: { secret_reformer: true },
         tone: 'slick',
-        result:
-          'You profess shock and promise an inquiry that will find nothing. The ultras feel betrayed; the cautious feel relieved.',
+        result: `You perform shock and promise a thorough inquiry guaranteed to find jack squat. The ultras feel betrayed; the nervous types feel enormously, sweatily relieved.`,
       },
       {
-        label: 'Have the officers quietly find the truth',
+        label: `Have the officers quietly dig up the truth`,
         roll: {
           stat: 'influence',
           dc: 54,
           success: {
             fx: { influence: 10, base: 4, heat: -6 },
             set: { has_network: true, clean_streak: true },
-            text: 'Your officers produce the culprit before the rumours set, and the Order looks like a thing with rules. The Corps respects a leader who polices his own.',
+            text: `Your officers cough up the culprit before the rumours even set, and the Order suddenly looks like a thing with actual rules. The Corps respects a boss who cleans up his own messes.`,
           },
           fail: {
             fx: { heat: 14, support: -8 },
-            text: 'The inquiry leaks before it concludes, and now everyone assumes the worst — which, this time, is also true.',
+            text: `The inquiry leaks before it's finished, so now everyone just assumes the worst — which, this one time, happens to be completely true.`,
           },
         },
         tone: 'bold',
@@ -226,31 +215,28 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🌐',
     title: 'The Sanctions Threat',
-    body: `A wealthy power beyond your borders threatens to choke your trade unless the Order softens. Their envoy is polite, their fleet is not far, and their deadline is short. Defiance is glorious and expensive.`,
+    body: `Some fat, faraway power threatens to strangle your trade unless the Order "moderates." Their envoy is unbearably polite, their warships are unhelpfully close, and their deadline is short. Defiance would be glorious, ruinously expensive, and possibly very stupid.`,
     choices: [
       {
-        label: 'Defy them — turn the threat into a rallying cry',
+        label: `Defy the bastards — turn their threat into a rally`,
         fx: { support: 12, base: 10, funds: -10, heat: 8 },
         set: { zealot_rep: true, grassroots: true },
         tone: 'bold',
-        result:
-          'You read the ultimatum aloud to a roaring crowd and tear it in half. Fervor soars; the granaries, soon enough, will not.',
+        result: `You read the ultimatum aloud to a screaming crowd and tear it in half on stage. Fervor goes through the roof; the granaries, give it a month, will go straight through the floor.`,
       },
       {
-        label: 'Cut a quiet deal to keep the trade flowing',
+        label: `Cut a quiet deal and keep the gravy flowing`,
         fx: { funds: 12, influence: 6, base: -8, heat: 4 },
         set: { dealmaker: true, secret_reformer: true },
         tone: 'slick',
-        result:
-          'You give the envoy concessions no rally will ever hear about. The War Chest stays full; the true believers smell compromise.',
+        result: `You hand the envoy concessions no rally will ever, ever hear about. The War Chest stays fat; the true believers start sniffing the air for the unmistakable stink of compromise.`,
       },
       {
-        label: 'Let your industrialist backers broker it',
+        label: `Let your industrialist buddies broker it`,
         fx: { funds: 10, media: 4, heat: 6 },
         set: { owes_donor: true, dark_money: true },
         tone: 'slick',
-        result:
-          'Your patrons have friends across that border. The sanctions evaporate, and the bill arrives later, payable in obedience.',
+        result: `Your patrons have pals across that border. The sanctions quietly evaporate, and the invoice shows up later — payable in obedience, compounding daily.`,
       },
     ],
   },
@@ -262,31 +248,28 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '🏭',
     title: 'The Industrialists Want Their Return',
-    body: `The mill owners who bankrolled your rise file into your office without an appointment. They did not fear the unions so you could ignore them now. They want contracts, exemptions, and a seat at every table.`,
+    body: `The mill owners who bankrolled your whole glorious rise stroll into your office without knocking. They didn't crush the unions so you could forget their phone numbers. They want contracts, exemptions, and a chair at every table you sit at — preferably the big one at the head.`,
     choices: [
       {
-        label: 'Give them everything they ask',
+        label: `Roll over and give them everything`,
         fx: { funds: 16, influence: 6, base: -8, heat: 8 },
         set: { dealmaker: true, owes_donor: true, dark_money: true },
         tone: 'slick',
-        result:
-          'The War Chest overflows and the factories hum your anthem. You are also, quietly, theirs.',
+        result: `The War Chest overflows and the factories hum your anthem down the assembly line. You're also, very quietly, their property now. Congratulations, big man.`,
       },
       {
-        label: 'Take their money, honour none of it',
+        label: `Take their money and honour exactly none of it`,
         fx: { funds: 10, base: 6, heat: 10, support: -2 },
         set: { went_negative: true, bloody_hands: true },
         tone: 'bold',
-        result:
-          'You pocket the donations and tear up the promises. One mill owner is found to have a tax problem the very next week.',
+        result: `You pocket every donation and shred every promise. One mill owner develops a sudden, fatal tax problem the very next week. Funny how that keeps happening to people who annoy you.`,
       },
       {
-        label: 'Refuse — the Order serves no man’s ledger',
+        label: `Throw them out — the Order isn't for sale`,
         fx: { support: 10, base: 8, funds: -8, influence: -4 },
         set: { zealot_rep: true, grassroots: true },
         tone: 'bold',
-        result:
-          'You throw the petitioners out and tell the rally about it. The streets cheer; the financiers begin, very calmly, to look elsewhere.',
+        result: `You boot the petitioners into the hallway and brag about it at the next rally. The streets roar; the money men start, very calmly, shopping for a more reasonable strongman.`,
       },
     ],
   },
@@ -298,32 +281,29 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'bulletin',
     emoji: '📋',
     title: 'The List',
-    body: `Your inner circle lays a folder on your desk: names, gathered carefully, of everyone who has ever wavered. Some are rivals. Some are merely tired. Crossing a name off is so very easy now.`,
+    body: `Your inner circle sets a folder on your desk: names, lovingly collected, of everyone who's ever so much as flinched. Some are real rivals. Some are just tired and said something dumb at dinner. Crossing a name off has never been so easy, or so filthily tempting.`,
     choices: [
       {
-        label: 'Approve the whole list',
+        label: `Approve the whole damn list`,
         fx: { base: 12, influence: 8, heat: 16, support: -8 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, zealot_rep: true },
         tone: 'bold',
-        result:
-          'By the week’s end the wavering are gone and the loyal are terrified into devotion. Cohesion, of a kind, has never been higher.',
+        result: `By Friday the waverers are gone and the loyalists are so terrified they've looped clean back around to genuine devotion. Cohesion, of a sort, has never been higher.`,
       },
       {
-        label: 'Strike only the genuine traitors — by the book',
+        label: `Cross off only the real traitors — by the book`,
         fx: { influence: 8, base: 4, support: 2, heat: 4 },
         set: { clean_streak: true, has_network: true },
         tone: 'good',
-        result:
-          'You let the officers verify each name and spare the merely weary. The Corps notes, approvingly, that even your knives have rules.',
+        result: `You let the officers verify each name and spare the merely exhausted. The Corps notes, with grudging respect, that even your knives come with a rulebook.`,
       },
       {
-        label: 'Burn the list — make mercy your warning',
+        label: `Burn the list and call mercy a flex`,
         fx: { support: 10, influence: -6, base: -4, heat: -6 },
         set: { secret_reformer: true },
         tone: 'good',
-        result:
-          'You feed the folder to the fire in front of them. Some are moved; the hardest men in the room quietly start a list of their own.',
+        result: `You feed the whole folder to the fireplace while they watch. A few of them are genuinely moved; the hardest men in the room immediately start a quiet little list of their own.`,
       },
     ],
   },
@@ -337,31 +317,28 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'scene',
     emoji: '🗿',
     title: 'The Monument or the Grain',
-    body: `The treasury can fund one great thing this season: a towering iron monument to the Order in the capital square, or enough grain to carry the lean districts through the winter. Not both.`,
+    body: `The treasury can bankroll exactly one grand gesture this season: a colossal iron monument to the Order looming over the capital square, or enough grain to drag the starving districts through winter. Pick one. The other can go eat a statue.`,
     choices: [
       {
-        label: 'Raise the monument — let them look up and believe',
+        label: `Build the giant statue — give them something to gawk at`,
         fx: { base: 12, media: 10, support: 6, funds: -12, heat: 6 },
         set: { zealot_rep: true },
         tone: 'bold',
-        result:
-          'The iron colossus throws a shadow across the whole square. The hungry districts admire it from a distance, on empty stomachs.',
+        result: `The iron colossus throws a shadow clean across the square. The hungry districts admire it from a respectful distance, on aggressively empty stomachs.`,
       },
       {
-        label: 'Buy the grain — feed the faithful first',
+        label: `Buy the grain — feed the poor bastards first`,
         fx: { support: 14, base: 6, funds: -10, heat: -4 },
         set: { grassroots: true, clean_streak: true },
         tone: 'good',
-        result:
-          'The granaries open and the lean districts eat. No statue rises, but a generation will remember who fed them.',
+        result: `The granaries swing open and the lean districts actually eat. No statue claws its way skyward, but a whole generation will remember exactly who filled their bowls.`,
       },
       {
-        label: 'Let a donor fund the monument for a favour',
+        label: `Let a donor fund the statue — for a small favour`,
         fx: { media: 8, base: 6, funds: 4, heat: 8 },
         set: { dark_money: true, owes_donor: true, dealmaker: true },
         tone: 'slick',
-        result:
-          'A grateful industrialist pays for the bronze and the grain both — and carves his initials, very small, into the base.',
+        result: `A beaming industrialist coughs up for the bronze AND the grain — then carves his initials, very small and very permanent, into the base.`,
       },
     ],
   },
@@ -378,29 +355,26 @@ export const IRON_EVENTS: GameEvent[] = [
       `${S.opp} has been collecting loyalists, learning your speeches, and standing a little too close to the cameras. Someone is already measuring your chair. The only question is how you measure them.`,
     choices: [
       {
-        label: 'Eliminate the threat before it ripens',
+        label: `Squash the little climber before he ripens`,
         fx: { base: 10, influence: 8, heat: 14, support: -6 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, went_negative: true },
         tone: 'bold',
-        result:
-          'The ambitious upstart is reassigned to a very distant, very cold posting. The chair is yours again, and emptier.',
+        result: `The ambitious upstart gets reassigned to a posting so distant and so cold his career needs a coroner. The chair is yours again, and emptier than ever.`,
       },
       {
-        label: 'Bind them to you with rank and reward',
+        label: `Buy him off with rank and shiny rewards`,
         fx: { influence: 8, base: 4, funds: -6 },
         set: { has_network: true, dealmaker: true },
         tone: 'slick',
-        result:
-          'You make the rival a partner with everything to lose. Ambition, well-paid, makes a surprisingly loyal lieutenant — for now.',
+        result: `You make the rival a partner with everything to lose. Ambition, generously paid, makes a shockingly loyal lapdog — for now, anyway.`,
       },
       {
-        label: 'Name a true successor and mean it',
+        label: `Name a real successor — and actually mean it`,
         fx: { support: 8, influence: 6, base: -2 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
-        result:
-          'You announce a line of succession with rules instead of knives. The Corps is stunned; the ultras mutter that strongmen do not retire.',
+        result: `You announce a line of succession built on rules instead of knives. The Corps nearly faints; the ultras grumble that real strongmen die at their desks, thank you very much.`,
       },
     ],
   },
@@ -412,42 +386,40 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🎯',
     title: 'The Attempt on Your Life',
-    body: `A shot is fired, a guard is hit, and you are unharmed and suddenly the most sympathetic figure in the land. Your security chief swears it was real. Your propaganda chief is already drafting the legend. You alone know which to believe.`,
+    body: `A shot cracks out, a guard drops, and you're standing there without a scratch and suddenly the most sympathetic man in the entire country. Your security chief swears on his mother it was real. Your propaganda chief is already three paragraphs into the legend. Only you know which one to trust.`,
     choices: [
       {
-        label: 'Make a martyrdom of it — round up your enemies',
+        label: `Milk it for martyrdom — round up every "enemy"`,
         fx: { base: 12, support: 8, heat: 16, influence: 4 },
         inc: { purge_count: 1 },
         set: { bloody_hands: true, zealot_rep: true },
         tone: 'bold',
-        result:
-          'The "plot" becomes a pretext, and the list of conspirators is longer than any conspiracy could ever be. Fervor burns white-hot.',
+        result: `The "plot" becomes a permission slip, and the list of conspirators runs longer than any actual conspiracy possibly could. Fervor burns white-hot and brainless.`,
       },
       {
-        label: 'Stage the survival for the cameras — grief and steel',
+        label: `Stage the survival for the cameras — grief and steel`,
         roll: {
           stat: 'media',
           dc: 52,
           success: {
             fx: { media: 12, support: 10, base: 6 },
             set: { zealot_rep: true, dark_money: true },
-            text: 'The footage of you rising bloodied-but-unbowed loops on every screen. A backer quietly funds the whole production, and the legend writes itself.',
+            text: `The footage of you rising bloodied-but-unbowed loops on every screen until the whole nation weeps. A backer quietly funds the entire production, and the legend writes its own damn self.`,
           },
           fail: {
             fx: { media: -8, heat: 12, support: -6 },
             set: { went_negative: true },
-            text: 'A camera catches the rehearsal. The staged miracle curdles into a scandal you cannot un-film.',
+            text: `Some idiot's camera catches the rehearsal. The staged miracle curdles into a scandal you absolutely cannot un-film, no matter how many people quietly vanish.`,
           },
         },
         tone: 'slick',
       },
       {
-        label: 'Tell the plain truth and refuse to exploit it',
+        label: `Tell the boring truth and refuse to milk it`,
         fx: { support: 10, influence: 4, base: -6, heat: -4 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
-        result:
-          'You thank the guard by name, mourn honestly, and round up no one. The cautious exhale; the hardliners are baffled by the waste of a perfect crisis.',
+        result: `You thank the guard by name, grieve like an actual human being, and round up exactly no one. The cautious exhale; the hardliners stare at you, gutted that you wasted a flawless crisis.`,
       },
     ],
   },
@@ -459,40 +431,38 @@ export const IRON_EVENTS: GameEvent[] = [
     art: 'crisis',
     emoji: '🔥',
     title: 'The Border Incident',
-    body: `A skirmish flares along the frontier — a few shots, a disputed flag, a column of smoke. It is small enough to bury and large enough to ride to glory. The Order has never been more ready, or more exposed.`,
+    body: `A scuffle flares on the frontier — a few shots, a disputed flag, a tidy column of smoke. Small enough to bury, big enough to ride to glory on. The Order has never been so ready for a war, or so gorgeously unprepared to actually pay for one.`,
     choices: [
       {
-        label: 'Escalate — let the Order forge itself in fire',
+        label: `Escalate — let the Order forge itself in fire`,
         roll: {
           stat: 'base',
           dc: 56,
           success: {
             fx: { base: 14, support: 12, heat: 10 },
             set: { zealot_rep: true, bloody_hands: true },
-            text: 'You answer the provocation with overwhelming force and the frontier holds. The Vanguard returns as heroes, and the Order is unbreakable.',
+            text: `You answer the provocation with absolutely unhinged force and the frontier holds. The Vanguard marches home as heroes, and the Order looks unbreakable, godlike, terrifying.`,
           },
           fail: {
             fx: { support: -12, base: -6, heat: 18 },
-            text: 'The skirmish becomes a war you cannot pay for. The columns of smoke are now your own cities, and the cost arrives in coffins.',
+            text: `The little skirmish becomes a war you can't possibly afford. Those tidy columns of smoke are your own cities now, and the bill comes back in coffins.`,
           },
         },
         tone: 'bold',
       },
       {
-        label: 'Contain it — buy the peace with backers’ gold',
+        label: `Contain it — buy the peace with other people's gold`,
         fx: { funds: -8, influence: 8, base: -4, heat: 2 },
         set: { dealmaker: true, owes_donor: true },
         tone: 'slick',
-        result:
-          'Your industrialist patrons fund a discreet settlement before the smoke clears. The frontier quiets; you owe them a war’s worth of gratitude.',
+        result: `Your industrialist patrons fund a discreet little settlement before the smoke even clears. The frontier shuts up; you now owe them roughly one war's worth of gratitude.`,
       },
       {
-        label: 'Stand down publicly and call for calm',
+        label: `Stand down in public and call for calm`,
         fx: { support: 6, influence: 6, base: -8, heat: -8 },
         set: { secret_reformer: true, clean_streak: true },
         tone: 'good',
-        result:
-          'You choose the unglamorous peace and say so plainly. Foreign observers soften; the ultras spit that an Iron leader blinked.',
+        result: `You pick the deeply unsexy peace and say so straight into the cameras. Foreign observers melt with relief; the ultras spit that an Iron leader actually blinked.`,
       },
     ],
   },
