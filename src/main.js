@@ -601,10 +601,32 @@ function endGame(cause){
   go("over");
   import('./engine/endings').then(({evaluateEnding})=>{
     S.ending=evaluateEnding(S,cause);
-    recordRunOutcome();   // meta: history + lifetime stats + achievements + unlockables (before clearSave)
-    clearSave();
-    renderEnding();
-  }).catch(()=>{});
+    finishEnding();
+  }).catch(()=>{
+    // Endings chunk failed to load (rare: a first-ever game-over while offline,
+    // before the chunk idle-prefetched). NEVER strand the player on the
+    // "Composing your fate…" placeholder: synthesize a minimal verdict and finish
+    // the run normally so meta is recorded and the save is cleared. legacy:[] is
+    // required — renderEnding maps over it.
+    S.ending={ endingId:"unknown", emoji:"🏛️", rank:"THE RECORD BREAKS OFF", win:false,
+      verdict:"your reign simply ends", title:"The Record Breaks Off",
+      text:"The full account of your reign could not be summoned from the archive — but your time in power is over all the same, and the doors have already shut behind you.",
+      legacy:[] };
+    finishEnding();
+  });
+}
+/* Record meta, clear the save, and render — shared by both the normal and the
+   chunk-load-failure endgame paths. Each step is guarded so a late failure can
+   never re-strand the over-screen on its loading placeholder. */
+function finishEnding(){
+  recordRunOutcome();   // meta: history + lifetime stats + achievements + unlockables (before clearSave); internally guarded
+  try{ clearSave(); }catch(e){}
+  try{ renderEnding(); }
+  catch(e){
+    const m=$("#over-mount");
+    if(m) m.innerHTML='<div class="over-card"><div class="over-body"><p>Your time in power is over.</p></div></div>';
+    go("over");
+  }
 }
 /* Roll the finished run into the cross-run META. Order matters: this MUST run
    before clearSave() (it reads the complete S). Wrapped so a meta failure can
