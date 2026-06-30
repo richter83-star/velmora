@@ -23,6 +23,7 @@ import { speakerExpr } from './render/expr';
 import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
+import { generateWorld } from './engine/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { chooseNext } from './engine/draw';
 import { pickHeadlines } from './content/headlines';
@@ -1069,6 +1070,10 @@ async function startCareer(d){
   });
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(S,tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
+  // Civ P1: generate the province board on its OWN seeded stream (never touches
+  // the event RNG, so the seeded sweep stays byte-identical). Not yet wired to
+  // stats/events — present in state, ready for the P2 map render.
+  S.realm=generateWorld(S.seed, S.path, {factions:(P.factions||[]).map(f=>f.id)});
   applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
   const _mods=rollModifiers(_rng, MODIFIERS, 1+Math.min(ngTier,2)); S.modifiers=_mods.map(m=>m.id);
   _mods.forEach(m=>applyModifier(S,m));
@@ -1507,6 +1512,7 @@ async function resumeGame(){
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
+  if(!S.realm){ S.realm=generateWorld(S.seed, S.path, {factions:((PATHS[S.path]||{}).factions||[]).map(f=>f.id)}); } // migrate (pre-Civ-world)
   // Loom + Live: re-add any in-flight generated events so EVENTS.find resolves them post-reload.
   if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
   else for(const w of S.wovenCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }

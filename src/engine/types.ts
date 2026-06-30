@@ -6,7 +6,11 @@
  * declared with these types, the inline `(s) => …` functions are contextually
  * typed (no implicit `any`), and the data shapes are checked at compile time.
  * Zod (see content/schema.ts) enforces the same shapes at runtime.
+ *
+ * (Type-only import of `Realm` from ./world; ./world imports only the `PathKey`
+ * type back, so this circular reference is erased at compile time — no runtime cycle.)
  */
+import type { Realm } from './world';
 
 export type StatKey = 'support' | 'funds' | 'influence' | 'media' | 'base' | 'heat';
 export type PathKey = 'ballot' | 'vanguard' | 'iron' | 'gilded' | 'anointed';
@@ -217,6 +221,8 @@ export interface GameState {
   current: string | null;
   /** New Game+ tier (Phase 8). Optional so legacy saves migrate to 0. */
   ngPlus?: number;
+  /** The province world (Civ pivot P1). Optional so legacy saves regenerate it. */
+  realm?: Realm;
 }
 
 export interface LegacyEntry {
