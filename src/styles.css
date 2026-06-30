@@ -309,6 +309,14 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* choices — a numbered ballot of stamp buttons */
 .choices{padding:6px 14px 16px;display:flex;flex-direction:column;gap:11px}
+/* choices deal in one at a time behind the card slam (Overhaul anim). The press
+   :active transform takes over once the entry animation settles. */
+.choices .choice{animation:choice-in .34s var(--ease) both}
+.choices .choice:nth-child(1){animation-delay:.06s}
+.choices .choice:nth-child(2){animation-delay:.13s}
+.choices .choice:nth-child(3){animation-delay:.20s}
+.choices .choice:nth-child(4){animation-delay:.27s}
+@keyframes choice-in{0%{opacity:0;transform:translateY(9px) rotate(-.6deg)}100%{opacity:1;transform:none}}
 .choice{display:flex;flex-direction:column;gap:6px;text-align:left;padding:13px 15px;border:var(--bw-base) solid var(--rp-ink-key);background:var(--rp-paper-2);border-radius:var(--r-sm);box-shadow:0 5px 0 var(--rp-ink-key);transition:transform .06s var(--ease),box-shadow .06s,filter .12s}
 .choice:hover{filter:brightness(1.03)}
 .choice:active{transform:translateY(4px);box-shadow:0 1px 0 var(--rp-ink-key)}
@@ -328,6 +336,9 @@ button{font-family:var(--font-b);cursor:pointer}
 .result p{font-size:1.04rem;line-height:1.55;margin:0 0 14px;color:var(--rp-ink-key)}
 .result .roll-line{font-family:var(--font-m);font-weight:700;font-size:.8rem;padding:8px 10px;border:var(--bw-hair) dashed var(--rp-ink-key);border-radius:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;color:var(--rp-ink-key)}
 .roll-line.win{background:#e6f7ee;color:#1a7a4f}.roll-line.lose{background:#fdeaea;color:#b0241c}
+/* the pass/fail verdict snaps in for a beat of emphasis (Overhaul anim) */
+.roll-line.win,.roll-line.lose{animation:roll-snap .42s var(--ease) both}
+@keyframes roll-snap{0%{opacity:0;transform:scale(.9)}55%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 
 /* ===== PROMOTION ===== */
 .promo{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden}
