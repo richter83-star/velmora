@@ -19,6 +19,7 @@ import { antagonist, antagonistContestModifier, dispositionLabel } from './engin
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { avatarHtml, loadArtManifest } from './render/portrait';
+import { speakerExpr } from './render/expr';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
@@ -818,7 +819,7 @@ function renderEvent(ev){
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
   let sp="", voiceKey=ev.id;
-  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,"neutral",false,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,se.expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
   $("#stage").innerHTML=`<div class="ev ${art}">
     ${head}
