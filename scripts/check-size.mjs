@@ -22,9 +22,17 @@ const BUDGET = {
   chunkWarn: 90_000, // any single non-entry JS chunk (e.g. the content bank)
   // --- Overhaul P0: SEPARATE asset budgets (art/voice live OUTSIDE the JS gates,
   //     lazy + SW-runtime-cached). New dimensions, not relaxations of the JS gates. ---
-  artFileFail: 25_000, // a single portrait / expression-sheet
+  artFileFail: 25_000, // a single portrait. NB: the plan proposed ≤20 kB for an
+  //                      expression-SHEET ATLAS; P2 changed the format to ONE
+  //                      signature portrait per character (recorded in
+  //                      docs/OVERHAUL_PLAN.md), and 25 kB is the deliberate cap
+  //                      for that format — not a silent relaxation.
   artPackFail: 250_000, // a per-path art pack (dist/art/<path>/)
   voiceFileFail: 40_000, // a single voice clip
+  // Eager offline-install shell. Runtime-cached /art/ + /voice/ are NOT precached
+  // and never count here (plan: shell+fonts+shell-art ≤600 kB; eager shell-art ≤40 kB).
+  shellArtFail: 40_000, // total EAGER (precached) shell-art images
+  precacheFail: 600_000, // the full precached offline-install shell (gzip)
 };
 
 const DIST = 'dist';
@@ -156,6 +164,48 @@ if (artFiles.length || voiceFiles.length) {
   console.log('');
 } else {
   console.log('Asset budget: no art/voice assets yet (rails in place).\n');
+}
+
+// --- Overhaul P0: eager-precache gate. The service worker precaches the offline-
+//     install shell (entry JS+CSS, HTML, fonts, JSON, and any EAGER shell-art).
+//     Keep that first-load payload bounded; runtime-cached /art/ + /voice/ buckets
+//     are deliberately NOT precached and don't count here. ---
+const SW = join(DIST, 'sw.js');
+if (existsSync(SW)) {
+  const sw = readFileSync(SW, 'utf8');
+  const urls = [
+    ...new Set(
+      [...sw.matchAll(/"([^"]+\.(?:js|css|html|woff2|json|webp|avif|png|svg|ico))"/g)].map(
+        (m) => m[1],
+      ),
+    ),
+  ].filter((u) => !u.startsWith('http'));
+  const isImg = (u) => /\.(?:webp|avif|png|svg)$/i.test(u);
+  let precacheTotal = 0;
+  let shellArtTotal = 0;
+  let resolved = 0;
+  for (const u of urls) {
+    const p = join(DIST, u.replace(/^\//, ''));
+    if (!existsSync(p)) continue;
+    resolved++;
+    const size = gz(p);
+    precacheTotal += size;
+    if (isImg(u)) shellArtTotal += size;
+  }
+  if (resolved) {
+    console.log('Eager-precache budget (gzip, the offline-install shell):');
+    const peFail = precacheTotal > BUDGET.precacheFail;
+    if (peFail) failed = true;
+    console.log(
+      `  ${kb(precacheTotal).padStart(9)}  precache total (${resolved} entries)${peFail ? ' ✗ FAIL' : ''}  (budget ${kb(BUDGET.precacheFail)})`,
+    );
+    const saFail = shellArtTotal > BUDGET.shellArtFail;
+    if (saFail) failed = true;
+    console.log(
+      `  ${kb(shellArtTotal).padStart(9)}  eager shell-art${saFail ? ' ✗ FAIL' : ''}  (budget ${kb(BUDGET.shellArtFail)})`,
+    );
+    console.log('');
+  }
 }
 
 if (failed) {

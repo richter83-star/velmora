@@ -1,4 +1,6 @@
 import type { ArcDef, GameEvent } from '../engine/types';
+import { DARK_MIRROR_ARCS, DARK_MIRROR_ARC_EVENTS } from './arcs-dark-mirrors';
+import { EXTRA_ARCS, EXTRA_ARC_EVENTS } from './arcs-extra';
 
 /**
  * Arc registry (metadata for validation + the future codex). The actual steps
@@ -21,6 +23,8 @@ export const ARCS: ArcDef[] = [
     terminalStages: [99],
     desc: 'A Council patron lifts you up — and the debt follows you to the top, where you must betray him or fall with him.',
   },
+  ...DARK_MIRROR_ARCS,
+  ...EXTRA_ARCS,
 ];
 
 /**
@@ -247,4 +251,6 @@ export const ARC_EVENTS: GameEvent[] = [
       },
     ],
   },
+  ...DARK_MIRROR_ARC_EVENTS,
+  ...EXTRA_ARC_EVENTS,
 ];
