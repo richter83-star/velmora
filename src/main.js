@@ -702,6 +702,7 @@ function blocStripHtml(){
     <span class="bloc-bar"><span class="bloc-fill ${blocStance(b.value)}" style="width:${b.value}%"></span></span>
   </div>`).join("");
 }
+let _lastHudMood=null; // last rendered HUD-avatar expression; gates the expr-change pulse
 function renderHUD(){
   if(!S) return;
   try{ document.body.dataset.phase = String(S.phase||1); }catch(e){} // print-fidelity ramp (Overprint)
@@ -723,6 +724,10 @@ function renderHUD(){
     <div class="gauges">${STAT_KEYS.map(gaugeHtml).join("")}</div>
     <div class="blocs" aria-label="Faction standings">${blocStripHtml()}</div>
     ${cabinetChipsHtml()}`;
+  // portrait expression transition: pulse the avatar only when the mood actually
+  // shifts (not on every turn re-render). The class self-clears on the next HUD paint.
+  if(_lastHudMood!==null && _lastHudMood!==m.expr){ const a=$("#hud .hud-ava"); if(a) a.classList.add("expr-in"); }
+  _lastHudMood=m.expr;
   // stat-change floaties
   if(S.lastDeltas){
     for(const k in S.lastDeltas){
@@ -1055,6 +1060,7 @@ async function startCareer(d){
   _mods.forEach(m=>applyModifier(S,m));
   if(_mods.length) toast("This run — "+_mods.map(m=>m.name).join(" · "));
   setTheme(P.theme);
+  _lastHudMood=null; // fresh run: don't pulse the avatar against the prior run's mood
   go("game"); renderHUD();
   S.lastDeltas=null;
   nextEvent(); save();

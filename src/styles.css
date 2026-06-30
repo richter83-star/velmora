@@ -154,6 +154,11 @@ button{font-family:var(--font-b);cursor:pointer}
 }
 .title-emblem{display:block;margin:8px auto 0;width:128px;height:128px;filter:drop-shadow(4px 5px 0 var(--rp-ink-key));animation:bob 4s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+/* animated emblem (Overhaul P7): the ray-burst turns slowly behind a pulsing star */
+.te-rays{transform-box:fill-box;transform-origin:50% 50%;animation:te-spin 22s linear infinite}
+.te-star{transform-box:fill-box;transform-origin:50% 50%;animation:te-pulse 4.4s ease-in-out infinite}
+@keyframes te-spin{to{transform:rotate(360deg)}}
+@keyframes te-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .title-name{display:inline-block;font-family:var(--font-d);color:var(--rp-spot-ink);background:var(--rp-ink-spot);
   font-size:clamp(2.6rem,11vw,4.6rem);letter-spacing:3px;margin:16px 0 0;line-height:1;padding:6px 18px 4px;
   text-transform:uppercase;border:var(--bw-base) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg);}
@@ -223,6 +228,10 @@ button{font-family:var(--font-b);cursor:pointer}
    hud-ava, sp-ava, cava) crops it cleanly via its own size + overflow:hidden + radius. */
 .portrait,.portrait img{display:block;width:100%;height:100%}
 .portrait img{object-fit:cover}
+/* portrait expression change (Overhaul): a quick "re-print" pulse, fired by main.js
+   only when the HUD avatar's mood actually shifts — not on every turn re-render. */
+.hud-ava.expr-in .portrait,.hud-ava.expr-in svg{animation:expr-in .42s var(--ease) both}
+@keyframes expr-in{0%{opacity:.3;transform:scale(.82) rotate(-4deg)}60%{transform:scale(1.05) rotate(1.2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 .field{margin:14px 0}
 .field label{display:block;font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:.72rem;color:var(--ink-soft);margin-bottom:6px}
 .field input,.field select{width:100%;font-family:var(--font-b);font-size:1.05rem;padding:11px 13px;border:3px solid var(--ink);border-radius:var(--r-sm);background:#fff;color:var(--ink)}
@@ -387,7 +396,7 @@ button{font-family:var(--font-b);cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.08s !important}
-  .title-emblem{animation:none}
+  .title-emblem,.te-rays,.te-star{animation:none}
 }
 
 /* ===== first-run tutorial ===== */
@@ -441,7 +450,7 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* forced reduce-motion (Settings override, independent of the OS setting) */
 body.force-reduce-motion *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.08s !important}
-body.force-reduce-motion .title-emblem{animation:none}
+body.force-reduce-motion .title-emblem,body.force-reduce-motion .te-rays,body.force-reduce-motion .te-star{animation:none !important}
 body.force-reduce-motion .tk-track{animation:none !important;transform:none !important}
 body.force-reduce-motion .ticker{overflow-x:auto}
 
