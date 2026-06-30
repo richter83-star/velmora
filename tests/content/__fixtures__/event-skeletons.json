@@ -3089,6 +3089,400 @@
     "title": "",
     "weight": 34
   },
+  "arc_tape_0": {
+    "arc": {
+      "id": "tape",
+      "stage": 0
+    },
+    "art": "rival",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "tape",
+          "stage": 1
+        },
+        "fx": {
+          "heat": 6,
+          "influence": 12,
+          "media": 6
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "has_tape": true
+        },
+        "tone": "slick"
+      },
+      {
+        "arcSet": {
+          "id": "tape",
+          "stage": 99
+        },
+        "fx": {
+          "influence": -4,
+          "media": 4,
+          "support": 8
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "clean_streak": true,
+          "honest_rep": true
+        },
+        "tone": "bold"
+      }
+    ],
+    "emoji": "📼",
+    "id": "arc_tape_0",
+    "kicker": "",
+    "paths": [
+      "ballot"
+    ],
+    "phases": [
+      1
+    ],
+    "title": "",
+    "weight": 30
+  },
+  "arc_tape_1": {
+    "arc": {
+      "id": "tape",
+      "stage": 1
+    },
+    "art": "scene",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "tape",
+          "stage": 2
+        },
+        "fx": {
+          "heat": 8,
+          "influence": 10
+        },
+        "label": "",
+        "result": "",
+        "scandal": {
+          "id": "the_tape",
+          "label": "",
+          "severity": 3
+        },
+        "set": {
+          "blackmailer": true
+        },
+        "tone": "slick"
+      },
+      {
+        "arcSet": {
+          "id": "tape",
+          "stage": 99
+        },
+        "fx": {
+          "heat": -8,
+          "influence": -6,
+          "support": 8
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "came_clean": true,
+          "honest_rep": true
+        },
+        "tone": "good"
+      }
+    ],
+    "emoji": "🤐",
+    "id": "arc_tape_1",
+    "kicker": "",
+    "paths": [
+      "ballot"
+    ],
+    "phases": [
+      1,
+      2
+    ],
+    "title": "",
+    "weight": 32
+  },
+  "arc_tape_2": {
+    "arc": {
+      "id": "tape",
+      "stage": 2
+    },
+    "art": "crisis",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "tape",
+          "stage": 99
+        },
+        "fx": {
+          "funds": -16,
+          "heat": -8
+        },
+        "label": "",
+        "result": "",
+        "scandal": {
+          "id": "tape_trail",
+          "label": "",
+          "severity": 4
+        },
+        "set": {
+          "buried_a_body": true,
+          "corrupt_streak": true
+        },
+        "tone": "slick"
+      },
+      {
+        "label": "",
+        "roll": {
+          "dc": 52,
+          "fail": {
+            "arcSet": {
+              "id": "tape",
+              "stage": 99
+            },
+            "ending": "scandal",
+            "fx": {
+              "heat": 6,
+              "support": -12
+            },
+            "text": ""
+          },
+          "stat": "media",
+          "success": {
+            "arcSet": {
+              "id": "tape",
+              "stage": 99
+            },
+            "fx": {
+              "heat": -12,
+              "media": 8,
+              "support": 10
+            },
+            "set": {
+              "honest_rep": true,
+              "secret_reformer": true
+            },
+            "text": ""
+          }
+        },
+        "tone": "bold"
+      }
+    ],
+    "emoji": "🎙️",
+    "id": "arc_tape_2",
+    "kicker": "",
+    "paths": [
+      "ballot"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "title": "",
+    "weight": 34
+  },
+  "arc_cult_0": {
+    "arc": {
+      "id": "cult",
+      "stage": 0
+    },
+    "art": "scene",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "cult",
+          "stage": 1
+        },
+        "fx": {
+          "influence": 6,
+          "media": 6,
+          "support": 12
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "cult_building": true
+        },
+        "tone": "slick"
+      },
+      {
+        "arcSet": {
+          "id": "cult",
+          "stage": 99
+        },
+        "fx": {
+          "base": 4,
+          "media": -4,
+          "support": 8
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "clean_streak": true,
+          "own_man": true
+        },
+        "tone": "bold"
+      }
+    ],
+    "emoji": "🖼️",
+    "id": "arc_cult_0",
+    "kicker": "",
+    "paths": [
+      "vanguard"
+    ],
+    "phases": [
+      1
+    ],
+    "title": "",
+    "weight": 30
+  },
+  "arc_cult_1": {
+    "arc": {
+      "id": "cult",
+      "stage": 1
+    },
+    "art": "rival",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "cult",
+          "stage": 2
+        },
+        "fx": {
+          "base": 6,
+          "heat": 8,
+          "influence": 8
+        },
+        "label": "",
+        "result": "",
+        "scandal": {
+          "id": "the_oaths",
+          "label": "",
+          "severity": 3
+        },
+        "set": {
+          "own_cult": true
+        },
+        "tone": "slick"
+      },
+      {
+        "arcSet": {
+          "id": "cult",
+          "stage": 99
+        },
+        "fx": {
+          "heat": -8,
+          "influence": -6,
+          "support": 6
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "secret_reformer": true
+        },
+        "tone": "good"
+      }
+    ],
+    "emoji": "✊",
+    "id": "arc_cult_1",
+    "kicker": "",
+    "paths": [
+      "vanguard"
+    ],
+    "phases": [
+      1,
+      2
+    ],
+    "title": "",
+    "weight": 32
+  },
+  "arc_cult_2": {
+    "arc": {
+      "id": "cult",
+      "stage": 2
+    },
+    "art": "crisis",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "cult",
+          "stage": 99
+        },
+        "fx": {
+          "heat": 10,
+          "influence": 8,
+          "support": 10
+        },
+        "inc": {
+          "purge_count": 1
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "bloody_hands": true,
+          "own_cult": true,
+          "tyrant_rep": true
+        },
+        "tone": "bold"
+      },
+      {
+        "label": "",
+        "roll": {
+          "dc": 56,
+          "fail": {
+            "arcSet": {
+              "id": "cult",
+              "stage": 99
+            },
+            "ending": "revolution",
+            "fx": {
+              "heat": 12,
+              "support": -14
+            },
+            "text": ""
+          },
+          "stat": "support",
+          "success": {
+            "arcSet": {
+              "id": "cult",
+              "stage": 99
+            },
+            "fx": {
+              "base": 8,
+              "heat": -10,
+              "support": 6
+            },
+            "set": {
+              "peacemaker": true,
+              "secret_reformer": true
+            },
+            "text": ""
+          }
+        },
+        "tone": "good"
+      }
+    ],
+    "emoji": "🔥",
+    "id": "arc_cult_2",
+    "kicker": "",
+    "paths": [
+      "vanguard"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "title": "",
+    "weight": 34
+  },
   "npc_rival_overture": {
     "art": "rival",
     "body": "__fn__:(S) => `${S.opp}`",
