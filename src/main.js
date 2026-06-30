@@ -20,6 +20,7 @@ import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { avatarHtml, loadArtManifest } from './render/portrait';
 import { speakerExpr } from './render/expr';
+import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
@@ -781,20 +782,10 @@ function spawnDelta(x,y,d,good){
 }
 
 function fxChips(c){
-  const chips=[];
-  if(c.req && !c.req(S)) chips.push(`<span class="fxchip lock">🔒 ${esc(c.reqText||"Locked")}</span>`);
-  if(c.roll) chips.push(`<span class="fxchip risk">🎲 ${esc(statLabel(c.roll.stat))} gamble</span>`);
-  if(c.hint) chips.push(`<span class="fxchip">${esc(c.hint)}</span>`);
-  if(c.fx){
-    for(const k of STAT_KEYS){
-      if(!(k in c.fx)) continue;
-      const d=c.fx[k]; if(!d) continue;
-      const good=(k==="heat")? d<0 : d>0;
-      const arrow=d>0?"▲":"▼";
-      chips.push(`<span class="fxchip ${good?'up':'down'}">${arrow} ${esc(statLabel(k))} ${d>0?'+':''}${d}</span>`);
-    }
-  }
-  return chips.join("");
+  // Civ P0: vague directional hints instead of exact stat deltas — you read the
+  // room (a gamble, your grip tightens) and learn the real cost in the aftermath.
+  const locked=!!(c.req && !c.req(S));
+  return deriveHints(c,{locked}).map(h=>`<span class="fxchip ${h.cls}">${esc(h.text)}</span>`).join("");
 }
 function choiceHtml(c,i){
   const locked=c.req && !c.req(S);
