@@ -778,8 +778,10 @@ function renderMap(){
   if(!box) return;
   if(!SETTINGS.civMap || !S || !S.realm){ box.hidden=true; return; }
   box.hidden=false;
-  loadMap().then(M=>{ try{ M.render(S,{canvas:$("#civ-canvas"), listEl:$("#civ-provinces")}); }catch(e){} }).catch(()=>{});
+  loadMap().then(M=>{ try{ M.render(S,{canvas:$("#civ-canvas"), listEl:$("#civ-provinces"), onChange:onCivChange}); }catch(e){} }).catch(()=>{});
 }
+// A province action / governor change: persist + refresh the HUD (and, via it, the map).
+function onCivChange(){ try{ save(); }catch(e){} try{ renderHUD(); }catch(e){} }
 function renderTicker(){
   const el=$("#ticker"); if(!el) return;
   const items=pickHeadlines(S);
@@ -1528,6 +1530,7 @@ async function resumeGame(){
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
   if(!S.realm){ S.realm=generateWorld(S.seed, S.path, {factions:((PATHS[S.path]||{}).factions||[]).map(f=>f.id)}); } // migrate (pre-Civ-world)
+  if(typeof S.actionsLeft!=="number"){ S.actionsLeft=2; } // migrate (pre-Civ-P3 action budget)
   // Loom + Live: re-add any in-flight generated events so EVENTS.find resolves them post-reload.
   if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
   else for(const w of S.wovenCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }

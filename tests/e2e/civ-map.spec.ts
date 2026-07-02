@@ -50,6 +50,40 @@ test('province map renders behind ?civ=1 with an accessible province list', asyn
   expect(errors).toEqual([]);
 });
 
+test('rule phase: tapping a province opens the action sheet and spends the budget', async ({ page }) => {
+  const errors = captureErrors(page);
+  await stubFonts(page);
+  await page.addInitScript(() => {
+    (window as unknown as { __VELMORA_SEED?: string }).__VELMORA_SEED = 'civ-p3-e2e';
+  });
+  await page.goto('/?civ=1');
+  await startCareer(page, 'iron');
+  await dismissTutorial(page);
+
+  // Open the sheet via the first accessible province button.
+  await page.locator('#civ-provinces button').first().click();
+  const sheet = page.locator('.civ-sheet');
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('.civ-act')).toHaveCount(4);
+  await expect(sheet.locator('.civ-sheet-budget')).toContainText('2 imperial actions');
+
+  // Spend both imperial actions — the budget counts down and then locks.
+  await sheet.locator('.civ-act:not([disabled])').first().click();
+  await expect(sheet.locator('.civ-sheet-budget')).toContainText('1 imperial action');
+  await sheet.locator('.civ-act:not([disabled])').first().click();
+  await expect(sheet.locator('.civ-sheet-budget')).toContainText('0 imperial actions');
+  await expect(sheet.locator('.civ-act[disabled]')).toHaveCount(4);
+
+  // A governor is free (set-once) and shows up in the accessible label.
+  await sheet.locator('.civ-gov-sel').selectOption('pacify');
+  await expect(page.locator('#civ-provinces button').first()).toContainText('governor');
+
+  // Esc closes the dialog.
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test('province map stays hidden by default (flag off)', async ({ page }) => {
   await stubFonts(page);
   await page.goto('/');

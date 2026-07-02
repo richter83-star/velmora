@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeRegions, centroid, clamp01, fallbackDiamond, type Point } from '../../src/engine/world-geometry';
+import { computeRegions, centroid, clamp01, fallbackDiamond, pointInPolygon, regionAt, type Point, type Region } from '../../src/engine/world-geometry';
 import { generateWorld, type Realm } from '../../src/engine/world';
 
 const realm = (seed: string | number = 'geo-1'): Realm => generateWorld(seed, 'iron', { factions: ['a', 'b'] });
@@ -79,6 +79,24 @@ describe('computeRegions', () => {
     const total = computeRegions(realm()).reduce((a, r) => a + Math.abs(polyArea(r.polygon)), 0);
     expect(total).toBeGreaterThan(0.9);
     expect(total).toBeLessThan(1.1);
+  });
+});
+
+describe('pointInPolygon / regionAt (canvas hit-testing)', () => {
+  const square: Point[] = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  it('detects inside vs outside', () => {
+    expect(pointInPolygon([0.5, 0.5], square)).toBe(true);
+    expect(pointInPolygon([1.5, 0.5], square)).toBe(false);
+    expect(pointInPolygon([-0.1, 0.5], square)).toBe(false);
+  });
+  it('regionAt finds the containing region or null', () => {
+    const regions: Region[] = [
+      { id: 'a', polygon: [[0, 0], [0.5, 0], [0.5, 1], [0, 1]], centroid: [0.25, 0.5] },
+      { id: 'b', polygon: [[0.5, 0], [1, 0], [1, 1], [0.5, 1]], centroid: [0.75, 0.5] },
+    ];
+    expect(regionAt(regions, 0.2, 0.5)?.id).toBe('a');
+    expect(regionAt(regions, 0.8, 0.5)?.id).toBe('b');
+    expect(regionAt(regions, 5, 5)).toBeNull();
   });
 });
 

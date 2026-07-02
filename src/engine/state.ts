@@ -7,6 +7,7 @@
  */
 import type { GameState, Stats, PathKey } from './types';
 import { initBlocs } from './factions';
+import { ACTIONS_PER_TURN } from './world-tick';
 
 export interface BlankRunOpts {
   version: string;
@@ -62,5 +63,6 @@ export function blankRun(opts: BlankRunOpts): GameState {
     promo: null,
     current: null,
     ngPlus: opts.ngPlus ?? 0,
+    actionsLeft: ACTIONS_PER_TURN,
   };
 }

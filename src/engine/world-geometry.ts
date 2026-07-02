@@ -61,6 +61,25 @@ export function fallbackDiamond(p: Point, r = 0.04): Point[] {
   ];
 }
 
+/** Ray-casting point-in-polygon test (ring of [x,y] in the same space as pt). */
+export function pointInPolygon(pt: Point, poly: Point[]): boolean {
+  const [x, y] = pt;
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i] as Point;
+    const [xj, yj] = poly[j] as Point;
+    const hit = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (hit) inside = !inside;
+  }
+  return inside;
+}
+
+/** The region containing the [0,1] point, or null (for canvas tap hit-testing). */
+export function regionAt(regions: Region[], x: number, y: number): Region | null {
+  for (const r of regions) if (pointInPolygon([x, y], r.polygon)) return r;
+  return null;
+}
+
 /**
  * Compute the Voronoi region for every province, clipped to the unit box.
  * Deterministic pure function of the realm's points.

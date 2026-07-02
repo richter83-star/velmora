@@ -12,6 +12,7 @@
  */
 import { createRng } from './rng';
 import type { PathKey } from './types';
+import { realmCounts, type RealmCounts } from './world-tick';
 
 export interface Province {
   id: string;
@@ -30,11 +31,15 @@ export interface Province {
   /** Dominant faction/bloc id influencing the province. */
   faction: string;
   capital: boolean;
+  /** Set-once governor policy id (Civ P3); auto-runs each world tick. Optional so old saves migrate. */
+  governor?: string | null;
 }
 
 export interface Realm {
   provinces: Province[];
   capitalId: string;
+  /** Band counts at generation (Civ P3 delta-feed reference). Optional so legacy saves migrate. */
+  baseline?: RealmCounts;
 }
 
 export interface RealmSummary {
@@ -106,7 +111,10 @@ export function generateWorld(
 
   connect(provinces, capital, rng);
 
-  return { provinces, capitalId: capital.id };
+  // Civ P3: snapshot the band counts at generation so the world tick's delta-feed
+  // measures DEVIATION from this baseline. An untouched realm is then 0 by
+  // construction for every seed (the sim never perturbs the sweep).
+  return { provinces, capitalId: capital.id, baseline: realmCounts(provinces) };
 }
 
 /** Pick `count` unique, fictional province names. */

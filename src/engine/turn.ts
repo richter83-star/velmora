@@ -7,6 +7,7 @@ import type { GameState, PathKey, StatKey } from './types';
 import { clampStat } from './mutate';
 import { traitHeatDecayBonus } from './perks';
 import { cabinetPerk, processResignations } from './cabinet';
+import { applyWorldTick } from './world-tick';
 
 /** Scrutiny ("heat") cools by this much each turn the player survives. */
 const HEAT_DECAY_PER_TURN = 2;
@@ -55,6 +56,11 @@ export function advanceTurnState(S: GameState): void {
   if (decay) S.stats.support = clampStat(S.stats.support - decay);
   // A cratered advisor resigns (and leaks) before the cabinet's perks apply.
   processResignations(S);
+  // Civ P3: the province world ticks here — governors auto-run and the realm
+  // feeds its (dead-zoned) delta into the stats, AFTER decay so its influence
+  // persists, BEFORE the cabinet perk. Pure + no-op without a realm, so live and
+  // sim tick identically and a fresh realm leaves the seed sweep unperturbed.
+  applyWorldTick(S);
   // Serving advisors lend a small passive lift to their specialty each turn.
   const perk = cabinetPerk(S);
   for (const k of Object.keys(perk) as StatKey[]) {

@@ -223,6 +223,8 @@ export interface GameState {
   ngPlus?: number;
   /** The province world (Civ pivot P1). Optional so legacy saves regenerate it. */
   realm?: Realm;
+  /** Imperial actions left this turn (Civ P3). Optional so legacy saves default it. */
+  actionsLeft?: number;
 }
 
 export interface LegacyEntry {

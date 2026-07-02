@@ -16,6 +16,7 @@ import { WORLD } from '../content/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from '../content/setup';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from '../content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './setup';
+import { generateWorld } from './world';
 import { antagonist, antagonistContestModifier } from './npcs';
 import { evaluateEnding } from './endings';
 import { chooseNext } from './draw';
@@ -76,6 +77,10 @@ function createRun(path: PathKey, difficulty: string, rng: Rng): GameState {
   const mods = rollModifiers(rng, MODIFIERS, 1);
   S.modifiers = mods.map((m) => m.id);
   for (const m of mods) applyModifier(S, m);
+  // Civ P3 (req 7): the sim must build the realm too, or the world tick (folded
+  // into advanceTurnState) is never exercised by the seed sweep. Uses the same
+  // deterministic 'realm:<seed>:<path>' stream as live, so the event RNG is untouched.
+  S.realm = generateWorld(S.seed, S.path, { factions: (P.factions || []).map((f) => f.id) });
   return S;
 }
 

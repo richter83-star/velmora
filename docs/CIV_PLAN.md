@@ -59,9 +59,17 @@ from the top down. The existing engine is not thrown away — it becomes the
   ≥44px), canvas-fail→list fallback. Redraws each turn via `renderHUD`. Adversarially
   reviewed (6 auditors); 3 findings fixed (focus-visible, centroid off-by-dup-vertex,
   backing-store squish). 296 unit tests + a `?civ=1` e2e spec.
-- **P3 — Rule phase (interaction).** A between-event map phase: act on provinces
-  (develop / garrison / suppress / allocate / sway). Turn = rule phase + event
-  phase. Actions cost and pay off through the derived stats.
+- **P3 — Rule phase (interaction). ✅ BUILT.** Tap a province (canvas hit-test or
+  the a11y list) → an action sheet: spend 1 of 2 imperial actions/turn on
+  Develop/Garrison/Suppress/Sway, or set a free set-once Governor (Develop/Pacify/
+  Fortify/Extract) that auto-runs each world tick. `applyWorldTick` (folded into
+  the shared `advanceTurnState`, exercised by the sim too — req 7) feeds a
+  DEVIATION-from-generation-baseline delta into the six stats, so an untouched
+  realm is 0 for every seed by construction (sweep-safe; adversarially verified
+  after a first attempt using absolute thresholds leaked a delta on ~0.67% of
+  seeds). Optional, no forced screen (req 12). Accessible modal (focus trap,
+  focus-preserving re-render, live-region announcements). Adversarially reviewed
+  (7 auditors → 13 findings fixed, then a fix-confirmation pass).
 - **P4 — World ↔ event loop.** Events fire from province state (regional crises,
   threshold triggers); arcs/scandals localize to regions; choice outcomes write
   back to the map. The two layers become one game.
