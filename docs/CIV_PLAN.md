@@ -91,8 +91,12 @@ from the top down. The existing engine is not thrown away — it becomes the
   on, 2 (instant) with it off. Stale-realm guarded (no tween across new-game /
   resume). Presentation-only in the lazy chunk; zero engine/determinism/content
   change, 327 tests unaffected.
-- **P6 — Balance, content, onboarding, polish.** Tune the economy, region-flavored
-  content, tutorialize the new loop, perf/budget pass, full QA on all 5 paths.
+- **P6 — Balance, onboarding, ship. ✅ BUILT.** Delta-feed thresholds tuned against a
+  managed-player probe (200 runs): an engaged player is rewarded on ~62% of turns
+  and all four rewards are reachable (heat-cool was dead at calmGain>=3 → >=2 now
+  fires ~49%). Onboarding coach mark extended to the first 3 turns. **Ship decision:
+  the Civ strategy layer is now ON BY DEFAULT for every player** (`?civ=0` opts back
+  into the classic narrative-only game). Sweep + 327 tests hold; entry 61.3/70 kB.
 
 ## Locked decisions (CEO review 2026-06-30)
 
@@ -121,6 +125,8 @@ ambitious option at every fork, with the risks surfaced and accepted.
   the canvas drawing is lazy. Model the byte budget before P3; do not assume.
 - **D6 Rollout:** one feature flag, OFF in production until ready, ON in
   local/preview. Merge each phase safely; flip live at P6.
+  ✅ RESOLVED (P6): flipped ON BY DEFAULT for all players; `?civ=0` opts back into
+  the classic narrative-only game.
 - **D7 Strategy:** commit straight through P1–P6, NO mid-build validation gate
   (outside voice recommended a "prove it's fun after P2/P3" gate; user declined in
   favor of conviction). Accepted risk: payoff is not user-visible until P5.

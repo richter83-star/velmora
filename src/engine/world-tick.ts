@@ -140,9 +140,13 @@ export function applyWorldTick(S: GameState): void {
   const richGain = now.rich - base.rich;
   const restiveRise = now.restive - base.restive;
 
+  // P6 balance: thresholds tuned so engaged management is rewarded on ~half of
+  // turns and every reward is actually reachable (a managed-player probe showed
+  // heat-cool at calmGain>=3 was dead; >=2 makes "pacify the realm -> the nation
+  // cools" pay off). Still 0 for an untouched realm, so the sweep stays sound.
   const delta: Fx = {};
   if (restiveRise >= 2) delta.heat = 1;
-  else if (calmGain >= 3) delta.heat = -1;
+  else if (calmGain >= 2) delta.heat = -1;
   if (richGain >= 3) delta.funds = 1;
   if (loyalGain >= 3) delta.base = 1;
   if (loyalGain >= 5) delta.support = 1;

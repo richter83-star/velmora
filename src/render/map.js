@@ -215,7 +215,8 @@ function drawCanvas(realm, canvas, S, regions, from, frac) {
   ctx.font = "700 9px 'Space Mono', ui-monospace, monospace";
   ctx.fillText(left > 0 ? `⚑ ${left} ACTION${left === 1 ? '' : 'S'} LEFT` : 'NO ACTIONS — END TURN', 6, 9);
 
-  if (S && S.totalTurns === 0) {
+  // Onboarding coach mark for the first few turns (P6): fades out as the player learns.
+  if (S && typeof S.totalTurns === 'number' && S.totalTurns < 3) {
     ctx.textAlign = 'center';
     ctx.fillStyle = withAlpha(ink, 0.85);
     ctx.fillRect(0, cssH - 20, cssW, 20);

@@ -84,9 +84,18 @@ test('rule phase: tapping a province opens the action sheet and spends the budge
   expect(errors).toEqual([]);
 });
 
-test('province map stays hidden by default (flag off)', async ({ page }) => {
+test('province map is on by default, and ?civ=0 opts out to the classic game', async ({ page }) => {
+  // Default: the strategy layer is live.
   await stubFonts(page);
   await page.goto('/');
+  await startCareer(page, 'ballot');
+  await dismissTutorial(page);
+  await expect(page.locator('#civ-map')).toBeVisible();
+});
+
+test('?civ=0 hides the province map (classic narrative-only mode)', async ({ page }) => {
+  await stubFonts(page);
+  await page.goto('/?civ=0');
   await startCareer(page, 'ballot');
   await dismissTutorial(page);
   await expect(page.locator('#civ-map')).toBeHidden();
