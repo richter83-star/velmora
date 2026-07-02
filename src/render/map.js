@@ -13,13 +13,19 @@
  */
 import { computeRegions, regionAt } from '../engine/world-geometry';
 import { PROVINCE_ACTIONS, applyProvinceAction, setGovernor, canAct, actionsLeft } from '../engine/world-actions';
-import { GOVERNORS } from '../engine/world-tick';
+import { GOVERNORS, REVOLT_UNREST } from '../engine/world-tick';
 
 let _ctx = null; // { S, onChange } for the current render, referenced by handlers
 let _regions = []; // last computed regions, for canvas hit-testing
 let _wired = false; // interaction handlers attached once
 let _sheet = null; // the action-sheet dialog element
 let _trigger = null; // element to return focus to on sheet close
+let _prev = null; // Map(pid -> {control,unrest}) last settled, for P5 tweening
+let _lastRealm = null; // realm object identity, to drop a stale tween on new game / resume
+let _raf = 0; // in-flight animation frame id (bounded transition, not a loop)
+
+/** Duration of a province state-change tween (ms). */
+const ANIM_MS = 420;
 
 /** Read a theme token off <body>, trimmed, with a fallback. */
 function tok(cs, name, fallback) {
@@ -35,16 +41,77 @@ export function render(S, { canvas, listEl, onChange } = {}) {
     if (listEl) listEl.innerHTML = '';
     return;
   }
+  if (realm !== _lastRealm) {
+    // New career or resumed game: drop the previous snapshot so we don't tween
+    // from a stale realm's values on the first paint.
+    _prev = null;
+    _lastRealm = realm;
+  }
   buildList(realm, listEl, S);
   _regions = computeRegions(realm);
-  try {
-    drawCanvas(realm, canvas, S, _regions);
-    if (canvas) canvas.removeAttribute('data-fallback');
-  } catch {
-    if (canvas) canvas.setAttribute('data-fallback', '1');
+  const cur = snapshot(realm);
+  const from = _prev;
+  if (canvas) {
+    if (_raf) {
+      cancelAnimationFrame(_raf);
+      _raf = 0;
+    }
+    try {
+      // P5: tween control/unrest between the last settled state and now, unless
+      // reduced-motion or this is the first paint (nothing to animate from).
+      if (from && !motionOff() && changed(from, cur)) animateTo(realm, canvas, S, _regions, from);
+      else drawCanvas(realm, canvas, S, _regions, null, 1);
+      canvas.removeAttribute('data-fallback');
+    } catch {
+      canvas.setAttribute('data-fallback', '1');
+    }
   }
+  _prev = cur;
   wireInteraction(canvas, listEl);
   if (_sheet && _sheet.dataset.pid) refreshSheet(); // keep an open sheet's numbers fresh
+}
+
+/** Snapshot the visualised province fields for tweening. */
+function snapshot(realm) {
+  return new Map(realm.provinces.map((p) => [p.id, { control: p.control, unrest: p.unrest }]));
+}
+
+/** True if any province shared between snapshots changed control or unrest. */
+function changed(from, cur) {
+  for (const [id, c] of cur) {
+    const f = from.get(id);
+    if (f && (f.control !== c.control || f.unrest !== c.unrest)) return true;
+  }
+  return false;
+}
+
+/** Honour the reduced-motion toggle (body class) and the OS preference. */
+function motionOff() {
+  try {
+    return (
+      document.body.classList.contains('force-reduce-motion') ||
+      window.matchMedia('(prefers-reduced-motion:reduce)').matches
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Run a bounded rAF tween from `from` to the current realm, then settle and stop. */
+function animateTo(realm, canvas, S, regions, from) {
+  const start = performance.now();
+  const frame = (nowT) => {
+    const f = Math.min(1, (nowT - start) / ANIM_MS);
+    try {
+      drawCanvas(realm, canvas, S, regions, from, f);
+    } catch {
+      canvas.setAttribute('data-fallback', '1');
+      _raf = 0;
+      return;
+    }
+    _raf = f < 1 ? requestAnimationFrame(frame) : 0;
+  };
+  _raf = requestAnimationFrame(frame);
 }
 
 /** The screen-reader / keyboard layer: one focusable button per province. */
@@ -61,8 +128,9 @@ function buildList(realm, listEl, S) {
     `<p class="civ-budget-sr">${left} imperial action${left === 1 ? '' : 's'} left this turn</p>` + rows.join('');
 }
 
-function drawCanvas(realm, canvas, S, regions) {
+function drawCanvas(realm, canvas, S, regions, from, frac) {
   if (!canvas) return;
+  const f = typeof frac === 'number' ? frac : 1;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('no 2d context');
   const cssW = canvas.clientWidth || (canvas.parentElement && canvas.parentElement.clientWidth) || 0;
@@ -91,15 +159,26 @@ function drawCanvas(realm, canvas, S, regions) {
   for (const r of regions) {
     const p = byId.get(r.id);
     if (!p) continue;
+    // P5: interpolate the visualised fields between the previous and current state.
+    const prev = from && from.get(p.id);
+    const control = prev ? prev.control + (p.control - prev.control) * f : p.control;
+    const unrest = prev ? prev.unrest + (p.unrest - prev.unrest) * f : p.unrest;
     tracePath(ctx, r.polygon, sx, sy);
-    ctx.fillStyle = withAlpha(held, 0.12 + 0.5 * clampUnit(p.control / 100));
+    ctx.fillStyle = withAlpha(held, 0.12 + 0.5 * clampUnit(control / 100));
     ctx.fill();
-    if (p.unrest > 15) drawHatch(ctx, r.polygon, sx, sy, hot, p.unrest);
+    if (unrest > 15) drawHatch(ctx, r.polygon, sx, sy, hot, unrest);
     tracePath(ctx, r.polygon, sx, sy);
     ctx.lineWidth = p.capital ? 4 : 2.2;
     ctx.strokeStyle = ink;
     ctx.lineJoin = 'round';
     ctx.stroke();
+    // Revolt pulse: a province tipping into open revolt flashes red across the tween.
+    if (prev && prev.unrest < REVOLT_UNREST && p.unrest >= REVOLT_UNREST) {
+      tracePath(ctx, r.polygon, sx, sy);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = withAlpha(hot, Math.sin(f * Math.PI) * 0.85);
+      ctx.stroke();
+    }
   }
 
   ctx.textAlign = 'center';

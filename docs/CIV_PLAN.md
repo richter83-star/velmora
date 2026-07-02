@@ -83,9 +83,14 @@ from the top down. The existing engine is not thrown away — it becomes the
   Events fire from province state (regional crises,
   threshold triggers); arcs/scandals localize to regions; choice outcomes write
   back to the map. The two layers become one game.
-- **P5 — Living map (animation).** The visible motion payoff: provinces pulse and
-  shift on change, unrest spreads across borders, the capital grows, influence
-  animates. Reduced-motion-safe, in-budget.
+- **P5 — Living map (animation). ✅ BUILT.** Province state changes tween on the
+  canvas (control ink + unrest hatch interpolate over ~420ms via a bounded rAF
+  that settles and stops — not a loop), and a province tipping into open revolt
+  pulses red. Fully reduced-motion-safe (gated on `force-reduce-motion` +
+  `prefers-reduced-motion`); verified empirically: 13 distinct frames with motion
+  on, 2 (instant) with it off. Stale-realm guarded (no tween across new-game /
+  resume). Presentation-only in the lazy chunk; zero engine/determinism/content
+  change, 327 tests unaffected.
 - **P6 — Balance, content, onboarding, polish.** Tune the economy, region-flavored
   content, tutorialize the new loop, perf/budget pass, full QA on all 5 paths.
 
