@@ -6,7 +6,11 @@
  * declared with these types, the inline `(s) => …` functions are contextually
  * typed (no implicit `any`), and the data shapes are checked at compile time.
  * Zod (see content/schema.ts) enforces the same shapes at runtime.
+ *
+ * (Type-only import of `Realm` from ./world; ./world imports only the `PathKey`
+ * type back, so this circular reference is erased at compile time — no runtime cycle.)
  */
+import type { Realm } from './world';
 
 export type StatKey = 'support' | 'funds' | 'influence' | 'media' | 'base' | 'heat';
 export type PathKey = 'ballot' | 'vanguard' | 'iron' | 'gilded' | 'anointed';
@@ -17,6 +21,16 @@ export type Flags = Record<string, number | boolean | undefined>;
 
 /** Stat deltas applied by a choice/outcome. */
 export type Fx = Partial<Record<StatKey, number>>;
+/** Deterministic province mutation from an event outcome (Civ P4). */
+export interface RealmFx {
+  /** Target province: the crisis trigger, the worst (highest-unrest), or the capital. Default 'worst'. */
+  target?: 'trigger' | 'worst' | 'capital';
+  control?: number;
+  unrest?: number;
+  development?: number;
+  /** Extra unrest applied to the target's neighbors (contagion). */
+  spread?: number;
+}
 /** Flags to set (booleans, or small string/number markers). */
 export type SetFlags = Record<string, boolean | number | string>;
 /** Integer counters to add to. */
@@ -31,6 +45,8 @@ export interface ThenRef {
 /** One side of a dice-rolled choice. */
 export interface RollOutcome {
   fx?: Fx;
+  /** Mutate a province (Civ P4). */
+  realmFx?: RealmFx;
   set?: SetFlags;
   inc?: IncFlags;
   text?: string;
@@ -61,6 +77,8 @@ export interface Choice {
   label: string;
   hint?: string;
   fx?: Fx;
+  /** Mutate a province when chosen (Civ P4). */
+  realmFx?: RealmFx;
   req?: (s: GameState) => boolean;
   reqText?: string;
   set?: SetFlags;
@@ -217,6 +235,12 @@ export interface GameState {
   current: string | null;
   /** New Game+ tier (Phase 8). Optional so legacy saves migrate to 0. */
   ngPlus?: number;
+  /** The province world (Civ pivot P1). Optional so legacy saves regenerate it. */
+  realm?: Realm;
+  /** Imperial actions left this turn (Civ P3). Optional so legacy saves default it. */
+  actionsLeft?: number;
+  /** Province id currently in open revolt driving a crisis event (Civ P4), or null. */
+  crisisProvince?: string | null;
 }
 
 export interface LegacyEntry {

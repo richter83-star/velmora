@@ -20,8 +20,10 @@ import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { avatarHtml, loadArtManifest } from './render/portrait';
 import { speakerExpr } from './render/expr';
+import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
+import { generateWorld } from './engine/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { chooseNext } from './engine/draw';
 import { pickHeadlines } from './content/headlines';
@@ -56,6 +58,10 @@ function loadLive(){ return _live || (_live = import('./live')); }
    say()/hush() wrappers live INSIDE the IIFE below (they read SETTINGS + S). */
 let _voice = null;
 function loadVoice(){ return _voice || (_voice = import('./voice')); }
+// Civ P2: the province-map render chunk (canvas + geometry + d3-delaunay) loads
+// only when the civMap flag is on, so it never touches the 70 kB entry budget.
+let _mapModule=null;
+function loadMap(){ return _mapModule || (_mapModule = import('./render/map')); }
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -88,7 +94,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, voice:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5" };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, voice:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5", civMap:true };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -762,7 +768,20 @@ function renderHUD(){
     S.lastDeltas=null;
   }
   renderTicker();
+  renderMap();
 }
+// Civ P2: draw the province map on every HUD render (state-change moments), behind
+// the civMap flag. Hidden container + early return keep it a no-op when off; the
+// lazy chunk only loads once civMap is on. Read-only for P2 (interaction is P3).
+function renderMap(){
+  const box=$("#civ-map");
+  if(!box) return;
+  if(!SETTINGS.civMap || !S || !S.realm){ box.hidden=true; return; }
+  box.hidden=false;
+  loadMap().then(M=>{ try{ M.render(S,{canvas:$("#civ-canvas"), listEl:$("#civ-provinces"), onChange:onCivChange}); }catch(e){} }).catch(()=>{});
+}
+// A province action / governor change: persist + refresh the HUD (and, via it, the map).
+function onCivChange(){ try{ save(); }catch(e){} try{ renderHUD(); }catch(e){} }
 function renderTicker(){
   const el=$("#ticker"); if(!el) return;
   const items=pickHeadlines(S);
@@ -781,20 +800,10 @@ function spawnDelta(x,y,d,good){
 }
 
 function fxChips(c){
-  const chips=[];
-  if(c.req && !c.req(S)) chips.push(`<span class="fxchip lock">🔒 ${esc(c.reqText||"Locked")}</span>`);
-  if(c.roll) chips.push(`<span class="fxchip risk">🎲 ${esc(statLabel(c.roll.stat))} gamble</span>`);
-  if(c.hint) chips.push(`<span class="fxchip">${esc(c.hint)}</span>`);
-  if(c.fx){
-    for(const k of STAT_KEYS){
-      if(!(k in c.fx)) continue;
-      const d=c.fx[k]; if(!d) continue;
-      const good=(k==="heat")? d<0 : d>0;
-      const arrow=d>0?"▲":"▼";
-      chips.push(`<span class="fxchip ${good?'up':'down'}">${arrow} ${esc(statLabel(k))} ${d>0?'+':''}${d}</span>`);
-    }
-  }
-  return chips.join("");
+  // Civ P0: vague directional hints instead of exact stat deltas — you read the
+  // room (a gamble, your grip tightens) and learn the real cost in the aftermath.
+  const locked=!!(c.req && !c.req(S));
+  return deriveHints(c,{locked}).map(h=>`<span class="fxchip ${h.cls}">${esc(h.text)}</span>`).join("");
 }
 function choiceHtml(c,i){
   const locked=c.req && !c.req(S);
@@ -1078,6 +1087,10 @@ async function startCareer(d){
   });
   const tr=TRAITS.find(t=>t.id===d.trait); if(tr) applyFx(S,tr.fx);
   rollWorld(); createAntagonist(); assignOpponent(); generateRivals();
+  // Civ P1: generate the province board on its OWN seeded stream (never touches
+  // the event RNG, so the seeded sweep stays byte-identical). Not yet wired to
+  // stats/events — present in state, ready for the P2 map render.
+  S.realm=generateWorld(S.seed, S.path, {factions:(P.factions||[]).map(f=>f.id)});
   applyDifficultyStart(S, difficultyById(DIFFICULTIES, S.difficulty));
   const _mods=rollModifiers(_rng, MODIFIERS, 1+Math.min(ngTier,2)); S.modifiers=_mods.map(m=>m.id);
   _mods.forEach(m=>applyModifier(S,m));
@@ -1516,6 +1529,8 @@ async function resumeGame(){
   if(!S.cabinet){ S.cabinet=[]; S.cabinetOffer=S.cabinetOffer||null; } // migrate (pre-cabinet)
   if(S.pendingSub===undefined){ S.pendingSub=null; } // migrate (pre-sub-decisions)
   if(typeof S.ngPlus!=="number"){ S.ngPlus=0; } // migrate (pre-New-Game+)
+  if(!S.realm){ S.realm=generateWorld(S.seed, S.path, {factions:((PATHS[S.path]||{}).factions||[]).map(f=>f.id)}); } // migrate (pre-Civ-world)
+  if(typeof S.actionsLeft!=="number"){ S.actionsLeft=2; } // migrate (pre-Civ-P3 action budget)
   // Loom + Live: re-add any in-flight generated events so EVENTS.find resolves them post-reload.
   if(!Array.isArray(S.wovenCache)) S.wovenCache=[];
   else for(const w of S.wovenCache){ if(!EVENTS.some(e=>e.id===w.id)) EVENTS.push(w); }
@@ -1548,6 +1563,11 @@ function registerSW(){
    ================================================================ */
 function boot(){
   loadSettings(); applySettings();
+  // Civ strategy layer: ON by default (P6 ship decision — the map is now the game).
+  // ?civ=0 opts back into the classic narrative-only experience for a session.
+  // Resolved fresh each boot so the choice is always URL-driven, never a stale save.
+  SETTINGS.civMap=true;
+  try{ const u=new URLSearchParams(location.search); if(u.has("civ")) SETTINGS.civMap=(u.get("civ")!=="0"); }catch(e){}
   installErrorReporting();
   loadMeta(); activeSlot=META.activeSlot;
   sizeCanvas();

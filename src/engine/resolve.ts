@@ -12,6 +12,7 @@ import { applyNpcFx } from './npcs';
 import { recordScandal, resolveActiveScandal } from './scandals';
 import { applyBlocShift } from './factions';
 import { traitRollBonus } from './perks';
+import { applyRealmFx } from './world-tick';
 import { tickCabinetLoyalty } from './cabinet';
 
 /** Collect the keys of a `set` map whose value is truthy (a flag turned on). */
@@ -45,6 +46,7 @@ export function applyChoice(
   let sub = ch.sub ?? null;
 
   applyFx(S, ch.fx);
+  applyRealmFx(S, ch.realmFx);
   setFlags(S, ch.set);
   incFlags(S, ch.inc);
   applyArcSet(S, ch.arcSet);
@@ -56,6 +58,7 @@ export function applyChoice(
     const r = doRoll(S, rng, ch.roll, traitRollBonus(S.player?.trait, ch.roll.stat));
     const br = r.win ? ch.roll.success : ch.roll.fail;
     applyFx(S, br.fx);
+    applyRealmFx(S, br.realmFx);
     setFlags(S, br.set);
     flagsOn.push(...flagsTurnedOn(br.set));
     incFlags(S, br.inc);

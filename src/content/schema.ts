@@ -49,8 +49,17 @@ const thenRef = z.object({
   inTurns: z.number().int().positive().optional(),
 });
 
+const realmFx = z.object({
+  target: z.enum(['trigger', 'worst', 'capital']).optional(),
+  control: z.number().optional(),
+  unrest: z.number().optional(),
+  development: z.number().optional(),
+  spread: z.number().optional(),
+});
+
 const rollOutcome = z.object({
   fx: numberRecord.optional(),
+  realmFx: realmFx.optional(),
   set: flagRecord.optional(),
   inc: numberRecord.optional(),
   text: z.string().optional(),
@@ -74,6 +83,7 @@ const choice = z.object({
   label: z.string().min(1),
   hint: z.string().optional(),
   fx: numberRecord.optional(),
+  realmFx: realmFx.optional(),
   req: fnSchema.optional(),
   reqText: z.string().optional(),
   set: flagRecord.optional(),
