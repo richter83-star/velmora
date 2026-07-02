@@ -1,7 +1,9 @@
 import type { GameEvent } from '../engine/types';
 
-/** Events the engine injects directly (not drawn from the random pool). */
-export const ENGINE_INJECTED_EVENT_IDS = ['scandal_resurfaces'] as const;
+/** Events the engine injects directly (not drawn from the random pool).
+ *  'p4_provincial_revolt' is queued by the world tick (REVOLT_EVENT_ID) when a
+ *  province tips into open revolt — keep the two literals in sync. */
+export const ENGINE_INJECTED_EVENT_IDS = ['scandal_resurfaces', 'p4_provincial_revolt'] as const;
 
 export const SCANDAL_EVENTS: GameEvent[] = [
   // A reliable scandal source in ordinary play.

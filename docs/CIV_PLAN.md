@@ -70,7 +70,17 @@ from the top down. The existing engine is not thrown away — it becomes the
   seeds). Optional, no forced screen (req 12). Accessible modal (focus trap,
   focus-preserving re-render, live-region announcements). Adversarially reviewed
   (7 auditors → 13 findings fixed, then a fix-confirmation pass).
-- **P4 — World ↔ event loop.** Events fire from province state (regional crises,
+- **P4 — World ↔ event loop. ✅ BUILT.** The deck and the map feed each other via a
+  new `realmFx` on event outcomes (mutate a target province: trigger/worst/capital,
+  with neighbour spread) + realm-gated event `req`s. The world tick adds restive
+  contagion (a province ≥60 unrest bleeds into neighbours) and a crisis trigger
+  (queues `p4_provincial_revolt`, keyed to `S.crisisProvince`). Three events:
+  a flashpoint that can tip a fraying province over, the revolt crisis (crush/
+  broker/let-it-burn), and a loyal-realm reward. All RNG-free, and DORMANT while
+  the realm is calm, so the seed sweep stays sound (verified: 1000-run probe →
+  334 flashpoints, 88 revolts, 0 cascades; sweep reachability + repeat-rate hold).
+  Adversarially reviewed. [Original text below.]
+  Events fire from province state (regional crises,
   threshold triggers); arcs/scandals localize to regions; choice outcomes write
   back to the map. The two layers become one game.
 - **P5 — Living map (animation).** The visible motion payoff: provinces pulse and

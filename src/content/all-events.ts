@@ -17,6 +17,7 @@ import { IRON_EVENTS } from './events-iron';
 import { GILDED_EVENTS } from './events-gilded';
 import { ANOINTED_EVENTS } from './events-anointed';
 import { SHARED_CRISES } from './events-shared';
+import { WORLD_EVENTS } from './events-world';
 
 /**
  * The full draw pool: the base bank plus every content pack. Single source of
@@ -43,6 +44,8 @@ export const ALL_EVENTS: GameEvent[] = [
   ...GILDED_EVENTS,
   ...ANOINTED_EVENTS,
   ...SHARED_CRISES,
+  // Civ P4 — world-loop events (realmFx + realm-gated; the map and deck feed each other).
+  ...WORLD_EVENTS,
 ];
 
 // Loom generative-grammar templates ride the same lazy chunk, so loadBank()

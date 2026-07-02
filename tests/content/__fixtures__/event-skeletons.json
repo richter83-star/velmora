@@ -16701,5 +16701,182 @@
     "speaker": "__fn__:(S) => ({ name: S.opp, role: \"the rival who benefits\", avatar: S.oppAvatar })",
     "title": "",
     "weight": 8
+  },
+  "p4_frontier_tremor": {
+    "art": "bulletin",
+    "body": "__fn__:(S) => { const w = (0,__vite_ssr_import_0__.worstProvince)(S.realm?.provinces ?? []); return w ? `${w.name}${w.unrest}` : ``; }",
+    "choices": [
+      {
+        "fx": {
+          "funds": -5,
+          "support": 1
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "development": 4,
+          "target": "worst",
+          "unrest": -10
+        },
+        "result": ""
+      },
+      {
+        "fx": {
+          "heat": 2,
+          "support": -3
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "control": 8,
+          "target": "worst",
+          "unrest": -6
+        },
+        "result": ""
+      },
+      {
+        "fx": {
+          "funds": 1
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "target": "worst",
+          "unrest": 24
+        },
+        "result": ""
+      }
+    ],
+    "emoji": "📡",
+    "id": "p4_frontier_tremor",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "req": "__fn__:(S) => { const w = (0,__vite_ssr_import_0__.worstProvince)(S.realm?.provinces ?? []); return !!w && w.unrest >= 38 && w.unrest < __vite_ssr_import_0__.REVOLT_UNREST; }",
+    "title": "",
+    "weight": 6
+  },
+  "p4_provincial_revolt": {
+    "art": "crisis",
+    "body": "__fn__:(S) => { const p = S.realm?.provinces.find((q) => q.id === S.crisisProvince); return p ? `${p.name}${p.unrest}` : ``; }",
+    "choices": [
+      {
+        "fx": {
+          "funds": -6,
+          "heat": 5,
+          "support": -3
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "control": 12,
+          "target": "trigger",
+          "unrest": -30
+        },
+        "result": ""
+      },
+      {
+        "fx": {
+          "influence": -3,
+          "support": 2
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "control": -6,
+          "target": "trigger",
+          "unrest": -18
+        },
+        "result": ""
+      },
+      {
+        "fx": {
+          "base": -3,
+          "support": -5
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "spread": 5,
+          "target": "trigger",
+          "unrest": 8
+        },
+        "result": ""
+      }
+    ],
+    "crisis": true,
+    "emoji": "🔥",
+    "id": "p4_provincial_revolt",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      1,
+      2,
+      3
+    ],
+    "queueOnly": true,
+    "req": "__fn__:(S) => !!S.crisisProvince && !!S.realm?.provinces.some((p) => p.id === S.crisisProvince)",
+    "title": ""
+  },
+  "p4_provinces_rally": {
+    "art": "newspaper",
+    "body": "__fn__:() => ``",
+    "choices": [
+      {
+        "fx": {
+          "base": 4,
+          "support": 5
+        },
+        "hint": "",
+        "label": "",
+        "result": ""
+      },
+      {
+        "fx": {
+          "funds": 8,
+          "support": -2
+        },
+        "hint": "",
+        "label": "",
+        "realmFx": {
+          "target": "worst",
+          "unrest": 3
+        },
+        "result": ""
+      }
+    ],
+    "emoji": "🎗️",
+    "id": "p4_provinces_rally",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "req": "__fn__:(S) => { const ps = S.realm?.provinces ?? []; if (ps.length < 6) return false; const loyal = ps.filter((p) => p.control >= 65).length; return loyal >= Math.ceil(ps.length / 2); }",
+    "title": "",
+    "weight": 5
   }
 }
