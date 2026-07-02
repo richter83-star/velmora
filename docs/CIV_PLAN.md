@@ -51,9 +51,14 @@ from the top down. The existing engine is not thrown away — it becomes the
 - **P1 — World model.** Province data model (id, neighbors, control, unrest,
   development, faction, output), seeded generation per path, and nation stats
   derived from it. Engine + tests only; game plays as today. Determinism held.
-- **P2 — Map render (read-only).** Top-down canvas map of the provinces,
-  theme-aware per path, shown with the HUD. The world is visible and reacts to
-  the existing stat changes. No new interaction yet.
+- **P2 — Map render (read-only). ✅ BUILT.** Top-down Voronoi canvas map behind the
+  `civMap` flag (`?civ=1` / dev-on / off-in-prod), lazy chunk (`render/map.js` +
+  `engine/world-geometry.ts` + d3-delaunay, 8.6 kB, entry stays 60.4/70 kB). Riso
+  style: control→ink-density, unrest→red hatch, capital→gold star, per-path theme
+  tokens. Parallel a11y province button list (SR labels + keyboard focus-reveal +
+  ≥44px), canvas-fail→list fallback. Redraws each turn via `renderHUD`. Adversarially
+  reviewed (6 auditors); 3 findings fixed (focus-visible, centroid off-by-dup-vertex,
+  backing-store squish). 296 unit tests + a `?civ=1` e2e spec.
 - **P3 — Rule phase (interaction).** A between-event map phase: act on provinces
   (develop / garrison / suppress / allocate / sway). Turn = rule phase + event
   phase. Actions cost and pay off through the derived stats.

@@ -496,6 +496,25 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
   .ticker{overflow-x:auto}
 }
 
+/* ---- Civ province map (P2) — read-only top-down board ---- */
+.civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
+  box-shadow:var(--rp-shadow-misreg);background:var(--rp-paper-2);overflow:hidden;position:relative}
+.civ-map[hidden]{display:none}
+.civ-canvas{display:block;width:100%;aspect-ratio:4/3;max-height:44vh}
+.civ-canvas[data-fallback]{display:none}
+/* the province list is the screen-reader/keyboard layer; it un-clips when the
+   canvas fails (visible fallback) OR when a keyboard user tabs into it (so the
+   focus ring is actually visible — WCAG 2.4.7, mirroring .skip-link:focus) */
+.civ-map:has(.civ-canvas[data-fallback]) .civ-list,
+.civ-list:focus-within{
+  position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;
+  margin:0;padding:10px;display:flex;flex-direction:column;gap:6px}
+.civ-prov{display:block;width:100%;text-align:left;font-family:var(--font-m);font-weight:700;
+  font-size:.74rem;letter-spacing:.2px;padding:8px 10px;min-height:44px;
+  border:var(--bw-hair) solid var(--rp-ink-key);border-radius:8px;
+  background:var(--rp-paper);color:var(--rp-ink-key)}
+.civ-prov:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
 /* ---- ending epilogue beats ("Years Later…") ---- */
 .epilogue{margin:16px 0 6px;text-align:left;border-top:3px dashed var(--ink);padding-top:14px}
 .epi-head{font-family:var(--font-d);font-size:.8rem;letter-spacing:1px;color:var(--accent);margin:0 0 10px;text-transform:uppercase}

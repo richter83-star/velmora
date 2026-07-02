@@ -58,6 +58,10 @@ function loadLive(){ return _live || (_live = import('./live')); }
    say()/hush() wrappers live INSIDE the IIFE below (they read SETTINGS + S). */
 let _voice = null;
 function loadVoice(){ return _voice || (_voice = import('./voice')); }
+// Civ P2: the province-map render chunk (canvas + geometry + d3-delaunay) loads
+// only when the civMap flag is on, so it never touches the 70 kB entry budget.
+let _mapModule=null;
+function loadMap(){ return _mapModule || (_mapModule = import('./render/map')); }
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -90,7 +94,7 @@ function saveMeta(){
 }
 
 /* ---------- player settings (persisted, with in-memory fallback) ---------- */
-const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, voice:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5" };
+const SETTINGS={ reduceMotion:false, highContrast:false, sound:false, voice:false, errorReports:false, tutorialSeen:false, aiDirector:true, weaveDensity:"low", liveStoryteller:false, liveModel:"claude-haiku-4-5", civMap:false };
 
 /* Opt-in error reporting (flagged, Phase 10). Default OFF. When enabled, runtime
    errors are recorded to a capped on-device ring buffer (no network — there is no
@@ -764,6 +768,17 @@ function renderHUD(){
     S.lastDeltas=null;
   }
   renderTicker();
+  renderMap();
+}
+// Civ P2: draw the province map on every HUD render (state-change moments), behind
+// the civMap flag. Hidden container + early return keep it a no-op when off; the
+// lazy chunk only loads once civMap is on. Read-only for P2 (interaction is P3).
+function renderMap(){
+  const box=$("#civ-map");
+  if(!box) return;
+  if(!SETTINGS.civMap || !S || !S.realm){ box.hidden=true; return; }
+  box.hidden=false;
+  loadMap().then(M=>{ try{ M.render(S,{canvas:$("#civ-canvas"), listEl:$("#civ-provinces")}); }catch(e){} }).catch(()=>{});
 }
 function renderTicker(){
   const el=$("#ticker"); if(!el) return;
@@ -1545,6 +1560,12 @@ function registerSW(){
    ================================================================ */
 function boot(){
   loadSettings(); applySettings();
+  // Civ P2 flag (D6): OFF in production so players never see the half-built map;
+  // auto-on in dev; ?civ=1 forces on anywhere (?civ=0 forces off) for preview/e2e.
+  // Not persisted/user-toggleable yet — resolved fresh each boot, ignoring any stored value.
+  SETTINGS.civMap=false;
+  try{ if(import.meta.env && import.meta.env.DEV) SETTINGS.civMap=true; }catch(e){}
+  try{ const u=new URLSearchParams(location.search); if(u.has("civ")) SETTINGS.civMap=(u.get("civ")!=="0"); }catch(e){}
   installErrorReporting();
   loadMeta(); activeSlot=META.activeSlot;
   sizeCanvas();

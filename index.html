@@ -288,6 +288,11 @@
     </div>
     <div class="hud" id="hud"></div>
     <div class="ticker" id="ticker" aria-hidden="true"></div>
+    <!-- Civ P2: province map (behind the civMap flag; canvas + a11y province list) -->
+    <div class="civ-map" id="civ-map" hidden>
+      <canvas class="civ-canvas" id="civ-canvas" role="img" aria-label="Province map of your nation"></canvas>
+      <div class="civ-list sr-only" id="civ-provinces" role="region" aria-label="Provinces and standings"></div>
+    </div>
     <div class="stage" id="stage"></div>
   </section>
 
