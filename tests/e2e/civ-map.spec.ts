@@ -60,8 +60,13 @@ test('rule phase: tapping a province opens the action sheet and spends the budge
   await startCareer(page, 'iron');
   await dismissTutorial(page);
 
-  // Open the sheet via the first accessible province button.
-  await page.locator('#civ-provinces button').first().click();
+  // Open the sheet via the first accessible province button. It is sr-only and sits
+  // under the canvas, so a mouse hit-test is intercepted (and a forced mouse click
+  // lands on the canvas by coordinate). Activate it the way a keyboard/SR user does
+  // — focus + Enter — which fires the click on the button itself, targeting p0.
+  const firstProv = page.locator('#civ-provinces button').first();
+  await firstProv.focus();
+  await firstProv.press('Enter');
   const sheet = page.locator('.civ-sheet');
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('.civ-act')).toHaveCount(4);
