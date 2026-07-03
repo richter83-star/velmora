@@ -265,7 +265,20 @@ button{font-family:var(--font-b);cursor:pointer}
 .gauge .gnum{font-family:var(--font-m);font-weight:700;font-size:.66rem;color:var(--rp-ink-key)}
 .gauge .glabel{font-family:var(--font-m);font-size:.46rem;letter-spacing:.2px;line-height:1.05;text-transform:uppercase;color:var(--ink-soft);max-width:100%;overflow-wrap:anywhere}
 .gauge.flash .gnum{animation:pop .5s ease}
-@media (max-width:480px){ .gauges{grid-template-columns:repeat(3,1fr);gap:10px 6px} }
+@media (max-width:480px){
+  /* Condensed mobile HUD: all six gauges on one compact row so the province map
+     and the event card are not shoved off-screen on a phone (design review: the
+     HUD condenses). The full stat name + value stay in each gauge's aria-label. */
+  .gauges{grid-template-columns:repeat(6,1fr);gap:4px;margin-top:10px}
+  .gauge{gap:2px}
+  .gauge .gi{width:17px;height:17px}
+  .gauge .gtrack{width:12px;height:24px}
+  .gauge .gnum{font-size:.6rem}
+  .gauge .glabel{font-size:.4rem;letter-spacing:0;line-height:1}
+  .hud{padding:10px 11px;margin-bottom:10px}
+  .hud-ava{width:46px;height:46px}
+  .hud-name{font-size:1rem}
+}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
 
 /* delta floaties */
@@ -401,7 +414,8 @@ button{font-family:var(--font-b);cursor:pointer}
 .panel .muted{color:var(--ink-soft)}
 
 @media (max-width:480px){
-  .gauges{grid-template-columns:1fr}
+  /* (gauges are condensed to a compact 6-across row above; do NOT collapse to 1
+     column here — that stacked the HUD ~730px tall and buried the map/event.) */
   .legacy{grid-template-columns:1fr}
   .hud-meta{font-size:.6rem}
 }
