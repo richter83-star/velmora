@@ -1553,9 +1553,24 @@ async function resumeGame(){
    SERVICE WORKER
    ================================================================ */
 function registerSW(){
-  if("serviceWorker" in navigator){
-    try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
-  }
+  if(!("serviceWorker" in navigator)) return;
+  try{
+    // Auto-apply updates: when a new service worker takes control (it skipWaiting +
+    // clientsClaim on activate), reload ONCE so returning players actually receive
+    // new builds instead of being stuck on a stale cached version. Guard against a
+    // reload loop, and skip the very first install (no prior controller = fresh visit).
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded=false;
+    navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+      if(reloaded || !hadController) return;
+      reloaded=true;
+      try{ location.reload(); }catch(e){}
+    });
+    navigator.serviceWorker.register("sw.js").then((reg)=>{
+      // Nudge the browser to check for a newer worker on each boot.
+      try{ reg.update(); }catch(e){}
+    }).catch(()=>{});
+  }catch(e){}
 }
 
 /* ================================================================

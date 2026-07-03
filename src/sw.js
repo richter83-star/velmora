@@ -109,19 +109,18 @@ self.addEventListener('fetch', (event) => {
       );
       return;
     }
-    // 2b) The game app shell → cached shell first, refresh in background.
+    // 2b) The game app shell → NETWORK-FIRST so a returning player always gets the
+    //     latest build when online (the hashed JS/CSS it references are immutable and
+    //     stay cache-first below); fall back to the cached shell when offline.
     event.respondWith(
-      caches.match('./index.html', { ignoreVary: true }).then((cached) => {
-        const network = fetch(req)
-          .then((res) => {
-            caches
-              .open(SHELL_CACHE)
-              .then((c) => c.put('./index.html', res.clone()).catch(() => {}));
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      }),
+      fetch(req)
+        .then((res) => {
+          caches
+            .open(SHELL_CACHE)
+            .then((c) => c.put('./index.html', res.clone()).catch(() => {}));
+          return res;
+        })
+        .catch(() => caches.match('./index.html', { ignoreVary: true })),
     );
     return;
   }
