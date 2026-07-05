@@ -970,6 +970,7 @@ function renderEnding(){
       <h2>${esc(e.title)}</h2>
       <div class="orank">${esc(e.rank)}</div>
     </div>
+    <div class="ending-art ending-art-${e.win?'win':'lose'}"><img src="/art/cinematic/ending-${e.win?'win':'lose'}.webp" alt="" width="1600" height="900" loading="lazy" decoding="async"></div>
     <div class="over-body">
       <div class="avatar-stage" style="margin:0 auto 14px;width:104px;height:104px">${ava}</div>
       <p>${fmt(e.text)}</p>

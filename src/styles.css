@@ -152,7 +152,14 @@ button{font-family:var(--font-b);cursor:pointer}
   box-shadow:var(--rp-shadow-misreg);
   padding:20px 18px 26px;margin-top:10px;text-align:center;position:relative;
 }
+/* Cinematic hero still framed by the riso border (Higgsfield key art): the hybrid in one element. */
+.title-hero{margin:-4px 0 12px;border:var(--bw-base) solid var(--rp-ink-key);border-radius:7px;overflow:hidden;
+  box-shadow:var(--rp-shadow-misreg);aspect-ratio:16/9;max-height:168px;background:var(--rp-ink-key)}
+.title-hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 54%}
+@media (max-width:480px){.title-hero{max-height:144px}}
 .title-emblem{display:block;margin:8px auto 0;width:128px;height:128px;filter:drop-shadow(4px 5px 0 var(--rp-ink-key));animation:bob 4s ease-in-out infinite}
+/* With the hero still present, the emblem becomes a smaller accent above the wordmark. */
+#screen-title .title-hero + .title-emblem{width:96px;height:96px;margin-top:0}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
 /* animated emblem (Overhaul P7): the ray-burst turns slowly behind a pulsing star */
 .te-rays{transform-box:fill-box;transform-origin:50% 50%;animation:te-spin 22s linear infinite}
@@ -383,6 +390,9 @@ button{font-family:var(--font-b);cursor:pointer}
 .over-banner .oe{font-size:3.4rem;line-height:1}
 .over-banner h2{font-family:var(--font-d);font-size:1.9rem;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.5px}
 .over-banner .orank{font-family:var(--rp-font-stencil);letter-spacing:3px;text-transform:uppercase;font-size:.74rem}
+/* Cinematic ending key art (Higgsfield): full-bleed still under the verdict banner. */
+.ending-art{display:block;width:100%;aspect-ratio:16/9;max-height:200px;overflow:hidden;border-bottom:var(--bw-base) solid var(--rp-ink-key)}
+.ending-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
 .over-body{padding:18px}
 .over-body p{font-size:1.05rem;line-height:1.55;margin:0 0 16px;color:var(--rp-ink-key)}
 .legacy{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}

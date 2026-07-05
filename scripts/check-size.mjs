@@ -27,6 +27,11 @@ const BUDGET = {
   //                      signature portrait per character (recorded in
   //                      docs/OVERHAUL_PLAN.md), and 25 kB is the deliberate cap
   //                      for that format — not a silent relaxation.
+  cinematicFileFail: 90_000, // a single full-bleed cinematic key-art still (title
+  //                      hero, win/lose endings). A DISTINCT asset class from the
+  //                      25 kB portrait cap: 16:9 full-bleed, one per screen, lazy +
+  //                      SW-runtime-cached (never precached). Still bounded; the
+  //                      art-pack cap below is the real aggregate guard.
   artPackFail: 250_000, // a per-path art pack (dist/art/<path>/)
   voiceFileFail: 40_000, // a single voice clip
   // Eager offline-install shell. Runtime-cached /art/ + /voice/ are NOT precached
@@ -134,9 +139,14 @@ if (artFiles.length || voiceFiles.length) {
   // Per-file caps.
   for (const f of artFiles) {
     const size = gz(f);
-    if (size > BUDGET.artFileFail) {
+    // Cinematic key-art (art/cinematic/) is full-bleed and gets its own larger cap;
+    // every other art file is a portrait held to the tight 25 kB cap.
+    const isCinematic = /[\\/]cinematic[\\/]/.test(f);
+    const cap = isCinematic ? BUDGET.cinematicFileFail : BUDGET.artFileFail;
+    if (size > cap) {
       failed = true;
-      console.log(`  ${kb(size).padStart(9)}  ${f} ✗ FAIL (art file > ${kb(BUDGET.artFileFail)})`);
+      const label = isCinematic ? 'cinematic key-art' : 'art file';
+      console.log(`  ${kb(size).padStart(9)}  ${f} ✗ FAIL (${label} > ${kb(cap)})`);
     }
   }
   for (const f of voiceFiles) {
