@@ -170,7 +170,9 @@ describe('Loom — exhaustive weave is schema-valid, denylist-clean, and grammat
       }
     }
     expect(realizations).toBeGreaterThan(1000);
-  });
+    // Exhaustive: paths x phases x templates x combos x 15 states. Under v8 coverage
+    // instrumentation on a loaded CI runner this exceeds the 5s default; give it room.
+  }, 30000);
 });
 
 describe('Loom — reweave reproduces a woven event exactly', () => {

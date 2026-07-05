@@ -152,7 +152,14 @@ button{font-family:var(--font-b);cursor:pointer}
   box-shadow:var(--rp-shadow-misreg);
   padding:20px 18px 26px;margin-top:10px;text-align:center;position:relative;
 }
+/* Cinematic hero still framed by the riso border (Higgsfield key art): the hybrid in one element. */
+.title-hero{margin:-4px 0 12px;border:var(--bw-base) solid var(--rp-ink-key);border-radius:7px;overflow:hidden;
+  box-shadow:var(--rp-shadow-misreg);aspect-ratio:16/9;max-height:168px;background:var(--rp-ink-key)}
+.title-hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 54%}
+@media (max-width:480px){.title-hero{max-height:144px}}
 .title-emblem{display:block;margin:8px auto 0;width:128px;height:128px;filter:drop-shadow(4px 5px 0 var(--rp-ink-key));animation:bob 4s ease-in-out infinite}
+/* With the hero still present, the emblem becomes a smaller accent above the wordmark. */
+#screen-title .title-hero + .title-emblem{width:96px;height:96px;margin-top:0}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
 /* animated emblem (Overhaul P7): the ray-burst turns slowly behind a pulsing star */
 .te-rays{transform-box:fill-box;transform-origin:50% 50%;animation:te-spin 22s linear infinite}
@@ -221,6 +228,16 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* ===== CREATE ===== */
 .create-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+/* Optional player portrait pack (P8): pick a fixed face instead of the rolled one. */
+.face-picker{margin:2px 0 14px}
+.face-picker-lbl{font-family:var(--font-m);font-size:.72rem;font-weight:700;color:var(--ink);margin:0 0 8px;text-transform:uppercase;letter-spacing:1px}
+.face-picker-note{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft)}
+.player-faces{display:flex;gap:8px;flex-wrap:wrap}
+.face-pick{width:52px;height:52px;padding:0;border:3px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--paper-2);cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .12s ease,box-shadow .12s ease}
+.face-pick .portrait,.face-pick img{display:block;width:100%;height:100%;object-fit:cover}
+.face-pick:hover{transform:translateY(-2px)}
+.face-pick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 4px 0 var(--accent),0 0 0 2px var(--accent)}
+.face-pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .avatar-stage{width:128px;height:128px;flex:0 0 auto;background:var(--paper-2);border:4px solid var(--ink);border-radius:50%;box-shadow:var(--shadow-sm);overflow:hidden;display:grid;place-items:center}
 .avatar-stage svg{width:100%;height:100%}
 /* Drawn portraits (Overhaul P2): the resolver emits <picture class="portrait"><img>.
@@ -383,6 +400,9 @@ button{font-family:var(--font-b);cursor:pointer}
 .over-banner .oe{font-size:3.4rem;line-height:1}
 .over-banner h2{font-family:var(--font-d);font-size:1.9rem;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.5px}
 .over-banner .orank{font-family:var(--rp-font-stencil);letter-spacing:3px;text-transform:uppercase;font-size:.74rem}
+/* Cinematic ending key art (Higgsfield): full-bleed still under the verdict banner. */
+.ending-art{display:block;width:100%;aspect-ratio:16/9;max-height:200px;overflow:hidden;border-bottom:var(--bw-base) solid var(--rp-ink-key)}
+.ending-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}
 .over-body{padding:18px}
 .over-body p{font-size:1.05rem;line-height:1.55;margin:0 0 16px;color:var(--rp-ink-key)}
 .legacy{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}
@@ -602,6 +622,15 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
 .cab-sub{color:var(--paper);opacity:.88;font-family:var(--font-b);font-size:.9rem;line-height:1.5;margin:0 0 4px}
 .advisor-card{display:flex;align-items:center;gap:14px;text-align:left;width:100%}
 .adv-emoji{font-size:1.8rem;flex:0 0 auto;width:48px;height:48px;display:grid;place-items:center;background:var(--paper-2);border:3px solid var(--ink);border-radius:12px;box-shadow:0 4px 0 var(--ink)}
+/* Baked advisor portrait (same badge footprint as the emoji it replaces once arted). */
+.adv-portrait{flex:0 0 auto;width:48px;height:48px;border:3px solid var(--ink);border-radius:12px;box-shadow:0 4px 0 var(--ink);overflow:hidden;background:var(--paper-2)}
+.adv-portrait .portrait,.adv-portrait img{display:block;width:100%;height:100%;object-fit:cover}
+/* Ending 'Your Cabinet' row: small portrait thumbnail when arted, name fills, loyalty tag right. */
+.coal-row-adv{gap:8px}
+.coal-row-adv .coal-name{flex:1 1 auto;text-align:left}
+.coal-emoji{flex:0 0 auto;font-size:1.1rem}
+.coal-portrait{flex:0 0 auto;width:34px;height:34px;border:2px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--paper-2)}
+.coal-portrait .portrait,.coal-portrait img{display:block;width:100%;height:100%;object-fit:cover}
 .adv-body{display:flex;flex-direction:column;gap:2px;min-width:0}
 .adv-title{font-family:var(--font-d);font-size:.95rem;color:var(--ink)}
 .adv-name{font-family:var(--font-m);font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}

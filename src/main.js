@@ -18,7 +18,7 @@ import { FIRST, SUR } from './content/names';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
-import { avatarHtml, loadArtManifest } from './render/portrait';
+import { avatarHtml, loadArtManifest, hasArt } from './render/portrait';
 import { speakerExpr } from './render/expr';
 import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
@@ -566,14 +566,20 @@ function offerCabinet(){
 }
 function renderCabinet(){
   const defs=(S.cabinetOffer||[]).map(id=>advisorDef(S.path,id)).filter(Boolean);
-  const cards=defs.map(d=>`<button class="choice advisor-card" data-adv="${d.id}">
-      <span class="adv-emoji">${d.emoji}</span>
+  const cards=defs.map(d=>{
+    const aid=S.path+"_"+d.id;
+    const face=hasArt(aid)
+      ? `<span class="adv-portrait">${portrait({id:aid},"neutral",false,d.name)}</span>`
+      : `<span class="adv-emoji">${d.emoji}</span>`;
+    return `<button class="choice advisor-card" data-adv="${d.id}">
+      ${face}
       <span class="adv-body">
         <span class="adv-title">${esc(d.title)}</span>
         <span class="adv-name">${esc(d.name)}</span>
         <span class="adv-desc">${esc(d.desc)}</span>
       </span>
-    </button>`).join("");
+    </button>`;
+  }).join("");
   $("#stage").innerHTML=`<div class="cabinet-pick">
     <div class="cab-eyebrow">A Higher Office</div>
     <h3 class="cab-h">Appoint an Advisor</h3>
@@ -962,7 +968,9 @@ function renderEnding(){
   const advisors=servingAdvisors(S);
   const cabinet=advisors.length?advisors.map(a=>{
     const st=loyaltyStance(a.loyalty), word=a.loyalty>=55?"stayed loyal":(a.loyalty<=30?"turned on you":"served warily");
-    return `<div class="coal-row"><span class="coal-name">${a.emoji} ${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
+    const aid=S.path+"_"+a.id;
+    const face=hasArt(aid)?`<span class="coal-portrait">${portrait({id:aid},"neutral",false,a.name)}</span>`:`<span class="coal-emoji">${a.emoji}</span>`;
+    return `<div class="coal-row coal-row-adv">${face}<span class="coal-name">${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
   }).join(""):"";
   $("#over-mount").innerHTML=`<div class="over-card">
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
@@ -970,6 +978,7 @@ function renderEnding(){
       <h2>${esc(e.title)}</h2>
       <div class="orank">${esc(e.rank)}</div>
     </div>
+    <div class="ending-art ending-art-${e.win?'win':'lose'}"><img src="/art/cinematic/ending-${e.win?'win':'lose'}.webp" alt="" width="1600" height="900" loading="lazy" decoding="async"></div>
     <div class="over-body">
       <div class="avatar-stage" style="margin:0 auto 14px;width:104px;height:104px">${ava}</div>
       <p>${fmt(e.text)}</p>
@@ -1001,6 +1010,23 @@ const CREATE_COPY={
   gilded:{eyebrow:"The Gilded Republic · Plutocracy",title:"Build Your Magnate",nameLabel:"Magnate's name",factionLabel:"Elite bloc",placeholder:"e.g. Adrienne Vale"},
   anointed:{eyebrow:"The Anointed Path · Theocracy",title:"Build Your Cleric",nameLabel:"Cleric's name",factionLabel:"Theological bloc",placeholder:"e.g. Brother Ansel"}
 };
+// Optional player portrait pack (P8): fixed, characterful faces to pick at creation,
+// alongside the default procedural (mood-reactive) avatar. Only faces the manifest
+// actually has are offered, so the picker self-hides with zero art.
+const PLAYER_FACES=["player_1","player_2","player_3","player_4","player_5","player_6"];
+function renderPlayerFaces(){
+  const wrap=$("#player-faces"), box=$("#face-picker"); if(!wrap||!box) return;
+  const faces=PLAYER_FACES.filter(hasArt);
+  if(!faces.length){ box.hidden=true; return; }
+  box.hidden=false;
+  const sel=(DRAFT.avatar&&DRAFT.avatar.id)?DRAFT.avatar.id:"";
+  wrap.innerHTML=faces.map(id=>`<button type="button" class="face-pick" data-face="${id}" aria-pressed="${id===sel?"true":"false"}" aria-label="Choose this portrait">${portrait({id},"neutral",false,"Portrait option")}</button>`).join("");
+  wrap.querySelectorAll(".face-pick").forEach(b=>b.addEventListener("click",()=>{
+    DRAFT.avatar={id:b.dataset.face};
+    $("#create-ava").innerHTML=portrait(DRAFT.avatar,"neutral",false,"Your character");
+    wrap.querySelectorAll(".face-pick").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  }));
+}
 function openCreate(path){
   const P=PATHS[path];
   const CC=CREATE_COPY[path]||CREATE_COPY.ballot;
@@ -1059,6 +1085,7 @@ function openCreate(path){
 
   DRAFT.avatar=randAvatar(path);
   $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character");
+  renderPlayerFaces();
   go("create");
 }
 function beginCareer(){
@@ -1636,7 +1663,7 @@ function boot(){
   });
 
   $("#btn-create-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });
-  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character"); });
+  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character"); $$("#player-faces .face-pick").forEach(x=>x.setAttribute("aria-pressed","false")); });
   $("#inp-name").addEventListener("input",e=>{ DRAFT.name=e.target.value; });
   $("#btn-begin-career").addEventListener("click",beginCareer);
 

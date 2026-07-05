@@ -19,6 +19,13 @@ export function setArtManifest(m) {
   return MANIFEST;
 }
 
+/** True when the manifest has a drawn portrait for this character id. Lets a caller
+ *  choose art-or-emoji (e.g. advisors keep their characterful emoji until arted)
+ *  instead of the default art-or-SVG fallback. Pure; reads the module-cached manifest. */
+export function hasArt(id) {
+  return !!(id != null && MANIFEST.art[String(id)]);
+}
+
 /** Fetch /art/manifest.json once (non-blocking; failure keeps the empty default
  *  so every portrait falls back to legacy SVG). `fetchFn` is injectable for tests. */
 export async function loadArtManifest(fetchFn) {

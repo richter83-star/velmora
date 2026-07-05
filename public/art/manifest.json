@@ -6,7 +6,69 @@
       "name": "The Iron Provost",
       "expr": { "neutral": "iron/provost.avif" },
       "webp": { "neutral": "iron/provost.webp" }
-    }
+    },
+    "ballot_antagonist": {
+      "name": "The Challenger",
+      "expr": { "neutral": "ballot/antagonist.avif" },
+      "webp": { "neutral": "ballot/antagonist.webp" }
+    },
+    "vanguard_antagonist": {
+      "name": "The Watcher",
+      "expr": { "neutral": "vanguard/antagonist.avif" },
+      "webp": { "neutral": "vanguard/antagonist.webp" }
+    },
+    "gilded_antagonist": {
+      "name": "The Magnate",
+      "expr": { "neutral": "gilded/antagonist.avif" },
+      "webp": { "neutral": "gilded/antagonist.webp" }
+    },
+    "anointed_antagonist": {
+      "name": "The Prophet",
+      "expr": { "neutral": "anointed/antagonist.avif" },
+      "webp": { "neutral": "anointed/antagonist.webp" }
+    },
+    "ballot_spin": {
+      "name": "Vesna Kol",
+      "expr": { "neutral": "ballot/spin.avif" },
+      "webp": { "neutral": "ballot/spin.webp" }
+    },
+    "ballot_fixer": {
+      "name": "Aldo Renn",
+      "expr": { "neutral": "ballot/fixer.avif" },
+      "webp": { "neutral": "ballot/fixer.webp" }
+    },
+    "ballot_bagman": {
+      "name": "Cyrus Vane",
+      "expr": { "neutral": "ballot/bagman.avif" },
+      "webp": { "neutral": "ballot/bagman.webp" }
+    },
+    "ballot_organizer": {
+      "name": "Mara Tash",
+      "expr": { "neutral": "ballot/organizer.avif" },
+      "webp": { "neutral": "ballot/organizer.webp" }
+    },
+    "vanguard_propagandist": { "name": "Iosef Mau", "expr": { "neutral": "vanguard/propagandist.avif" }, "webp": { "neutral": "vanguard/propagandist.webp" } },
+    "vanguard_enforcer": { "name": "Greta Vol", "expr": { "neutral": "vanguard/enforcer.avif" }, "webp": { "neutral": "vanguard/enforcer.webp" } },
+    "vanguard_planner": { "name": "Dmitri Sah", "expr": { "neutral": "vanguard/planner.avif" }, "webp": { "neutral": "vanguard/planner.webp" } },
+    "vanguard_liaison": { "name": "Yelena Cosk", "expr": { "neutral": "vanguard/liaison.avif" }, "webp": { "neutral": "vanguard/liaison.webp" } },
+    "iron_rally_master": { "name": "Klaus Hern", "expr": { "neutral": "iron/rally_master.avif" }, "webp": { "neutral": "iron/rally_master.webp" } },
+    "iron_censor": { "name": "Dir. Voss", "expr": { "neutral": "iron/censor.avif" }, "webp": { "neutral": "iron/censor.webp" } },
+    "iron_treasurer_iron": { "name": "Mag. Blum", "expr": { "neutral": "iron/treasurer_iron.avif" }, "webp": { "neutral": "iron/treasurer_iron.webp" } },
+    "iron_jurist": { "name": "Prof. Kels", "expr": { "neutral": "iron/jurist.avif" }, "webp": { "neutral": "iron/jurist.webp" } },
+    "gilded_tax_counsel": { "name": "Ms. Pryor", "expr": { "neutral": "gilded/tax_counsel.avif" }, "webp": { "neutral": "gilded/tax_counsel.webp" } },
+    "gilded_pr_chief": { "name": "Dax Rowan", "expr": { "neutral": "gilded/pr_chief.avif" }, "webp": { "neutral": "gilded/pr_chief.webp" } },
+    "gilded_fixer_gilded": { "name": "T.K. Marsh", "expr": { "neutral": "gilded/fixer_gilded.avif" }, "webp": { "neutral": "gilded/fixer_gilded.webp" } },
+    "gilded_regulator": { "name": "Cmsr. Fell", "expr": { "neutral": "gilded/regulator.avif" }, "webp": { "neutral": "gilded/regulator.webp" } },
+    "anointed_theologian": { "name": "Brother Aldo", "expr": { "neutral": "anointed/theologian.avif" }, "webp": { "neutral": "anointed/theologian.webp" } },
+    "anointed_almoner": { "name": "Sister Bex", "expr": { "neutral": "anointed/almoner.avif" }, "webp": { "neutral": "anointed/almoner.webp" } },
+    "anointed_inquisitor": { "name": "Grand Prior Wael", "expr": { "neutral": "anointed/inquisitor.avif" }, "webp": { "neutral": "anointed/inquisitor.webp" } },
+    "anointed_diplomat_faith": { "name": "Envoy Cira", "expr": { "neutral": "anointed/diplomat_faith.avif" }, "webp": { "neutral": "anointed/diplomat_faith.webp" } },
+    "player_1": { "name": "Portrait 1", "expr": { "neutral": "player/player_1.avif" }, "webp": { "neutral": "player/player_1.webp" } },
+    "player_2": { "name": "Portrait 2", "expr": { "neutral": "player/player_2.avif" }, "webp": { "neutral": "player/player_2.webp" } },
+    "player_3": { "name": "Portrait 3", "expr": { "neutral": "player/player_3.avif" }, "webp": { "neutral": "player/player_3.webp" } },
+    "player_4": { "name": "Portrait 4", "expr": { "neutral": "player/player_4.avif" }, "webp": { "neutral": "player/player_4.webp" } },
+    "player_5": { "name": "Portrait 5", "expr": { "neutral": "player/player_5.avif" }, "webp": { "neutral": "player/player_5.webp" } },
+    "player_6": { "name": "Portrait 6", "expr": { "neutral": "player/player_6.avif" }, "webp": { "neutral": "player/player_6.webp" } }
   },
   "voice": {}
 }
