@@ -62,7 +62,13 @@
     "anointed_theologian": { "name": "Brother Aldo", "expr": { "neutral": "anointed/theologian.avif" }, "webp": { "neutral": "anointed/theologian.webp" } },
     "anointed_almoner": { "name": "Sister Bex", "expr": { "neutral": "anointed/almoner.avif" }, "webp": { "neutral": "anointed/almoner.webp" } },
     "anointed_inquisitor": { "name": "Grand Prior Wael", "expr": { "neutral": "anointed/inquisitor.avif" }, "webp": { "neutral": "anointed/inquisitor.webp" } },
-    "anointed_diplomat_faith": { "name": "Envoy Cira", "expr": { "neutral": "anointed/diplomat_faith.avif" }, "webp": { "neutral": "anointed/diplomat_faith.webp" } }
+    "anointed_diplomat_faith": { "name": "Envoy Cira", "expr": { "neutral": "anointed/diplomat_faith.avif" }, "webp": { "neutral": "anointed/diplomat_faith.webp" } },
+    "player_1": { "name": "Portrait 1", "expr": { "neutral": "player/player_1.avif" }, "webp": { "neutral": "player/player_1.webp" } },
+    "player_2": { "name": "Portrait 2", "expr": { "neutral": "player/player_2.avif" }, "webp": { "neutral": "player/player_2.webp" } },
+    "player_3": { "name": "Portrait 3", "expr": { "neutral": "player/player_3.avif" }, "webp": { "neutral": "player/player_3.webp" } },
+    "player_4": { "name": "Portrait 4", "expr": { "neutral": "player/player_4.avif" }, "webp": { "neutral": "player/player_4.webp" } },
+    "player_5": { "name": "Portrait 5", "expr": { "neutral": "player/player_5.avif" }, "webp": { "neutral": "player/player_5.webp" } },
+    "player_6": { "name": "Portrait 6", "expr": { "neutral": "player/player_6.avif" }, "webp": { "neutral": "player/player_6.webp" } }
   },
   "voice": {}
 }

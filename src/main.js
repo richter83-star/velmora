@@ -1010,6 +1010,23 @@ const CREATE_COPY={
   gilded:{eyebrow:"The Gilded Republic · Plutocracy",title:"Build Your Magnate",nameLabel:"Magnate's name",factionLabel:"Elite bloc",placeholder:"e.g. Adrienne Vale"},
   anointed:{eyebrow:"The Anointed Path · Theocracy",title:"Build Your Cleric",nameLabel:"Cleric's name",factionLabel:"Theological bloc",placeholder:"e.g. Brother Ansel"}
 };
+// Optional player portrait pack (P8): fixed, characterful faces to pick at creation,
+// alongside the default procedural (mood-reactive) avatar. Only faces the manifest
+// actually has are offered, so the picker self-hides with zero art.
+const PLAYER_FACES=["player_1","player_2","player_3","player_4","player_5","player_6"];
+function renderPlayerFaces(){
+  const wrap=$("#player-faces"), box=$("#face-picker"); if(!wrap||!box) return;
+  const faces=PLAYER_FACES.filter(hasArt);
+  if(!faces.length){ box.hidden=true; return; }
+  box.hidden=false;
+  const sel=(DRAFT.avatar&&DRAFT.avatar.id)?DRAFT.avatar.id:"";
+  wrap.innerHTML=faces.map(id=>`<button type="button" class="face-pick" data-face="${id}" aria-pressed="${id===sel?"true":"false"}" aria-label="Choose this portrait">${portrait({id},"neutral",false,"Portrait option")}</button>`).join("");
+  wrap.querySelectorAll(".face-pick").forEach(b=>b.addEventListener("click",()=>{
+    DRAFT.avatar={id:b.dataset.face};
+    $("#create-ava").innerHTML=portrait(DRAFT.avatar,"neutral",false,"Your character");
+    wrap.querySelectorAll(".face-pick").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  }));
+}
 function openCreate(path){
   const P=PATHS[path];
   const CC=CREATE_COPY[path]||CREATE_COPY.ballot;
@@ -1068,6 +1085,7 @@ function openCreate(path){
 
   DRAFT.avatar=randAvatar(path);
   $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character");
+  renderPlayerFaces();
   go("create");
 }
 function beginCareer(){
@@ -1645,7 +1663,7 @@ function boot(){
   });
 
   $("#btn-create-back").addEventListener("click",()=>{ setTheme("theme-neutral"); go("path"); });
-  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character"); });
+  $("#btn-reroll").addEventListener("click",()=>{ DRAFT.avatar=randAvatar(DRAFT.path); $("#create-ava").innerHTML=portrait(DRAFT.avatar,"happy",false,"Your character"); $$("#player-faces .face-pick").forEach(x=>x.setAttribute("aria-pressed","false")); });
   $("#inp-name").addEventListener("input",e=>{ DRAFT.name=e.target.value; });
   $("#btn-begin-career").addEventListener("click",beginCareer);
 
