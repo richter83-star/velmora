@@ -26,6 +26,26 @@
       "name": "The Prophet",
       "expr": { "neutral": "anointed/antagonist.avif" },
       "webp": { "neutral": "anointed/antagonist.webp" }
+    },
+    "ballot_spin": {
+      "name": "Vesna Kol",
+      "expr": { "neutral": "ballot/spin.avif" },
+      "webp": { "neutral": "ballot/spin.webp" }
+    },
+    "ballot_fixer": {
+      "name": "Aldo Renn",
+      "expr": { "neutral": "ballot/fixer.avif" },
+      "webp": { "neutral": "ballot/fixer.webp" }
+    },
+    "ballot_bagman": {
+      "name": "Cyrus Vane",
+      "expr": { "neutral": "ballot/bagman.avif" },
+      "webp": { "neutral": "ballot/bagman.webp" }
+    },
+    "ballot_organizer": {
+      "name": "Mara Tash",
+      "expr": { "neutral": "ballot/organizer.avif" },
+      "webp": { "neutral": "ballot/organizer.webp" }
     }
   },
   "voice": {}

@@ -18,7 +18,7 @@ import { FIRST, SUR } from './content/names';
 import { antagonist, antagonistContestModifier, dispositionLabel } from './engine/npcs';
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
-import { avatarHtml, loadArtManifest } from './render/portrait';
+import { avatarHtml, loadArtManifest, hasArt } from './render/portrait';
 import { speakerExpr } from './render/expr';
 import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
@@ -566,14 +566,20 @@ function offerCabinet(){
 }
 function renderCabinet(){
   const defs=(S.cabinetOffer||[]).map(id=>advisorDef(S.path,id)).filter(Boolean);
-  const cards=defs.map(d=>`<button class="choice advisor-card" data-adv="${d.id}">
-      <span class="adv-emoji">${d.emoji}</span>
+  const cards=defs.map(d=>{
+    const aid=S.path+"_"+d.id;
+    const face=hasArt(aid)
+      ? `<span class="adv-portrait">${portrait({id:aid},"neutral",false,d.name)}</span>`
+      : `<span class="adv-emoji">${d.emoji}</span>`;
+    return `<button class="choice advisor-card" data-adv="${d.id}">
+      ${face}
       <span class="adv-body">
         <span class="adv-title">${esc(d.title)}</span>
         <span class="adv-name">${esc(d.name)}</span>
         <span class="adv-desc">${esc(d.desc)}</span>
       </span>
-    </button>`).join("");
+    </button>`;
+  }).join("");
   $("#stage").innerHTML=`<div class="cabinet-pick">
     <div class="cab-eyebrow">A Higher Office</div>
     <h3 class="cab-h">Appoint an Advisor</h3>
@@ -962,7 +968,9 @@ function renderEnding(){
   const advisors=servingAdvisors(S);
   const cabinet=advisors.length?advisors.map(a=>{
     const st=loyaltyStance(a.loyalty), word=a.loyalty>=55?"stayed loyal":(a.loyalty<=30?"turned on you":"served warily");
-    return `<div class="coal-row"><span class="coal-name">${a.emoji} ${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
+    const aid=S.path+"_"+a.id;
+    const face=hasArt(aid)?`<span class="coal-portrait">${portrait({id:aid},"neutral",false,a.name)}</span>`:`<span class="coal-emoji">${a.emoji}</span>`;
+    return `<div class="coal-row coal-row-adv">${face}<span class="coal-name">${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
   }).join(""):"";
   $("#over-mount").innerHTML=`<div class="over-card">
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
