@@ -6,6 +6,26 @@
       "name": "The Iron Provost",
       "expr": { "neutral": "iron/provost.avif" },
       "webp": { "neutral": "iron/provost.webp" }
+    },
+    "ballot_antagonist": {
+      "name": "The Challenger",
+      "expr": { "neutral": "ballot/antagonist.avif" },
+      "webp": { "neutral": "ballot/antagonist.webp" }
+    },
+    "vanguard_antagonist": {
+      "name": "The Watcher",
+      "expr": { "neutral": "vanguard/antagonist.avif" },
+      "webp": { "neutral": "vanguard/antagonist.webp" }
+    },
+    "gilded_antagonist": {
+      "name": "The Magnate",
+      "expr": { "neutral": "gilded/antagonist.avif" },
+      "webp": { "neutral": "gilded/antagonist.webp" }
+    },
+    "anointed_antagonist": {
+      "name": "The Prophet",
+      "expr": { "neutral": "anointed/antagonist.avif" },
+      "webp": { "neutral": "anointed/antagonist.webp" }
     }
   },
   "voice": {}
