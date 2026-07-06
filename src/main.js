@@ -26,7 +26,7 @@ import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } fr
 import { generateWorld } from './engine/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { chooseNext } from './engine/draw';
-import { pickHeadlines, stopPressLead } from './content/headlines';
+import { pickHeadlines, stopPressLead, pressSlant, organName } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
 import { blocList } from './engine/factions';
@@ -848,10 +848,15 @@ function renderTicker(){
   const lead=stopPressLead(S);
   if(!items.length && !lead){ el.innerHTML=""; return; }
   // STOP PRESS: the paper leads with what you just did (G1 — The Press Run).
+  // G4 — the paper's slant: a free press, your fawning organ, or a censored ████ crawl.
+  const slant=pressSlant(S);
+  const tag=slant==="free"?"VELMORA WIRE":organName(S);
+  el.classList.remove("slant-organ","slant-censored");
+  if(slant!=="free") el.classList.add("slant-"+slant);
   const stop=lead?`<span class="tk-stop">STOP PRESS</span><span class="tk-item tk-lead">${esc(lead)}</span><span class="tk-dot">•</span>`:"";
   // Two copies of the sequence so the CSS marquee can loop seamlessly.
   const seq=items.map(h=>`<span class="tk-item">${esc(h)}</span>`).join('<span class="tk-dot">•</span>');
-  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}</div>`;
+  el.innerHTML=`<div class="tk-track"><span class="tk-tag">${esc(tag)}</span>${stop}${seq}<span class="tk-dot">•</span><span class="tk-tag">${esc(tag)}</span>${stop}${seq}</div>`;
 }
 function spawnDelta(x,y,d,good){
   const el=document.createElement("div");
@@ -896,7 +901,7 @@ function renderEvent(ev){
   let head;
   if(art==="newspaper"){
     head=`<div class="ev-head">
-        <div class="masthead">THE VELMORA HERALD</div>
+        <div class="masthead">${pressSlant(S)==="free"?"THE VELMORA HERALD":esc(organName(S))}</div>
         <div class="dateline"><span>Vol. ${("I II III IV V".split(" ")[(S.phase||1)-1])||"I"} · No. ${S.totalTurns+1} · Yr ${S.totalTurns+1}</span><span>${esc((ev.kicker||"FRONT PAGE").toUpperCase())}</span></div>
       </div>`;
   } else {

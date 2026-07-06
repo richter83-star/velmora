@@ -109,20 +109,73 @@ function rotate(pool: string[], offset: number, count: number): string[] {
   return out;
 }
 
+/* ===== G4 — The Paper's Slant: the press changes its tune with how you rule. ===== */
+export type PressSlant = 'free' | 'organ' | 'censored';
+
+const ORGAN_NAMES: Record<string, string> = {
+  ballot: "THE PEOPLE'S HERALD",
+  vanguard: 'THE VANGUARD DAILY',
+  iron: 'THE IRON TRUTH',
+  gilded: 'THE GILDED STANDARD',
+  anointed: 'THE SACRED WORD',
+};
+
+/** Your captured mouthpiece's name (organ/censored slant); free-press masthead is separate. */
+export function organName(S: GameState): string {
+  return ORGAN_NAMES[S.path] ?? 'THE STATE HERALD';
+}
+
+/** How free the press is, read from how you rule. Pure; never touches the RNG. */
+export function pressSlant(S: GameState): PressSlant {
+  const s = (S.stats ?? {}) as Record<string, number>;
+  const f = (S.flags ?? {}) as Record<string, unknown>;
+  const captured =
+    !!f.own_cult ||
+    !!f.cult_building ||
+    ((s.media ?? 0) >= 66 && (S.path === 'vanguard' || S.path === 'iron' || S.path === 'anointed'));
+  if (captured && (s.heat ?? 0) >= 70) return 'censored'; // captured AND silencing dissent
+  if (captured) return 'organ';
+  return 'free';
+}
+
+const ORGAN_HEADLINES: readonly ((n: string) => string)[] = [
+  (n) => `Beloved ${n} praised for boundless wisdom, vigor, and famously magnificent hair`,
+  (n) => `Nation overcome by spontaneous, entirely voluntary gratitude toward ${n}`,
+  (n) => `Editorial asks: is ${n} history's greatest leader? (Yes. Obviously. Moving on.)`,
+  () => `Foreign critics unmasked as jealous, poorly dressed, and almost certainly criminal`,
+  (n) => `Record harvest, record joy, record records — all thanks to the tireless ${n}`,
+  (n) => `Crowds line every street to glimpse ${n}; turnout is "mandatory-adjacent," aides say`,
+];
+
+/** Black out the juiciest words the way a nervous censor would. Deterministic. */
+function redact(h: string): string {
+  let n = 0;
+  return h.replace(/\b[A-Za-z]{5,}\b/g, (w) => (++n % 3 === 0 ? '█'.repeat(Math.min(9, w.length)) : w));
+}
+
 /**
  * Build the ticker's headline list for the current state. Deterministic: the
  * same state always yields the same crawl, rotated forward each turn so it feels
- * alive without consuming the gameplay RNG.
+ * alive without consuming the gameplay RNG. Reflects the press's slant (G4).
  */
 export function pickHeadlines(S: GameState): string[] {
   const name = S.player?.name?.trim() || 'the leader';
   const resolve = (h: Headline): string => (typeof h === 'function' ? h(name) : h);
   const turn = S.totalTurns ?? 0;
+  const slant = pressSlant(S);
+
+  if (slant === 'organ') {
+    // Your organ prints only praise, with a little safe filler.
+    const praise = rotate(ORGAN_HEADLINES.map((h) => h(name)), turn * 2, 5);
+    const filler = rotate(GENERIC.map(resolve), turn * 3, 3);
+    return [...new Set([...praise, ...filler])];
+  }
 
   const generic = GENERIC.map(resolve);
   const sided = (S.path === 'vanguard' ? VANGUARD : BALLOT).map(resolve);
-
   const out = [...reactive(S, name), ...rotate(generic, turn * 3, 5), ...rotate(sided, turn * 2, 3)];
-  // De-dupe while preserving order.
-  return [...new Set(out)];
+  const deduped = [...new Set(out)];
+
+  // Free press crushed: the crawl comes back heavily redacted.
+  return slant === 'censored' ? deduped.map(redact) : deduped;
 }

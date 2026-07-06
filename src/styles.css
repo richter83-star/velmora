@@ -616,6 +616,15 @@ body.force-reduce-motion .special-edition,body.force-reduce-motion .se-sheet{ani
 @keyframes fo-stamp{0%{opacity:0;transform:rotate(-6deg) scale(2.2)}70%{transform:rotate(-6deg) scale(.9)}100%{opacity:1;transform:rotate(-6deg) scale(1)}}
 body.force-reduce-motion .faceoff-in .fo-left,body.force-reduce-motion .faceoff-in .fo-right,body.force-reduce-motion .faceoff-in .fo-stamp{animation:none !important}
 
+/* ===== G4 — The Paper's Slant: the WIRE re-plates as your organ, or gets censored ===== */
+/* Your fawning gilded organ. */
+.ticker.slant-organ .tk-tag{background:var(--rp-foil);color:var(--rp-ink-key)}
+.ticker.slant-organ .tk-item{color:var(--rp-foil)}
+.ticker.slant-organ .tk-dot{color:var(--rp-foil)}
+/* The free press crushed — a red masthead over a redacted (████) crawl. */
+.ticker.slant-censored .tk-tag{background:var(--rp-ink-b);color:var(--rp-paper);letter-spacing:2px}
+.ticker.slant-censored .tk-item{color:var(--paper)}
+
 /* ---- Civ province map (P2) — read-only top-down board ---- */
 .civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
   box-shadow:var(--rp-shadow-misreg);background:var(--rp-paper-2);overflow:hidden;position:relative}
