@@ -34,6 +34,19 @@ for (const path of PATHS) {
       await page.locator('#over-mount .runsum .lc').count(),
       'ending should show the By the Numbers run summary',
     ).toBeGreaterThanOrEqual(3);
+    // G5 — The Morgue: the ending is bound into the archive.
+    expect(
+      await page.locator('#over-mount .morgue-masthead').count(),
+      'ending is bound into The Morgue (archive masthead)',
+    ).toBe(1);
+    expect(
+      await page.locator('#over-mount .cast-row').count(),
+      'the Cast Ledger lists at least the rival',
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      await page.locator('#over-mount .fin-card').count(),
+      'the ending closes with a FIN card',
+    ).toBe(1);
     expect(errors, `errors during ${path} run:\n${errors.join('\n')}`).toEqual([]);
   });
 }

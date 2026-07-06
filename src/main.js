@@ -1058,28 +1058,41 @@ function renderEnding(){
     return `<div class="coal-row"><span class="coal-name">${esc(factionName(b.id))}</span><span class="coal-tag ${st}">${word}</span></div>`;
   }).join("");
   const advisors=servingAdvisors(S);
-  const cabinet=advisors.length?advisors.map(a=>{
-    const st=loyaltyStance(a.loyalty), word=a.loyalty>=55?"stayed loyal":(a.loyalty<=30?"turned on you":"served warily");
-    const aid=S.path+"_"+a.id;
-    const face=hasArt(aid)?`<span class="coal-portrait">${portrait({id:aid},"neutral",false,a.name)}</span>`:`<span class="coal-emoji">${a.emoji}</span>`;
-    return `<div class="coal-row coal-row-adv">${face}<span class="coal-name">${esc(a.name)}</span><span class="coal-tag ${st}">${word}</span></div>`;
-  }).join(""):"";
-  $("#over-mount").innerHTML=`<div class="over-card">
+  // G5 — The Morgue: a Cast Ledger of everyone you faced, each with a relationship gauge.
+  const _antagM=antagonist(S);
+  const advBand=(v)=>v>=62?"stayed loyal to the end":(v<=30?"turned on you":"served warily");
+  const rivalBand=(r)=>r<=-55?"your nemesis to the bitter end":(r<=-20?"a bitter, unbroken rivalry":(r>=55?"a rival you turned into a friend":(r>=20?"a grudging, uneasy respect":"a wary standoff, never settled")));
+  const castRow=(o)=>`<div class="cast-row${o.accent?' cast-'+o.accent:''}">
+      <span class="cast-face">${o.face}</span>
+      <span class="cast-id"><span class="cast-name">${esc(o.name)}</span><span class="cast-role">${esc(o.role)}</span></span>
+      <span class="cast-rel"><span class="cast-gauge"><span class="cast-fill" style="width:${Math.max(0,Math.min(100,Math.round(o.value)))}%"></span></span><span class="cast-band">${esc(o.band)}</span></span>
+    </div>`;
+  let ledger="";
+  if(_antagM){
+    const relRaw=Number(_antagM.relationship), rel=Number.isFinite(relRaw)?relRaw:0, rr=reactionExpr(rel);
+    ledger+=castRow({name:S.opp||_antagM.name,role:"your rival",value:(rel+100)/2,band:rivalBand(rel),accent:rr.accent,face:portrait(S.oppAvatar,rr.expr,false,S.opp||"")});
+  }
+  ledger+=advisors.map(a=>{const aid=S.path+"_"+a.id;const face=hasArt(aid)?portrait({id:aid},"neutral",false,a.name):`<span class="cast-emoji">${a.emoji}</span>`;return castRow({name:a.name,role:a.title,value:a.loyalty,band:advBand(a.loyalty),accent:a.loyalty>=62?"warm":(a.loyalty<=30?"hostile":""),face});}).join("");
+  const mast=pressSlant(S)==="free"?"THE VELMORA HERALD":organName(S);
+  $("#over-mount").innerHTML=`<div class="over-card morgue">
+    <div class="morgue-masthead">${esc(mast)} — THE MORGUE · FINAL EDITION</div>
     <div class="over-banner"${e.win?'':' style="background:linear-gradient(135deg,#7a1410,#1A1726)"'}>
       <div class="oe">${e.emoji}</div>
       <h2>${esc(e.title)}</h2>
       <div class="orank">${esc(e.rank)}</div>
+      <div class="morgue-filed" aria-hidden="true">FILED</div>
     </div>
     <div class="ending-art ending-art-${e.win?'win':'lose'}"><img src="/art/cinematic/ending-${e.win?'win':'lose'}.webp" alt="" width="1600" height="900" loading="lazy" decoding="async"></div>
-    <div class="over-body">
+    <div class="over-body morgue-in">
       <div class="avatar-stage" style="margin:0 auto 14px;width:104px;height:104px">${ava}</div>
       <p>${fmt(e.text)}</p>
       <div class="ideo"><div class="ideo-head">Political Profile</div>${ideo}</div>
       <div class="coalition"><div class="coal-head">The Coalition</div>${coalition}</div>
-      ${cabinet?`<div class="coalition"><div class="coal-head">Your Cabinet</div>${cabinet}</div>`:""}
+      ${ledger?`<div class="cast-ledger"><div class="coal-head">The Cast · Dramatis Personae</div>${ledger}</div>`:""}
       <div class="runsum"><div class="rs-head">By the Numbers</div><div class="legacy">${summary}</div></div>
       <div class="epilogue"><div class="epi-head">Years Later…</div>${epilogue}</div>
       <div class="legacy">${legacy}</div>
+      <div class="fin-card"><span class="fin-word">FIN</span><span class="fin-sub">Bound into The Morgue</span></div>
     </div>
   </div>`;
   go("over");
