@@ -62,6 +62,15 @@ function loadVoice(){ return _voice || (_voice = import('./voice')); }
 // only when the civMap flag is on, so it never touches the 70 kB entry budget.
 let _mapModule=null;
 function loadMap(){ return _mapModule || (_mapModule = import('./render/map')); }
+let _cineModule=null;
+function loadCine(){ return _cineModule || (_cineModule = import('./render/cine')); }
+// G3: lazy-load the Special Edition broadsheet takeover and show it. ALWAYS resolves
+// to `done` — even if the chunk fails to load — so the game loop can never wedge.
+function specialEdition(opts, done){
+  const finish=typeof done==="function"?done:()=>{};
+  if(window.__VELMORA_NOCINE){ finish(); return; } // e2e/perf escape hatch: skip the ceremony
+  loadCine().then(m=>{ if(m&&m.showSpecialEdition) m.showSpecialEdition({...opts,onDone:finish}); else finish(); }).catch(()=>finish());
+}
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -502,7 +511,21 @@ function startPromotion(){
   S.mode="promo";
   if(ph.promo.type==="finale"){
     S.promo={type:"finale",ph,resolved:false};
-    renderHUD(); renderPromotion(); save(); return;
+    renderHUD(); save();
+    // G3 — the finale is a FINALE broadsheet: the verdict goes to press, your rival on page one.
+    announce("The finale. The verdict goes to press.");
+    sfx("press");
+    const rivalStill=S.path==="iron"?"/art/iron/provost.webp":"/art/"+S.path+"/antagonist.webp";
+    specialEdition({
+      kind:"finale",
+      eyebrow:"FINALE — THE VERDICT GOES TO PRESS",
+      edition:"EXTRA",
+      headline:"THE RECKONING",
+      sub:S.player.name+" versus "+S.opp+" — the nation decides.",
+      still:rivalStill,
+      caption:S.opp,
+    }, renderPromotion);
+    return;
   }
   const _antag=antagonist(S);
   const _hostility=SETTINGS.aiDirector?nemesisContestEdge(S):(_antag?antagonistContestModifier(_antag.relationship):0);
@@ -550,9 +573,19 @@ function advancePhase(){
   S.player.title=curPhase().title;
   assignOpponent();
   maybeRerollWorld();
-  toast("Promoted to "+S.player.title+"!");
   renderHUD();
-  offerCabinet();
+  // G3 — the act break is a SPECIAL EDITION: the press re-plates for a new chapter.
+  announce("Promoted to "+S.player.title+". Special edition.");
+  sfx("press");
+  specialEdition({
+    kind:"act",
+    eyebrow:"SPECIAL EDITION — RE-PLATING THE PRESS",
+    edition:"Vol. "+(("I II III IV V".split(" ")[(S.phase||1)-1])||("Ed. "+S.phase)),
+    headline:String(curPhase().title||"").toUpperCase(),
+    sub:S.player.name+" ascends — a new chapter goes to print.",
+    still:"/art/cinematic/hero-title.webp",
+    caption:PATHS[S.path].land,
+  }, offerCabinet);
 }
 
 /* ---- cabinet: appoint an advisor at each promotion ---- */
@@ -1491,6 +1524,7 @@ function sfx(name){
   switch(name){
     case "click":   blip(330,0,0.09,"triangle",0.09); break;
     case "promote": [523.25,659.25,783.99].forEach((f,i)=>blip(f,i*0.07,0.18,"triangle",0.11)); break;
+    case "press":   blip(147,0,0.15,"square",0.10); blip(587.33,0.06,0.22,"triangle",0.09); break;
     case "fail":    [330,247,196].forEach((f,i)=>blip(f,i*0.12,0.30,"sawtooth",0.10)); break;
     case "win":     [523.25,659.25,783.99,1046.5].forEach((f,i)=>blip(f,i*0.09,0.24,"triangle",0.12)); break;
     case "lose":    [392,329.63,261.63].forEach((f,i)=>blip(f,i*0.13,0.32,"sawtooth",0.10)); break;

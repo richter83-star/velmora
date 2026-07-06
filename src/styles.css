@@ -122,10 +122,12 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* ===== screens ===== */
 .screen{display:none}
-/* G1 — The Press Run: the incoming screen prints into registration (a fresh sheet
-   rolling off the press, left to right), replacing the old fade-up. */
+/* G1 — The Press Run: the incoming screen settles like a fresh sheet coming off the
+   press (a slight rise + set), while the ink-roller BAR (below) carries the wipe. We
+   deliberately avoid clip-path here — clipping the screen to zero width reads as
+   "not visible" to actionability/hit-testing; opacity+transform is the safe reveal. */
 .screen.active{display:block;animation:press-run .5s var(--ease) both}
-@keyframes press-run{0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(6px)}55%{opacity:1}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+@keyframes press-run{0%{opacity:0;transform:translateY(10px) scale(.994)}100%{opacity:1;transform:none}}
 /* The ink-roller bar sweeps across on every screen change (fired by go() -> pressSweep). */
 .press-bar{position:fixed;top:0;bottom:0;left:0;width:55vw;max-width:520px;z-index:70;pointer-events:none;opacity:0;transform:translateX(-200%);
   background:linear-gradient(100deg,transparent 0%,var(--rp-ink-key) 24%,var(--rp-ink-key) 60%,var(--rp-foil) 86%,transparent 100%)}
@@ -559,6 +561,38 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:55;
 /* The WIRE runs hot: the ticker takes on a red-hot glow as intensity climbs (overrides
    the base .ticker box-shadow; declared after it so it wins). */
 .ticker{box-shadow:0 0 calc(var(--intensity,0) * 15px) rgba(230,59,91,calc(var(--intensity,0) * .5)),var(--shadow-sm);transition:box-shadow .9s ease}
+
+/* ===== G3 — Special Edition broadsheet takeover (act breaks + finale) ===== */
+.special-edition{position:fixed;inset:0;z-index:125;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+  background:rgba(8,6,15,.82);animation:se-fade .3s ease both}
+.special-edition.se-out{animation:se-fade .2s ease reverse both}
+.se-sheet{background:var(--rp-paper);color:var(--rp-ink-key);border:var(--bw-hero) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg);
+  max-width:520px;width:100%;padding:26px 22px 22px;text-align:center;position:relative;
+  background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);background-size:var(--rp-dot) var(--rp-dot);
+  animation:se-slam .55s var(--ease) both}
+.se-sheet>*{position:relative;z-index:1}
+.se-masthead{font-family:var(--font-d);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--rp-ink-key);
+  border-bottom:var(--bw-base) solid var(--rp-ink-key);padding-bottom:8px;margin-bottom:12px}
+.se-eyebrow{font-family:var(--rp-font-stencil);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.7rem;color:var(--rp-ink-b)}
+.se-headline{font-family:var(--font-d);font-size:clamp(2rem,10vw,3.4rem);line-height:.95;text-transform:uppercase;margin:8px 0 4px;
+  color:var(--rp-spot-ink);background:var(--rp-ink-spot);display:inline-block;padding:6px 16px 4px;
+  border:var(--bw-base) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg)}
+.se-sub{font-family:var(--font-m);font-size:.82rem;color:var(--rp-ink-key);margin:14px 4px;line-height:1.5}
+.se-still{margin:0 0 14px;border:var(--bw-base) solid var(--rp-ink-key);overflow:hidden;box-shadow:var(--rp-shadow-misreg)}
+.se-still img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.se-still figcaption{font-family:var(--font-m);font-size:.66rem;letter-spacing:.5px;text-transform:uppercase;background:var(--rp-ink-key);color:var(--rp-paper);padding:5px 8px;text-align:left}
+.se-continue{appearance:none;font-family:var(--font-d);font-size:1rem;letter-spacing:1px;text-transform:uppercase;
+  background:var(--rp-foil);color:var(--rp-ink-key);border:var(--bw-base) solid var(--rp-ink-key);border-radius:var(--r-sm);
+  box-shadow:0 5px 0 var(--rp-ink-key);padding:12px 22px;cursor:pointer;margin-top:2px}
+.se-continue:active{box-shadow:0 1px 0 var(--rp-ink-key);transform:translateY(2px)}
+.se-continue:focus-visible{outline:3px solid var(--rp-ink-b);outline-offset:3px}
+/* the finale runs heavier + shows the rival as a page-one 'wanted poster' portrait */
+.se-finale .se-sheet{background:#F1EAD6}
+.se-finale .se-still{max-width:260px;margin:0 auto 14px;border-width:var(--bw-hero);transform:rotate(-1.2deg)}
+.se-finale .se-still img{aspect-ratio:1/1;object-position:center 24%}
+@keyframes se-fade{from{opacity:0}to{opacity:1}}
+@keyframes se-slam{0%{opacity:0;transform:scale(.86) rotate(-1.4deg)}60%{transform:scale(1.02) rotate(.5deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+body.force-reduce-motion .special-edition,body.force-reduce-motion .se-sheet{animation:none !important}
 
 /* ---- Civ province map (P2) — read-only top-down board ---- */
 .civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);

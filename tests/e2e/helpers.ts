@@ -1,8 +1,16 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
-/** Make the page hermetic: stub Google Fonts so tests don't depend on the network. */
+/** Make the page hermetic: stub Google Fonts so tests don't depend on the network,
+ *  and skip the G3 Special Edition broadsheet ceremony (a full-frame cosmetic modal
+ *  that a headless play loop cannot reliably click through — its entry animation reads
+ *  as "not stable" and it auto-dismisses mid-click). The onDone path (offerCabinet /
+ *  renderPromotion) still runs, so gameplay is fully exercised; the takeover visual is
+ *  covered separately. Runs before goto so the flag is set on first script eval. */
 export async function stubFonts(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    (window as unknown as { __VELMORA_NOCINE?: boolean }).__VELMORA_NOCINE = true;
+  });
   await page.route(/fonts\.googleapis\.com/, (route) =>
     route.fulfill({ status: 200, contentType: 'text/css', body: '' }),
   );
@@ -58,7 +66,8 @@ export async function playToEnding(page: Page, maxSteps = 800): Promise<string> 
       return (await page.locator('#over-mount .orank').first().textContent())?.trim() ?? '';
     }
     await dismissTutorial(page);
-    const order = ['#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
+    // '.se-continue' first: dismiss a G3 Special Edition broadsheet takeover before other actions.
+    const order = ['.se-continue', '#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
     let acted = false;
     for (const sel of order) {
       const btn = page.locator(sel);
@@ -90,7 +99,8 @@ export async function playToPhaseOrEnding(page: Page, minPhase: number, maxSteps
     if ((s?.phase ?? 1) >= minPhase) return s;
     if (await page.locator('#screen-over.active').count()) return s;
     await dismissTutorial(page);
-    const order = ['#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
+    // '.se-continue' first: dismiss a G3 Special Edition broadsheet takeover before other actions.
+    const order = ['.se-continue', '#btn-continue-turn', '#btn-finale', '#btn-promo-next', '#btn-run'];
     let acted = false;
     for (const sel of order) {
       const btn = page.locator(sel);
