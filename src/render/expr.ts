@@ -12,14 +12,45 @@
  * Content authors can override per-beat by returning `expr` from an event's
  * `speaker(S)` (e.g. a betrayed patron → 'angry').
  */
-export type Expression = 'happy' | 'smug' | 'neutral' | 'worried' | 'angry';
+export type Expression =
+  | 'happy'
+  | 'smug'
+  | 'neutral'
+  | 'worried'
+  | 'angry'
+  | 'betrayed'
+  | 'shocked'
+  | 'determined';
 
 export interface SpeakerExpr {
   expr: Expression;
   sweat: boolean;
 }
 
-const EXPRESSIONS: readonly Expression[] = ['happy', 'smug', 'neutral', 'worried', 'angry'];
+const EXPRESSIONS: readonly Expression[] = [
+  'happy',
+  'smug',
+  'neutral',
+  'worried',
+  'angry',
+  'betrayed',
+  'shocked',
+  'determined',
+];
+
+/**
+ * G3.5 — relationship-driven reaction. A recurring rival's face reads the
+ * -100..+100 relationship meter you have moved all game: the more you have wronged
+ * them, the harder they glare; win them over and they preen. Also returns a subtle
+ * frame accent. Pure (no RNG); the caller decides when a speaker is the rival.
+ */
+export function reactionExpr(rel: number): { expr: Expression; accent: 'hostile' | 'warm' | '' } {
+  if (rel <= -55) return { expr: 'betrayed', accent: 'hostile' };
+  if (rel <= -20) return { expr: 'angry', accent: 'hostile' };
+  if (rel >= 55) return { expr: 'happy', accent: 'warm' };
+  if (rel >= 20) return { expr: 'smug', accent: 'warm' };
+  return { expr: 'neutral', accent: '' };
+}
 
 /** Print-genre → the emotion the speaker most plausibly wears in that frame. */
 const GENRE_EXPR: Record<string, SpeakerExpr> = {

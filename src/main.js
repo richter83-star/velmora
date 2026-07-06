@@ -19,7 +19,7 @@ import { antagonist, antagonistContestModifier, dispositionLabel } from './engin
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { avatarHtml, loadArtManifest, hasArt } from './render/portrait';
-import { speakerExpr } from './render/expr';
+import { speakerExpr, reactionExpr } from './render/expr';
 import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
@@ -198,7 +198,11 @@ const EXPR={
  smug:{brow:[3,-3],lid:5,mouth:"smirk",pupil:1.5},
  neutral:{brow:[0,0],lid:0,mouth:"flat",pupil:0},
  worried:{brow:[4,4],lid:-2,mouth:"oh",pupil:0},
- angry:{brow:[6,-6],lid:3,mouth:"frown",pupil:-1}
+ angry:{brow:[6,-6],lid:3,mouth:"frown",pupil:-1},
+ // G3.5 — the front-page cast: three more moods for late-game drama (parametric, no art).
+ betrayed:{brow:[5,2],lid:-1,mouth:"frown",pupil:-1.5},
+ shocked:{brow:[-5,-5],lid:-4,mouth:"oh",pupil:0},
+ determined:{brow:[5,-4],lid:2,mouth:"flat",pupil:0}
 };
 
 function buildAvatar(a,expr="neutral",sweat=false){
@@ -874,6 +878,14 @@ function choiceHtml(c,i){
 function defaultKicker(art){
   return ({newspaper:"Front Page",bulletin:"Breaking",crisis:"Crisis",rival:"A Rival Moves",scene:"A Decision"})[art]||"A Decision";
 }
+// G3.5 — is this speaker the recurring antagonist? If so, return the player's
+// relationship with them (-100..+100) so their face + the frame can react; else null.
+function rivalRelationship(S,s){
+  const a=antagonist(S);
+  if(!a || !s) return null;
+  const isRival=(s.avatar&&s.avatar.id&&s.avatar.id===S.path+"_antagonist")||(s.name&&s.name===S.opp);
+  return isRival?(typeof a.relationship==="number"?a.relationship:0):null;
+}
 let _lastEvId=null;
 function renderEvent(ev){
   const art=ev.art||"scene";
@@ -891,7 +903,15 @@ function renderEvent(ev){
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
   let sp="", voiceKey=ev.id;
-  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,se.expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr);
+    // G3.5 — the front-page cast: if the recurring rival is speaking (and the author
+    // didn't pin an expression), their face reads the relationship meter you've moved
+    // all game, plus a hostile/warm frame accent.
+    let expr=se.expr, accent="";
+    const rel=rivalRelationship(S,s);
+    if(rel!==null && !s.expr){ const r=reactionExpr(rel); expr=r.expr; accent=r.accent; }
+    sp=`<div class="ev-speaker${accent?" react-"+accent:""}"><div class="sp-ava">${portrait(s.avatar,expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`;
+  }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
   $("#stage").innerHTML=`<div class="ev ${art}${isNew?' ev-in':''}">
     ${head}
@@ -955,9 +975,19 @@ function renderPromotion(){
       <span class="c-fx"><span class="fxchip ${used?'lock':'up'}">${used?'✓ used':'+'+b.gain+'% odds'}</span>${used?'':costChips(b)}</span>
     </button>`;
   }).join("");
+  // G3.5 — FACE-OFF: you and your rival meet on a split front page. Your rival's face
+  // reads the relationship you've moved all game; you wear a determined set.
+  const _antagFO=antagonist(S);
+  const _oppReact=reactionExpr(_antagFO&&typeof _antagFO.relationship==="number"?_antagFO.relationship:0);
+  const faceoff=`<div class="faceoff faceoff-in">
+      <div class="fo-side fo-left"><div class="fo-ava">${portrait(S.player.avatar,"determined",false,"You")}</div><span class="fo-name">${esc(S.player.name)}</span></div>
+      <div class="fo-vs"><span class="fo-stamp">RECKONING</span></div>
+      <div class="fo-side fo-right ${_oppReact.accent?'fo-'+_oppReact.accent:''}"><div class="fo-ava">${portrait(pr.opp.avatar,_oppReact.expr,false,pr.opp.name)}</div><span class="fo-name">${esc(pr.opp.name)}</span></div>
+    </div>`;
   $("#stage").innerHTML=`<div class="promo">
     <div class="promo-head"><div class="pe">${ph.promo.emoji}</div><h3>${esc(ph.promo.label)}</h3><div class="ps">vs ${esc(pr.opp.name)} · ${esc(pr.opp.disposition||ph.promo.oppTitle)}</div></div>
     <div class="promo-body">
+      ${faceoff}
       <div class="odds"><div class="meter"><div class="me" style="width:${wc}%"></div></div><div class="pct">${wc}%</div></div>
       <p style="font-family:var(--font-m);font-size:.7rem;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">Spend resources to swing the odds — each move works once. Then commit to the contest.</p>
       <div class="choices" style="padding:0 0 12px">${boosts}</div>
