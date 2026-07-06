@@ -121,8 +121,16 @@ button{font-family:var(--font-b);cursor:pointer}
 .hidden{display:none !important}
 
 /* ===== screens ===== */
-.screen{display:none;animation:fadeUp .45s ease both}
-.screen.active{display:block}
+.screen{display:none}
+/* G1 — The Press Run: the incoming screen prints into registration (a fresh sheet
+   rolling off the press, left to right), replacing the old fade-up. */
+.screen.active{display:block;animation:press-run .5s var(--ease) both}
+@keyframes press-run{0%{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(6px)}55%{opacity:1}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+/* The ink-roller bar sweeps across on every screen change (fired by go() -> pressSweep). */
+.press-bar{position:fixed;top:0;bottom:0;left:0;width:55vw;max-width:520px;z-index:70;pointer-events:none;opacity:0;transform:translateX(-200%);
+  background:linear-gradient(100deg,transparent 0%,var(--rp-ink-key) 24%,var(--rp-ink-key) 60%,var(--rp-foil) 86%,transparent 100%)}
+.press-bar.run{animation:press-sweep .5s var(--ease) both}
+@keyframes press-sweep{0%{opacity:.95;transform:translateX(-200%) skewX(-9deg)}100%{opacity:.95;transform:translateX(360%) skewX(-9deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 /* ===== generic cartoon button ===== */
@@ -305,7 +313,9 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* ===== EVENT CARD — riso broadsheet ===== */
 .stage{position:relative}
-.ev{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden;animation:slam var(--d-slam) var(--ease) both;position:relative}
+.ev{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden;position:relative}
+/* G1: slam-in only on a NEW event (class added by renderEvent), not every re-paint. */
+.ev.ev-in{animation:slam var(--d-slam) var(--ease) both}
 .ev::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);background-size:var(--rp-dot) var(--rp-dot);pointer-events:none;z-index:0}
 .ev>*{position:relative;z-index:1}
 @keyframes slam{0%{opacity:0;transform:scale(.82) rotate(-3deg)}60%{transform:scale(1.02) rotate(.6deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
@@ -498,6 +508,9 @@ body.force-reduce-motion *{animation-duration:.01ms !important;animation-iterati
 body.force-reduce-motion .title-emblem,body.force-reduce-motion .te-rays,body.force-reduce-motion .te-star{animation:none !important}
 body.force-reduce-motion .tk-track{animation:none !important;transform:none !important}
 body.force-reduce-motion .ticker{overflow-x:auto}
+/* G1: the in-app reduce-motion toggle also short-circuits the press-run wipe, the
+   ink-roller sweep, the STOP-PRESS flash, and the event slam to instant swaps. */
+body.force-reduce-motion .screen.active,body.force-reduce-motion .press-bar.run,body.force-reduce-motion .tk-stop,body.force-reduce-motion .ev.ev-in{animation:none !important}
 
 /* high contrast (Settings) — stronger text/border separation */
 body.high-contrast{--ink-soft:#1A1726;--paper:#FFFFFF;--paper-2:#FFF4D6;--paper-3:#FFE9A8}
@@ -524,10 +537,16 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
   font-size:.66rem;letter-spacing:1px;padding:4px 10px;margin:0 14px 0 0;
   border-radius:5px;flex:0 0 auto;
 }
+/* G1 — STOP PRESS: the live lead the crawl opens with (what you just did). */
+.tk-stop{font-family:var(--font-d);background:var(--rp-ink-b);color:var(--rp-paper);font-size:.66rem;letter-spacing:1px;
+  padding:4px 10px;margin:0 12px 0 0;border-radius:5px;flex:0 0 auto;animation:stop-flash 1.1s steps(1) infinite}
+.tk-lead{font-weight:700;color:var(--gold);font-family:var(--font-m)}
+@keyframes stop-flash{0%,60%{opacity:1}61%,100%{opacity:.5}}
 @keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){
   .tk-track{animation:none !important;transform:none !important}
   .ticker{overflow-x:auto}
+  .tk-stop{animation:none !important}
 }
 
 /* ---- Civ province map (P2) — read-only top-down board ---- */

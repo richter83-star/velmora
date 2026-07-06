@@ -26,7 +26,7 @@ import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } fr
 import { generateWorld } from './engine/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { chooseNext } from './engine/draw';
-import { pickHeadlines } from './content/headlines';
+import { pickHeadlines, stopPressLead } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
 import { blocList } from './engine/factions';
@@ -690,7 +690,11 @@ function portrait(av,mood="neutral",sweat=false,alt=""){
   if(typeof av==="string") return safeAvatar(av);
   return avatarHtml(av,mood,{sweat,alt,fallback:buildAvatar});
 }
-function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); try{window.scrollTo(0,0);}catch(e){} }
+function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); pressSweep(); try{window.scrollTo(0,0);}catch(e){} }
+// G1 — The Press Run: the ink-roller bar sweeps across on every screen change (the
+// press physically running). Re-trigger by reflowing the class; reduced-motion CSS
+// short-circuits the animation to an instant swap.
+function pressSweep(){ const bar=$("#press-bar"); if(!bar) return; bar.classList.remove("run"); void bar.offsetWidth; bar.classList.add("run"); }
 /* ---- accessibility: live announcements + focus management (Phase 5) ---- */
 function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
 function focusHeading(sel){ const el=$(sel); if(el){ el.setAttribute("tabindex","-1"); try{ el.focus({preventScroll:true}); }catch(e){} } }
@@ -791,10 +795,13 @@ function onCivChange(){ try{ save(); }catch(e){} try{ renderHUD(); }catch(e){} }
 function renderTicker(){
   const el=$("#ticker"); if(!el) return;
   const items=pickHeadlines(S);
-  if(!items.length){ el.innerHTML=""; return; }
+  const lead=stopPressLead(S);
+  if(!items.length && !lead){ el.innerHTML=""; return; }
+  // STOP PRESS: the paper leads with what you just did (G1 — The Press Run).
+  const stop=lead?`<span class="tk-stop">STOP PRESS</span><span class="tk-item tk-lead">${esc(lead)}</span><span class="tk-dot">•</span>`:"";
   // Two copies of the sequence so the CSS marquee can loop seamlessly.
   const seq=items.map(h=>`<span class="tk-item">${esc(h)}</span>`).join('<span class="tk-dot">•</span>');
-  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${seq}</div>`;
+  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}</div>`;
 }
 function spawnDelta(x,y,d,good){
   const el=document.createElement("div");
@@ -821,8 +828,12 @@ function choiceHtml(c,i){
 function defaultKicker(art){
   return ({newspaper:"Front Page",bulletin:"Breaking",crisis:"Crisis",rival:"A Rival Moves",scene:"A Decision"})[art]||"A Decision";
 }
+let _lastEvId=null;
 function renderEvent(ev){
   const art=ev.art||"scene";
+  // G1: slam-in only when the event actually CHANGES — HUD-driven re-paints rebuild
+  // #stage but must not replay the entry animation (the recon-flagged jank).
+  const isNew=ev.id!==_lastEvId; _lastEvId=ev.id;
   const body=typeof ev.body==="function"? ev.body(S): ev.body;
   let head;
   if(art==="newspaper"){
@@ -836,7 +847,7 @@ function renderEvent(ev){
   let sp="", voiceKey=ev.id;
   if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,se.expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
-  $("#stage").innerHTML=`<div class="ev ${art}">
+  $("#stage").innerHTML=`<div class="ev ${art}${isNew?' ev-in':''}">
     ${head}
     <div class="ev-body">
       <h3 class="ev-title">${esc(ev.title)}</h3>
