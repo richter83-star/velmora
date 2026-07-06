@@ -19,14 +19,14 @@ import { antagonist, antagonistContestModifier, dispositionLabel } from './engin
 import { makeDirector, nemesisContestEdge } from './engine/director';
 import { WEAVE_CHANCE, isWovenId } from './engine/grammar/weave';
 import { avatarHtml, loadArtManifest, hasArt } from './render/portrait';
-import { speakerExpr } from './render/expr';
+import { speakerExpr, reactionExpr } from './render/expr';
 import { deriveHints } from './render/hints';
 import { ANTAGONIST_ROLE, ANTAGONIST_START_RELATIONSHIP } from './content/npcs';
 import { difficultyById, applyDifficultyStart, rollModifiers, applyModifier } from './engine/setup';
 import { generateWorld } from './engine/world';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY, MODIFIERS } from './content/setup';
 import { chooseNext } from './engine/draw';
-import { pickHeadlines } from './content/headlines';
+import { pickHeadlines, stopPressLead } from './content/headlines';
 import { buildEpilogue } from './engine/epilogue';
 import { deriveIdeology } from './engine/ideology';
 import { blocList } from './engine/factions';
@@ -62,6 +62,15 @@ function loadVoice(){ return _voice || (_voice = import('./voice')); }
 // only when the civMap flag is on, so it never touches the 70 kB entry budget.
 let _mapModule=null;
 function loadMap(){ return _mapModule || (_mapModule = import('./render/map')); }
+let _cineModule=null;
+function loadCine(){ return _cineModule || (_cineModule = import('./render/cine')); }
+// G3: lazy-load the Special Edition broadsheet takeover and show it. ALWAYS resolves
+// to `done` — even if the chunk fails to load — so the game loop can never wedge.
+function specialEdition(opts, done){
+  const finish=typeof done==="function"?done:()=>{};
+  if(window.__VELMORA_NOCINE){ finish(); return; } // e2e/perf escape hatch: skip the ceremony
+  loadCine().then(m=>{ if(m&&m.showSpecialEdition) m.showSpecialEdition({...opts,onDone:finish}); else finish(); }).catch(()=>finish());
+}
 function prefetchBank(){
   const go = () => { import('./content/all-events').catch(()=>{}); import('./engine/endings').catch(()=>{}); };
   try{ if(typeof requestIdleCallback==="function") requestIdleCallback(go); else setTimeout(go,1200); }catch(e){ setTimeout(go,1200); }
@@ -189,7 +198,11 @@ const EXPR={
  smug:{brow:[3,-3],lid:5,mouth:"smirk",pupil:1.5},
  neutral:{brow:[0,0],lid:0,mouth:"flat",pupil:0},
  worried:{brow:[4,4],lid:-2,mouth:"oh",pupil:0},
- angry:{brow:[6,-6],lid:3,mouth:"frown",pupil:-1}
+ angry:{brow:[6,-6],lid:3,mouth:"frown",pupil:-1},
+ // G3.5 — the front-page cast: three more moods for late-game drama (parametric, no art).
+ betrayed:{brow:[5,2],lid:-1,mouth:"frown",pupil:-1.5},
+ shocked:{brow:[-5,-5],lid:-4,mouth:"oh",pupil:0},
+ determined:{brow:[5,-4],lid:2,mouth:"flat",pupil:0}
 };
 
 function buildAvatar(a,expr="neutral",sweat=false){
@@ -502,7 +515,21 @@ function startPromotion(){
   S.mode="promo";
   if(ph.promo.type==="finale"){
     S.promo={type:"finale",ph,resolved:false};
-    renderHUD(); renderPromotion(); save(); return;
+    renderHUD(); save();
+    // G3 — the finale is a FINALE broadsheet: the verdict goes to press, your rival on page one.
+    announce("The finale. The verdict goes to press.");
+    sfx("press");
+    const rivalStill=S.path==="iron"?"/art/iron/provost.webp":"/art/"+S.path+"/antagonist.webp";
+    specialEdition({
+      kind:"finale",
+      eyebrow:"FINALE — THE VERDICT GOES TO PRESS",
+      edition:"EXTRA",
+      headline:"THE RECKONING",
+      sub:S.player.name+" versus "+S.opp+" — the nation decides.",
+      still:rivalStill,
+      caption:S.opp,
+    }, renderPromotion);
+    return;
   }
   const _antag=antagonist(S);
   const _hostility=SETTINGS.aiDirector?nemesisContestEdge(S):(_antag?antagonistContestModifier(_antag.relationship):0);
@@ -550,9 +577,19 @@ function advancePhase(){
   S.player.title=curPhase().title;
   assignOpponent();
   maybeRerollWorld();
-  toast("Promoted to "+S.player.title+"!");
   renderHUD();
-  offerCabinet();
+  // G3 — the act break is a SPECIAL EDITION: the press re-plates for a new chapter.
+  announce("Promoted to "+S.player.title+". Special edition.");
+  sfx("press");
+  specialEdition({
+    kind:"act",
+    eyebrow:"SPECIAL EDITION — RE-PLATING THE PRESS",
+    edition:"Vol. "+(("I II III IV V".split(" ")[(S.phase||1)-1])||("Ed. "+S.phase)),
+    headline:String(curPhase().title||"").toUpperCase(),
+    sub:S.player.name+" ascends — a new chapter goes to print.",
+    still:"/art/cinematic/hero-title.webp",
+    caption:PATHS[S.path].land,
+  }, offerCabinet);
 }
 
 /* ---- cabinet: appoint an advisor at each promotion ---- */
@@ -690,7 +727,11 @@ function portrait(av,mood="neutral",sweat=false,alt=""){
   if(typeof av==="string") return safeAvatar(av);
   return avatarHtml(av,mood,{sweat,alt,fallback:buildAvatar});
 }
-function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); try{window.scrollTo(0,0);}catch(e){} }
+function go(name){ $$(".screen").forEach(s=>s.classList.remove("active")); const t=$("#screen-"+name); if(t)t.classList.add("active"); pressSweep(); try{window.scrollTo(0,0);}catch(e){} }
+// G1 — The Press Run: the ink-roller bar sweeps across on every screen change (the
+// press physically running). Re-trigger by reflowing the class; reduced-motion CSS
+// short-circuits the animation to an instant swap.
+function pressSweep(){ const bar=$("#press-bar"); if(!bar) return; bar.classList.remove("run"); void bar.offsetWidth; bar.classList.add("run"); }
 /* ---- accessibility: live announcements + focus management (Phase 5) ---- */
 function announce(msg){ const el=document.getElementById("a11y-live"); if(el){ el.textContent=""; el.textContent=String(msg==null?"":msg); } }
 function focusHeading(sel){ const el=$(sel); if(el){ el.setAttribute("tabindex","-1"); try{ el.focus({preventScroll:true}); }catch(e){} } }
@@ -738,9 +779,22 @@ function blocStripHtml(){
   </div>`).join("");
 }
 let _lastHudMood=null; // last rendered HUD-avatar expression; gates the expr-change pulse
+// G2 — The Pressroom Runs Hot: one 0..1 signal that makes the whole press react to
+// the stakes — the act you're in, how close you are to the next promotion, and how
+// hot the heat is. Pure/read-only, computed post-draw, never touches the seeded RNG.
+function pressIntensity(){
+  if(!S) return 0;
+  const st=S.stats||{};
+  const heat=Math.max(0,Math.min(1,(st.heat||0)/100));
+  const act=Math.max(0,Math.min(1,((S.phase||1)-1)/2));
+  const cp=curPhase(); const gt=(cp&&cp.goalTurns)||1;
+  const approach=Math.max(0,Math.min(1,(S.phaseTurn||0)/gt));
+  return Math.max(0,Math.min(1, 0.34*act + 0.30*approach + 0.36*heat));
+}
 function renderHUD(){
   if(!S) return;
   try{ document.body.dataset.phase = String(S.phase||1); }catch(e){} // print-fidelity ramp (Overprint)
+  try{ document.body.style.setProperty('--intensity', pressIntensity().toFixed(3)); }catch(e){} // G2 crescendo signal
   const P=PATHS[S.path], ph=curPhase(), m=moodExpr();
   const ava=portrait(S.player.avatar,m.expr,m.sweat,"Your character");
   $("#hud").innerHTML=`
@@ -791,10 +845,13 @@ function onCivChange(){ try{ save(); }catch(e){} try{ renderHUD(); }catch(e){} }
 function renderTicker(){
   const el=$("#ticker"); if(!el) return;
   const items=pickHeadlines(S);
-  if(!items.length){ el.innerHTML=""; return; }
+  const lead=stopPressLead(S);
+  if(!items.length && !lead){ el.innerHTML=""; return; }
+  // STOP PRESS: the paper leads with what you just did (G1 — The Press Run).
+  const stop=lead?`<span class="tk-stop">STOP PRESS</span><span class="tk-item tk-lead">${esc(lead)}</span><span class="tk-dot">•</span>`:"";
   // Two copies of the sequence so the CSS marquee can loop seamlessly.
   const seq=items.map(h=>`<span class="tk-item">${esc(h)}</span>`).join('<span class="tk-dot">•</span>');
-  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${seq}</div>`;
+  el.innerHTML=`<div class="tk-track"><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}<span class="tk-dot">•</span><span class="tk-tag">VELMORA WIRE</span>${stop}${seq}</div>`;
 }
 function spawnDelta(x,y,d,good){
   const el=document.createElement("div");
@@ -821,22 +878,42 @@ function choiceHtml(c,i){
 function defaultKicker(art){
   return ({newspaper:"Front Page",bulletin:"Breaking",crisis:"Crisis",rival:"A Rival Moves",scene:"A Decision"})[art]||"A Decision";
 }
+// G3.5 — is this speaker the recurring antagonist? If so, return the player's
+// relationship with them (-100..+100) so their face + the frame can react; else null.
+function rivalRelationship(S,s){
+  const a=antagonist(S);
+  if(!a || !s) return null;
+  const isRival=(s.avatar&&s.avatar.id&&s.avatar.id===S.path+"_antagonist")||(s.name&&s.name===S.opp);
+  return isRival?(typeof a.relationship==="number"?a.relationship:0):null;
+}
+let _lastEvId=null;
 function renderEvent(ev){
   const art=ev.art||"scene";
+  // G1: slam-in only when the event actually CHANGES — HUD-driven re-paints rebuild
+  // #stage but must not replay the entry animation (the recon-flagged jank).
+  const isNew=ev.id!==_lastEvId; _lastEvId=ev.id;
   const body=typeof ev.body==="function"? ev.body(S): ev.body;
   let head;
   if(art==="newspaper"){
     head=`<div class="ev-head">
         <div class="masthead">THE VELMORA HERALD</div>
-        <div class="dateline"><span>Year ${S.totalTurns+1}</span><span>${esc((ev.kicker||"FRONT PAGE").toUpperCase())}</span></div>
+        <div class="dateline"><span>Vol. ${("I II III IV V".split(" ")[(S.phase||1)-1])||"I"} · No. ${S.totalTurns+1} · Yr ${S.totalTurns+1}</span><span>${esc((ev.kicker||"FRONT PAGE").toUpperCase())}</span></div>
       </div>`;
   } else {
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
   }
   let sp="", voiceKey=ev.id;
-  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr); sp=`<div class="ev-speaker"><div class="sp-ava">${portrait(s.avatar,se.expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`; }
+  if(ev.speaker){ const s=ev.speaker(S); voiceKey=s.name||ev.id; const se=speakerExpr(ev.art,s.expr);
+    // G3.5 — the front-page cast: if the recurring rival is speaking (and the author
+    // didn't pin an expression), their face reads the relationship meter you've moved
+    // all game, plus a hostile/warm frame accent.
+    let expr=se.expr, accent="";
+    const rel=rivalRelationship(S,s);
+    if(rel!==null && !s.expr){ const r=reactionExpr(rel); expr=r.expr; accent=r.accent; }
+    sp=`<div class="ev-speaker${accent?" react-"+accent:""}"><div class="sp-ava">${portrait(s.avatar,expr,se.sweat,s.name||"")}</div><div><div class="sp-name">${esc(s.name)}</div><div class="sp-role">${esc(s.role||"")}</div></div></div>`;
+  }
   const choices=ev.choices.map((c,i)=>choiceHtml(c,i)).join("");
-  $("#stage").innerHTML=`<div class="ev ${art}">
+  $("#stage").innerHTML=`<div class="ev ${art}${isNew?' ev-in':''}">
     ${head}
     <div class="ev-body">
       <h3 class="ev-title">${esc(ev.title)}</h3>
@@ -898,9 +975,19 @@ function renderPromotion(){
       <span class="c-fx"><span class="fxchip ${used?'lock':'up'}">${used?'✓ used':'+'+b.gain+'% odds'}</span>${used?'':costChips(b)}</span>
     </button>`;
   }).join("");
+  // G3.5 — FACE-OFF: you and your rival meet on a split front page. Your rival's face
+  // reads the relationship you've moved all game; you wear a determined set.
+  const _antagFO=antagonist(S);
+  const _oppReact=reactionExpr(_antagFO&&typeof _antagFO.relationship==="number"?_antagFO.relationship:0);
+  const faceoff=`<div class="faceoff faceoff-in">
+      <div class="fo-side fo-left"><div class="fo-ava">${portrait(S.player.avatar,"determined",false,"You")}</div><span class="fo-name">${esc(S.player.name)}</span></div>
+      <div class="fo-vs"><span class="fo-stamp">RECKONING</span></div>
+      <div class="fo-side fo-right ${_oppReact.accent?'fo-'+_oppReact.accent:''}"><div class="fo-ava">${portrait(pr.opp.avatar,_oppReact.expr,false,pr.opp.name)}</div><span class="fo-name">${esc(pr.opp.name)}</span></div>
+    </div>`;
   $("#stage").innerHTML=`<div class="promo">
     <div class="promo-head"><div class="pe">${ph.promo.emoji}</div><h3>${esc(ph.promo.label)}</h3><div class="ps">vs ${esc(pr.opp.name)} · ${esc(pr.opp.disposition||ph.promo.oppTitle)}</div></div>
     <div class="promo-body">
+      ${faceoff}
       <div class="odds"><div class="meter"><div class="me" style="width:${wc}%"></div></div><div class="pct">${wc}%</div></div>
       <p style="font-family:var(--font-m);font-size:.7rem;color:var(--ink-soft);margin:0 0 12px;line-height:1.5">Spend resources to swing the odds — each move works once. Then commit to the contest.</p>
       <div class="choices" style="padding:0 0 12px">${boosts}</div>
@@ -1467,6 +1554,7 @@ function sfx(name){
   switch(name){
     case "click":   blip(330,0,0.09,"triangle",0.09); break;
     case "promote": [523.25,659.25,783.99].forEach((f,i)=>blip(f,i*0.07,0.18,"triangle",0.11)); break;
+    case "press":   blip(147,0,0.15,"square",0.10); blip(587.33,0.06,0.22,"triangle",0.09); break;
     case "fail":    [330,247,196].forEach((f,i)=>blip(f,i*0.12,0.30,"sawtooth",0.10)); break;
     case "win":     [523.25,659.25,783.99,1046.5].forEach((f,i)=>blip(f,i*0.09,0.24,"triangle",0.12)); break;
     case "lose":    [392,329.63,261.63].forEach((f,i)=>blip(f,i*0.13,0.32,"sawtooth",0.10)); break;
@@ -1484,7 +1572,11 @@ function confetti(){
     if(themed.length>=4) cols=themed;
   }catch(e){}
   const parts=[];
-  for(let i=0;i<130;i++) parts.push({x:window.innerWidth/2+rint(-70,70),y:window.innerHeight*0.32,vx:rng()*8-4,vy:rng()*-11-3,g:0.28+rng()*0.22,r:rint(5,10),c:pick(cols),rot:rng()*6,vr:rng()*0.3-0.15});
+  // G2 — determinism fix: confetti is purely cosmetic, so it must draw from Math.random,
+  // never the seeded gameplay RNG (rng/rint/pick) — otherwise firing it shifts every
+  // subsequent draw and breaks byte-identical replays.
+  const mr=Math.random, mint=(a,b)=>Math.floor(mr()*(b-a+1))+a, mpick=a=>a[Math.floor(mr()*a.length)];
+  for(let i=0;i<130;i++) parts.push({x:window.innerWidth/2+mint(-70,70),y:window.innerHeight*0.32,vx:mr()*8-4,vy:mr()*-11-3,g:0.28+mr()*0.22,r:mint(5,10),c:mpick(cols),rot:mr()*6,vr:mr()*0.3-0.15});
   let t0=performance.now();
   function frame(t){
     const dt=Math.min(40,t-t0); t0=t;

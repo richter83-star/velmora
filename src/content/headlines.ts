@@ -78,6 +78,29 @@ function reactive(S: GameState, name: string): string[] {
   return out;
 }
 
+/**
+ * STOP-PRESS lead (G1 — The Press Run): the paper narrates the consequence of your
+ * LAST choice, so every turn prints what you actually just did. Pure function of
+ * S.lastResult (event title + roll outcome + tone); never touches the gameplay RNG.
+ * Returns null when there is nothing to report yet (a fresh event / turn one).
+ */
+export function stopPressLead(S: GameState): string | null {
+  const r = (S as unknown as { lastResult?: { title?: string; rollLine?: { win: boolean } | null; tone?: string } | null })
+    .lastResult;
+  if (!r || !r.title) return null;
+  const name = S.player?.name?.trim() || 'the leader';
+  const t = String(r.title).replace(/["'“”]/g, '').trim();
+  if (r.rollLine) {
+    return r.rollLine.win
+      ? `${name}'s gamble on "${t}" pays off — rivals reportedly livid but smiling for the cameras`
+      : `${name}'s "${t}" play BACKFIRES; the vultures begin, as ever, to circle`;
+  }
+  const bad = r.tone === 'bad' || r.tone === 'grim' || r.tone === 'dark';
+  return bad
+    ? `Fallout from "${t}" spreads; ${name}'s office "not, at this time, taking questions"`
+    : `${name} moves on "${t}"; the commentariat pretends to have called it all along`;
+}
+
 /** Take `count` items from `pool` starting at `offset` (wrapping). */
 function rotate(pool: string[], offset: number, count: number): string[] {
   if (!pool.length) return [];

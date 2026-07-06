@@ -121,8 +121,18 @@ button{font-family:var(--font-b);cursor:pointer}
 .hidden{display:none !important}
 
 /* ===== screens ===== */
-.screen{display:none;animation:fadeUp .45s ease both}
-.screen.active{display:block}
+.screen{display:none}
+/* G1 — The Press Run: the incoming screen settles like a fresh sheet coming off the
+   press (a slight rise + set), while the ink-roller BAR (below) carries the wipe. We
+   deliberately avoid clip-path here — clipping the screen to zero width reads as
+   "not visible" to actionability/hit-testing; opacity+transform is the safe reveal. */
+.screen.active{display:block;animation:press-run .5s var(--ease) both}
+@keyframes press-run{0%{opacity:0;transform:translateY(10px) scale(.994)}100%{opacity:1;transform:none}}
+/* The ink-roller bar sweeps across on every screen change (fired by go() -> pressSweep). */
+.press-bar{position:fixed;top:0;bottom:0;left:0;width:55vw;max-width:520px;z-index:70;pointer-events:none;opacity:0;transform:translateX(-200%);
+  background:linear-gradient(100deg,transparent 0%,var(--rp-ink-key) 24%,var(--rp-ink-key) 60%,var(--rp-foil) 86%,transparent 100%)}
+.press-bar.run{animation:press-sweep .5s var(--ease) both}
+@keyframes press-sweep{0%{opacity:.95;transform:translateX(-200%) skewX(-9deg)}100%{opacity:.95;transform:translateX(360%) skewX(-9deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 /* ===== generic cartoon button ===== */
@@ -305,7 +315,9 @@ button{font-family:var(--font-b);cursor:pointer}
 
 /* ===== EVENT CARD — riso broadsheet ===== */
 .stage{position:relative}
-.ev{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden;animation:slam var(--d-slam) var(--ease) both;position:relative}
+.ev{background:var(--rp-paper);border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);box-shadow:var(--rp-shadow-misreg);overflow:hidden;position:relative}
+/* G1: slam-in only on a NEW event (class added by renderEvent), not every re-paint. */
+.ev.ev-in{animation:slam var(--d-slam) var(--ease) both}
 .ev::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);background-size:var(--rp-dot) var(--rp-dot);pointer-events:none;z-index:0}
 .ev>*{position:relative;z-index:1}
 @keyframes slam{0%{opacity:0;transform:scale(.82) rotate(-3deg)}60%{transform:scale(1.02) rotate(.6deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
@@ -498,6 +510,9 @@ body.force-reduce-motion *{animation-duration:.01ms !important;animation-iterati
 body.force-reduce-motion .title-emblem,body.force-reduce-motion .te-rays,body.force-reduce-motion .te-star{animation:none !important}
 body.force-reduce-motion .tk-track{animation:none !important;transform:none !important}
 body.force-reduce-motion .ticker{overflow-x:auto}
+/* G1: the in-app reduce-motion toggle also short-circuits the press-run wipe, the
+   ink-roller sweep, the STOP-PRESS flash, and the event slam to instant swaps. */
+body.force-reduce-motion .screen.active,body.force-reduce-motion .press-bar.run,body.force-reduce-motion .tk-stop,body.force-reduce-motion .ev.ev-in{animation:none !important}
 
 /* high contrast (Settings) — stronger text/border separation */
 body.high-contrast{--ink-soft:#1A1726;--paper:#FFFFFF;--paper-2:#FFF4D6;--paper-3:#FFE9A8}
@@ -524,11 +539,82 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
   font-size:.66rem;letter-spacing:1px;padding:4px 10px;margin:0 14px 0 0;
   border-radius:5px;flex:0 0 auto;
 }
+/* G1 — STOP PRESS: the live lead the crawl opens with (what you just did). */
+.tk-stop{font-family:var(--font-d);background:var(--rp-ink-b);color:var(--rp-paper);font-size:.66rem;letter-spacing:1px;
+  padding:4px 10px;margin:0 12px 0 0;border-radius:5px;flex:0 0 auto;animation:stop-flash 1.1s steps(1) infinite}
+.tk-lead{font-weight:700;color:var(--gold);font-family:var(--font-m)}
+@keyframes stop-flash{0%,60%{opacity:1}61%,100%{opacity:.5}}
 @keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){
   .tk-track{animation:none !important;transform:none !important}
   .ticker{overflow-x:auto}
+  .tk-stop{animation:none !important}
 }
+
+/* ===== G2 — The Pressroom Runs Hot (--intensity, 0..1, written by renderHUD) ===== */
+/* Press-lamp vignette: the room darkens + focuses at the edges as the run runs hotter.
+   Opacity is scaled by the signal (no keyframes) so it is inherently reduced-motion-safe;
+   a slow transition eases the shift when the stakes change. */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:55;
+  background:radial-gradient(ellipse 130% 85% at 50% 2%, transparent 52%, #08060f 128%);
+  opacity:calc(var(--intensity,0) * .5);transition:opacity 1s ease}
+/* The WIRE runs hot: the ticker takes on a red-hot glow as intensity climbs (overrides
+   the base .ticker box-shadow; declared after it so it wins). */
+.ticker{box-shadow:0 0 calc(var(--intensity,0) * 15px) rgba(230,59,91,calc(var(--intensity,0) * .5)),var(--shadow-sm);transition:box-shadow .9s ease}
+
+/* ===== G3 — Special Edition broadsheet takeover (act breaks + finale) ===== */
+.special-edition{position:fixed;inset:0;z-index:125;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+  background:rgba(8,6,15,.82);animation:se-fade .3s ease both}
+.special-edition.se-out{animation:se-fade .2s ease reverse both}
+.se-sheet{background:var(--rp-paper);color:var(--rp-ink-key);border:var(--bw-hero) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg);
+  max-width:520px;width:100%;padding:26px 22px 22px;text-align:center;position:relative;
+  background-image:radial-gradient(var(--rp-halftone) 22%,transparent 23%);background-size:var(--rp-dot) var(--rp-dot);
+  animation:se-slam .55s var(--ease) both}
+.se-sheet>*{position:relative;z-index:1}
+.se-masthead{font-family:var(--font-d);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--rp-ink-key);
+  border-bottom:var(--bw-base) solid var(--rp-ink-key);padding-bottom:8px;margin-bottom:12px}
+.se-eyebrow{font-family:var(--rp-font-stencil);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.7rem;color:var(--rp-ink-b)}
+.se-headline{font-family:var(--font-d);font-size:clamp(2rem,10vw,3.4rem);line-height:.95;text-transform:uppercase;margin:8px 0 4px;
+  color:var(--rp-spot-ink);background:var(--rp-ink-spot);display:inline-block;padding:6px 16px 4px;
+  border:var(--bw-base) solid var(--rp-ink-key);box-shadow:var(--rp-shadow-misreg)}
+.se-sub{font-family:var(--font-m);font-size:.82rem;color:var(--rp-ink-key);margin:14px 4px;line-height:1.5}
+.se-still{margin:0 0 14px;border:var(--bw-base) solid var(--rp-ink-key);overflow:hidden;box-shadow:var(--rp-shadow-misreg)}
+.se-still img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.se-still figcaption{font-family:var(--font-m);font-size:.66rem;letter-spacing:.5px;text-transform:uppercase;background:var(--rp-ink-key);color:var(--rp-paper);padding:5px 8px;text-align:left}
+.se-continue{appearance:none;font-family:var(--font-d);font-size:1rem;letter-spacing:1px;text-transform:uppercase;
+  background:var(--rp-foil);color:var(--rp-ink-key);border:var(--bw-base) solid var(--rp-ink-key);border-radius:var(--r-sm);
+  box-shadow:0 5px 0 var(--rp-ink-key);padding:12px 22px;cursor:pointer;margin-top:2px}
+.se-continue:active{box-shadow:0 1px 0 var(--rp-ink-key);transform:translateY(2px)}
+.se-continue:focus-visible{outline:3px solid var(--rp-ink-b);outline-offset:3px}
+/* the finale runs heavier + shows the rival as a page-one 'wanted poster' portrait */
+.se-finale .se-sheet{background:#F1EAD6}
+.se-finale .se-still{max-width:260px;margin:0 auto 14px;border-width:var(--bw-hero);transform:rotate(-1.2deg)}
+.se-finale .se-still img{aspect-ratio:1/1;object-position:center 24%}
+@keyframes se-fade{from{opacity:0}to{opacity:1}}
+@keyframes se-slam{0%{opacity:0;transform:scale(.86) rotate(-1.4deg)}60%{transform:scale(1.02) rotate(.5deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+body.force-reduce-motion .special-edition,body.force-reduce-motion .se-sheet{animation:none !important}
+
+/* ===== G3.5 — The Front-Page Cast (reaction accents + the FACE-OFF header) ===== */
+/* The recurring rival's speaker frame takes a hostile/warm accent from your relationship. */
+.ev-speaker.react-hostile .sp-ava{box-shadow:0 0 0 3px var(--rp-ink-b),3px 4px 0 var(--rp-ink-key)}
+.ev-speaker.react-warm .sp-ava{box-shadow:0 0 0 3px var(--rp-foil),3px 4px 0 var(--rp-ink-key)}
+/* FACE-OFF: you and your rival meet on a split front page above the contest. */
+.faceoff{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 16px;padding:12px 4px;border-bottom:var(--bw-base) solid var(--rp-ink-key)}
+.fo-side{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1 1 0;min-width:0}
+.fo-ava{width:74px;height:74px;border:3px solid var(--rp-ink-key);border-radius:12px;overflow:hidden;background:var(--rp-paper-2);box-shadow:var(--rp-shadow-misreg)}
+.fo-ava svg,.fo-ava .portrait,.fo-ava img{display:block;width:100%;height:100%;object-fit:cover}
+.fo-name{font-family:var(--font-m);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--rp-ink-key);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fo-right.fo-hostile .fo-ava{border-color:var(--rp-ink-b)}
+.fo-right.fo-warm .fo-ava{border-color:var(--rp-foil)}
+.fo-vs{flex:0 0 auto;display:grid;place-items:center}
+.fo-stamp{font-family:var(--font-d);font-size:.82rem;letter-spacing:1px;text-transform:uppercase;color:var(--rp-spot-ink);background:var(--rp-ink-b);border:2px solid var(--rp-ink-key);border-radius:4px;padding:4px 8px;transform:rotate(-6deg);box-shadow:2px 2px 0 var(--rp-ink-key)}
+.faceoff-in .fo-left{animation:fo-in-left .5s var(--ease) both}
+.faceoff-in .fo-right{animation:fo-in-right .5s var(--ease) both}
+.faceoff-in .fo-stamp{animation:fo-stamp .42s var(--ease) .28s both}
+@keyframes fo-in-left{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes fo-in-right{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes fo-stamp{0%{opacity:0;transform:rotate(-6deg) scale(2.2)}70%{transform:rotate(-6deg) scale(.9)}100%{opacity:1;transform:rotate(-6deg) scale(1)}}
+body.force-reduce-motion .faceoff-in .fo-left,body.force-reduce-motion .faceoff-in .fo-right,body.force-reduce-motion .faceoff-in .fo-stamp{animation:none !important}
 
 /* ---- Civ province map (P2) — read-only top-down board ---- */
 .civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
