@@ -549,6 +549,17 @@ body.high-contrast .set-label span,body.high-contrast .muted,body.high-contrast 
   .tk-stop{animation:none !important}
 }
 
+/* ===== G2 — The Pressroom Runs Hot (--intensity, 0..1, written by renderHUD) ===== */
+/* Press-lamp vignette: the room darkens + focuses at the edges as the run runs hotter.
+   Opacity is scaled by the signal (no keyframes) so it is inherently reduced-motion-safe;
+   a slow transition eases the shift when the stakes change. */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:55;
+  background:radial-gradient(ellipse 130% 85% at 50% 2%, transparent 52%, #08060f 128%);
+  opacity:calc(var(--intensity,0) * .5);transition:opacity 1s ease}
+/* The WIRE runs hot: the ticker takes on a red-hot glow as intensity climbs (overrides
+   the base .ticker box-shadow; declared after it so it wins). */
+.ticker{box-shadow:0 0 calc(var(--intensity,0) * 15px) rgba(230,59,91,calc(var(--intensity,0) * .5)),var(--shadow-sm);transition:box-shadow .9s ease}
+
 /* ---- Civ province map (P2) — read-only top-down board ---- */
 .civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
   box-shadow:var(--rp-shadow-misreg);background:var(--rp-paper-2);overflow:hidden;position:relative}

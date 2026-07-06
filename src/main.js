@@ -742,9 +742,22 @@ function blocStripHtml(){
   </div>`).join("");
 }
 let _lastHudMood=null; // last rendered HUD-avatar expression; gates the expr-change pulse
+// G2 — The Pressroom Runs Hot: one 0..1 signal that makes the whole press react to
+// the stakes — the act you're in, how close you are to the next promotion, and how
+// hot the heat is. Pure/read-only, computed post-draw, never touches the seeded RNG.
+function pressIntensity(){
+  if(!S) return 0;
+  const st=S.stats||{};
+  const heat=Math.max(0,Math.min(1,(st.heat||0)/100));
+  const act=Math.max(0,Math.min(1,((S.phase||1)-1)/2));
+  const cp=curPhase(); const gt=(cp&&cp.goalTurns)||1;
+  const approach=Math.max(0,Math.min(1,(S.phaseTurn||0)/gt));
+  return Math.max(0,Math.min(1, 0.34*act + 0.30*approach + 0.36*heat));
+}
 function renderHUD(){
   if(!S) return;
   try{ document.body.dataset.phase = String(S.phase||1); }catch(e){} // print-fidelity ramp (Overprint)
+  try{ document.body.style.setProperty('--intensity', pressIntensity().toFixed(3)); }catch(e){} // G2 crescendo signal
   const P=PATHS[S.path], ph=curPhase(), m=moodExpr();
   const ava=portrait(S.player.avatar,m.expr,m.sweat,"Your character");
   $("#hud").innerHTML=`
@@ -839,7 +852,7 @@ function renderEvent(ev){
   if(art==="newspaper"){
     head=`<div class="ev-head">
         <div class="masthead">THE VELMORA HERALD</div>
-        <div class="dateline"><span>Year ${S.totalTurns+1}</span><span>${esc((ev.kicker||"FRONT PAGE").toUpperCase())}</span></div>
+        <div class="dateline"><span>Vol. ${("I II III IV V".split(" ")[(S.phase||1)-1])||"I"} · No. ${S.totalTurns+1} · Yr ${S.totalTurns+1}</span><span>${esc((ev.kicker||"FRONT PAGE").toUpperCase())}</span></div>
       </div>`;
   } else {
     head=`<div class="ev-head"><span class="ev-emoji">${ev.emoji||"❓"}</span><span class="ev-kicker">${esc(ev.kicker||defaultKicker(art))}</span></div>`;
@@ -1495,7 +1508,11 @@ function confetti(){
     if(themed.length>=4) cols=themed;
   }catch(e){}
   const parts=[];
-  for(let i=0;i<130;i++) parts.push({x:window.innerWidth/2+rint(-70,70),y:window.innerHeight*0.32,vx:rng()*8-4,vy:rng()*-11-3,g:0.28+rng()*0.22,r:rint(5,10),c:pick(cols),rot:rng()*6,vr:rng()*0.3-0.15});
+  // G2 — determinism fix: confetti is purely cosmetic, so it must draw from Math.random,
+  // never the seeded gameplay RNG (rng/rint/pick) — otherwise firing it shifts every
+  // subsequent draw and breaks byte-identical replays.
+  const mr=Math.random, mint=(a,b)=>Math.floor(mr()*(b-a+1))+a, mpick=a=>a[Math.floor(mr()*a.length)];
+  for(let i=0;i<130;i++) parts.push({x:window.innerWidth/2+mint(-70,70),y:window.innerHeight*0.32,vx:mr()*8-4,vy:mr()*-11-3,g:0.28+mr()*0.22,r:mint(5,10),c:mpick(cols),rot:mr()*6,vr:mr()*0.3-0.15});
   let t0=performance.now();
   function frame(t){
     const dt=Math.min(40,t-t0); t0=t;
