@@ -452,7 +452,7 @@ button{font-family:var(--font-b);cursor:pointer}
   .hud-meta{font-size:.6rem}
 }
 @media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms !important;transition-duration:.08s !important}
+  *{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.08s !important}
   .title-emblem,.te-rays,.te-star{animation:none}
 }
 
@@ -506,7 +506,7 @@ button{font-family:var(--font-b);cursor:pointer}
 .set-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px}
 
 /* forced reduce-motion (Settings override, independent of the OS setting) */
-body.force-reduce-motion *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.08s !important}
+body.force-reduce-motion *{animation-duration:.01ms !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition-duration:.08s !important}
 body.force-reduce-motion .title-emblem,body.force-reduce-motion .te-rays,body.force-reduce-motion .te-star{animation:none !important}
 body.force-reduce-motion .tk-track{animation:none !important;transform:none !important}
 body.force-reduce-motion .ticker{overflow-x:auto}
@@ -615,6 +615,50 @@ body.force-reduce-motion .special-edition,body.force-reduce-motion .se-sheet{ani
 @keyframes fo-in-right{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 @keyframes fo-stamp{0%{opacity:0;transform:rotate(-6deg) scale(2.2)}70%{transform:rotate(-6deg) scale(.9)}100%{opacity:1;transform:rotate(-6deg) scale(1)}}
 body.force-reduce-motion .faceoff-in .fo-left,body.force-reduce-motion .faceoff-in .fo-right,body.force-reduce-motion .faceoff-in .fo-stamp{animation:none !important}
+
+/* ===== G4 — The Paper's Slant: the WIRE re-plates as your organ, or gets censored ===== */
+/* Your fawning gilded organ. */
+.ticker.slant-organ .tk-tag{background:var(--rp-foil);color:var(--rp-ink-key)}
+.ticker.slant-organ .tk-item{color:var(--rp-foil)}
+.ticker.slant-organ .tk-dot{color:var(--rp-foil)}
+/* The free press crushed — a red masthead over a redacted (████) crawl. */
+.ticker.slant-censored .tk-tag{background:var(--rp-ink-b);color:var(--rp-paper);letter-spacing:2px}
+.ticker.slant-censored .tk-item{color:var(--paper)}
+
+/* ===== G5 — The Morgue (the ending, bound into the archive) ===== */
+.over-card.morgue{position:relative}
+.morgue-masthead{font-family:var(--font-d);font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;text-align:center;color:var(--rp-paper);background:var(--rp-ink-key);padding:6px 8px}
+.morgue-filed{position:absolute;top:10px;right:10px;font-family:var(--rp-font-stencil);font-weight:700;font-size:.86rem;letter-spacing:2px;color:var(--rp-spot-ink);border:2.5px solid var(--rp-spot-ink);border-radius:4px;padding:2px 8px;transform:rotate(9deg);opacity:.8}
+/* The Cast Ledger — everyone you faced, with a relationship gauge. */
+.cast-ledger{margin:14px 0}
+.cast-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:2px dotted rgba(26,23,38,.15)}
+.cast-face{flex:0 0 auto;width:38px;height:38px;border:2px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--paper-2);display:grid;place-items:center;font-size:1.1rem}
+.cast-face svg,.cast-face .portrait,.cast-face img{display:block;width:100%;height:100%;object-fit:cover}
+.cast-id{flex:1 1 auto;display:flex;flex-direction:column;min-width:0}
+.cast-name{font-family:var(--font-b);font-weight:700;font-size:.86rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cast-role{font-family:var(--font-m);font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft)}
+.cast-rel{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;width:116px}
+.cast-gauge{width:100%;height:8px;background:var(--paper-3);border:1.5px solid var(--ink);border-radius:5px;overflow:hidden}
+.cast-fill{display:block;height:100%;background:var(--ink-soft);animation:cast-fill-in .8s var(--ease) both}
+.cast-warm .cast-fill{background:var(--rp-foil)}
+.cast-hostile .cast-fill{background:var(--rp-ink-b)}
+.cast-band{font-family:var(--font-m);font-size:.58rem;color:var(--ink-soft);text-align:right;line-height:1.15}
+@keyframes cast-fill-in{from{width:0}}
+/* The sections turn in like bound pages. */
+.morgue-in>*{animation:morgue-page .5s var(--ease) both}
+.morgue-in>*:nth-child(2){animation-delay:.07s}
+.morgue-in>*:nth-child(3){animation-delay:.14s}
+.morgue-in>*:nth-child(4){animation-delay:.21s}
+.morgue-in>*:nth-child(5){animation-delay:.28s}
+.morgue-in>*:nth-child(6){animation-delay:.35s}
+.morgue-in>*:nth-child(7){animation-delay:.42s}
+.morgue-in>*:nth-child(8){animation-delay:.49s}
+.morgue-in>*:nth-child(n+9){animation-delay:.56s}
+@keyframes morgue-page{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.fin-card{text-align:center;margin:18px 0 2px;padding:16px;border-top:var(--bw-base) solid var(--rp-ink-key)}
+.fin-word{display:block;font-family:var(--font-d);font-size:2.4rem;letter-spacing:6px;color:var(--rp-ink-key)}
+.fin-sub{display:block;font-family:var(--font-m);font-size:.64rem;text-transform:uppercase;letter-spacing:2px;color:var(--ink-soft);margin-top:4px}
+body.force-reduce-motion .morgue-in>*,body.force-reduce-motion .cast-fill{animation:none !important}
 
 /* ---- Civ province map (P2) — read-only top-down board ---- */
 .civ-map{margin:12px 0 0;border:var(--bw-hero) solid var(--rp-ink-key);border-radius:var(--radius);
