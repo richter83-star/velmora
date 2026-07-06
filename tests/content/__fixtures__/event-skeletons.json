@@ -3483,6 +3483,333 @@
     "title": "",
     "weight": 34
   },
+  "arc_nemesis_0": {
+    "arc": {
+      "id": "nemesis",
+      "stage": 0
+    },
+    "art": "rival",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 1
+        },
+        "fx": {
+          "base": 4,
+          "heat": 6
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": -20
+        },
+        "result": "",
+        "set": {
+          "nemesis_engaged": true
+        },
+        "tone": "bold"
+      },
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 99
+        },
+        "fx": {
+          "media": 4,
+          "support": 4
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": 14
+        },
+        "result": "",
+        "set": {
+          "nemesis_truce_early": true
+        },
+        "tone": "good"
+      }
+    ],
+    "emoji": "🔪",
+    "id": "arc_nemesis_0",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      1,
+      2
+    ],
+    "speaker": "__fn__:(S) => ({ name: S.opp, role: \"your rival\", avatar: S.oppAvatar })",
+    "title": "",
+    "weight": 30
+  },
+  "arc_nemesis_1": {
+    "arc": {
+      "id": "nemesis",
+      "stage": 1
+    },
+    "art": "crisis",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 2
+        },
+        "fx": {
+          "funds": -6,
+          "heat": 14,
+          "media": 4
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": -24
+        },
+        "result": "",
+        "set": {
+          "blackmailer": true,
+          "nemesis_war": true
+        },
+        "tone": "slick"
+      },
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 99
+        },
+        "fx": {
+          "funds": -10,
+          "influence": 8
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": 20
+        },
+        "result": "",
+        "set": {
+          "has_network": true,
+          "nemesis_pact": true
+        },
+        "tone": "slick"
+      }
+    ],
+    "emoji": "🩸",
+    "id": "arc_nemesis_1",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "speaker": "__fn__:(S) => ({ name: S.opp, role: \"your rival\", avatar: S.oppAvatar })",
+    "title": "",
+    "weight": 32
+  },
+  "arc_nemesis_2": {
+    "arc": {
+      "id": "nemesis",
+      "stage": 2
+    },
+    "art": "rival",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 99
+        },
+        "fx": {
+          "base": 6,
+          "heat": 12,
+          "support": -4
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": -30
+        },
+        "result": "",
+        "set": {
+          "bloody_hands": true,
+          "nemesis_destroyed": true
+        },
+        "tone": "dark"
+      },
+      {
+        "arcSet": {
+          "id": "nemesis",
+          "stage": 99
+        },
+        "fx": {
+          "media": 6,
+          "support": 8
+        },
+        "label": "",
+        "npcFx": {
+          "id": "antagonist",
+          "relationship": 10
+        },
+        "result": "",
+        "set": {
+          "nemesis_spared": true,
+          "peacemaker": true
+        },
+        "tone": "bold"
+      }
+    ],
+    "emoji": "⚔️",
+    "id": "arc_nemesis_2",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "speaker": "__fn__:(S) => ({ name: S.opp, role: \"your rival\", avatar: S.oppAvatar, expr: \"betrayed\" })",
+    "title": "",
+    "weight": 34
+  },
+  "arc_defector_0": {
+    "arc": {
+      "id": "defector",
+      "stage": 0
+    },
+    "art": "scene",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "defector",
+          "stage": 1
+        },
+        "fx": {
+          "base": 4,
+          "influence": 10
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "defector_empowered": true
+        },
+        "tone": "bold"
+      },
+      {
+        "arcSet": {
+          "id": "defector",
+          "stage": 99
+        },
+        "fx": {
+          "base": -2,
+          "influence": 4
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "defector_leashed": true
+        },
+        "tone": "slick"
+      }
+    ],
+    "emoji": "🤝",
+    "id": "arc_defector_0",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      1,
+      2
+    ],
+    "title": "",
+    "weight": 28
+  },
+  "arc_defector_1": {
+    "arc": {
+      "id": "defector",
+      "stage": 1
+    },
+    "art": "crisis",
+    "body": "",
+    "choices": [
+      {
+        "arcSet": {
+          "id": "defector",
+          "stage": 99
+        },
+        "fx": {
+          "base": 6,
+          "heat": 12,
+          "support": -4
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "bloody_hands": true,
+          "defector_crushed": true
+        },
+        "tone": "dark"
+      },
+      {
+        "arcSet": {
+          "id": "defector",
+          "stage": 99
+        },
+        "fx": {
+          "funds": -8,
+          "media": 4,
+          "support": 6
+        },
+        "label": "",
+        "result": "",
+        "set": {
+          "defector_reconciled": true,
+          "peacemaker": true
+        },
+        "tone": "good"
+      }
+    ],
+    "emoji": "🎭",
+    "id": "arc_defector_1",
+    "kicker": "",
+    "paths": [
+      "ballot",
+      "vanguard",
+      "iron",
+      "gilded",
+      "anointed"
+    ],
+    "phases": [
+      2,
+      3
+    ],
+    "title": "",
+    "weight": 30
+  },
   "npc_rival_overture": {
     "art": "rival",
     "body": "__fn__:(S) => `${S.opp}`",

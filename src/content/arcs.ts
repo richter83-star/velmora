@@ -1,6 +1,7 @@
 import type { ArcDef, GameEvent } from '../engine/types';
 import { DARK_MIRROR_ARCS, DARK_MIRROR_ARC_EVENTS } from './arcs-dark-mirrors';
 import { EXTRA_ARCS, EXTRA_ARC_EVENTS } from './arcs-extra';
+import { NEMESIS_ARCS, NEMESIS_ARC_EVENTS } from './arcs-nemesis';
 
 /**
  * Arc registry (metadata for validation + the future codex). The actual steps
@@ -25,6 +26,7 @@ export const ARCS: ArcDef[] = [
   },
   ...DARK_MIRROR_ARCS,
   ...EXTRA_ARCS,
+  ...NEMESIS_ARCS,
 ];
 
 /**
@@ -253,4 +255,5 @@ export const ARC_EVENTS: GameEvent[] = [
   },
   ...DARK_MIRROR_ARC_EVENTS,
   ...EXTRA_ARC_EVENTS,
+  ...NEMESIS_ARC_EVENTS,
 ];

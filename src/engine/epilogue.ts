@@ -85,12 +85,28 @@ export function buildEpilogue(S: GameState): string[] {
     if (out.length >= 3) break;
   }
 
+  // Curtain call for the rival — the G6 nemesis arc's outcome wins (specific, named),
+  // falling back to the relationship the run happened to end on.
   const a = S.antagonistId ? S.npcs?.[S.antagonistId] : undefined;
   if (a) {
-    if (a.relationship >= 30) out.push(`Your old rival, ${a.name}, spoke warmly of you in the end.`);
+    const n = a.name;
+    if (flag(S, 'nemesis_destroyed'))
+      out.push(`${n}, the rival who climbed beside you the whole way, ended with nothing — and everyone knew, to the inch, that you had arranged the fall.`);
+    else if (flag(S, 'nemesis_spared'))
+      out.push(`You beat ${n} and then, unbearably, let them live; the mercy became the most-quoted thing about you.`);
+    else if (flag(S, 'nemesis_pact'))
+      out.push(`${n}, the enemy you turned into a partner, outlasted the alliance itself — and told the story differently every year.`);
+    else if (flag(S, 'nemesis_truce_early'))
+      out.push(`The rivalry with ${n} that might have defined you fizzled early; the missing feud quietly disappointed the historians.`);
+    else if (a.relationship >= 30) out.push(`Your old rival, ${n}, spoke warmly of you in the end.`);
     else if (a.relationship <= -40)
-      out.push(`${a.name}, your nemesis to the last, spent their remaining years working to erase you.`);
+      out.push(`${n}, your nemesis to the last, spent their remaining years working to erase you.`);
   }
+  // Curtain call for the deputy (the G6 defector arc).
+  if (flag(S, 'defector_crushed'))
+    out.push('Wren Osei, the deputy who turned on you, was made a lesson — thorough, public, and studied carefully by everyone who came after.');
+  else if (flag(S, 'defector_reconciled'))
+    out.push('Wren Osei, who once stood with the opposition holding a folder of your sins, closed it, came home, and outlived every enemy you had left.');
 
   out.push(
     S.path === 'vanguard'

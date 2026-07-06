@@ -17,7 +17,7 @@ describe('arc registry coverage (every arc, present + future)', () => {
   it('lists all expected arc ids', () => {
     const ids = ARCS.map((a) => a.id).sort();
     expect(ids).toEqual(
-      ['cult', 'harbor', 'leverage', 'marshal', 'miracle', 'patron', 'tape'].sort(),
+      ['cult', 'defector', 'harbor', 'leverage', 'marshal', 'miracle', 'nemesis', 'patron', 'tape'].sort(),
     );
   });
 
